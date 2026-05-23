@@ -424,15 +424,16 @@ void CPipebomb::SecondaryAttack( void )
 
 			edict_t *pPlayer = m_pPlayer->edict();
 
-			CBaseEntity *pSatchel = NULL;
+			CBaseEntity *pEnt = NULL;
 
-			while( ( pSatchel = UTIL_FindEntityInSphere( pSatchel, m_pPlayer->pev->origin, 4096 )) != NULL )
+			while( ( pEnt = UTIL_FindEntityInSphere( pEnt, m_pPlayer->pev->origin, 4096 )) != NULL )
 			{
-				if( FClassnameIs( pSatchel->pev, "monster_satchel" ))
+				if( FClassnameIs( pEnt->pev, "monster_satchel" ))
 				{
-					if( pSatchel->pev->owner == pPlayer )
+					CPipebombCharge *pPipebomb = (CPipebombCharge *)pEnt;
+					if( pPipebomb->m_hOwner->edict() == pPlayer )
 					{
-						pSatchel->Use( m_pPlayer, m_pPlayer, USE_ON, 0 );
+						pPipebomb->Use( m_pPlayer, m_pPlayer, USE_ON, 0 );
 					}
 				}
 			}
