@@ -60,7 +60,7 @@ template<>
 inline float UByteswap( float& n )
 {
 	float u;
-	memcpy(&u, &n, sizeof(u) );
+	memcpy( &u, &n, sizeof(u) );
 	return SwapFloat( u );
 }
 
@@ -69,7 +69,15 @@ template<typename T>
 inline void UByteswapSW( T& n )
 {
 	T u = UByteswap( n );
-	memcpy(&n, &u, sizeof(u) );
+	memcpy( &n, &u, sizeof(u) );
+}
+
+template<typename T>
+inline T Unaligned( T& x )
+{
+	T y;
+	memcpy( &y, &x, sizeof( y ) );
+	return y;
 }
 
 #ifdef XASH_BIG_ENDIAN
