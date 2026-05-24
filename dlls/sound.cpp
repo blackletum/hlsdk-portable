@@ -995,7 +995,7 @@ void SOUNDTRACKLIST_Init()
 		return;
 
 	// for each line in the file...
-	while( memfgets( pMemFile, fileSize, filePos, buffer, 511 ) != NULL && j < 30 )
+	while( PM_memfgets( pMemFile, fileSize, &filePos, buffer, 511 ) != NULL && j < 30 )
 	{
 		char *pos;
 
