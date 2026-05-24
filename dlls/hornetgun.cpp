@@ -532,7 +532,7 @@ int CHgun::GetItemInfo( ItemInfo *p )
 {
 	p->pszName = STRING( pev->classname );
 	p->pszAmmo1 = "Hornets";
-	p->iMaxAmmo1 = m_iMaxammo;
+	p->iMaxAmmo1 = (bm_hornet_mod.value) ? 12 : 8;
 	p->pszAmmo2 = NULL;
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
