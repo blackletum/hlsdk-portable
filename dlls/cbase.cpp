@@ -497,9 +497,13 @@ CBaseEntity * EHANDLE::operator -> ()
 	return (CBaseEntity *)GET_PRIVATE( Get() ); 
 }
 
-// give health
+//give health
 int CBaseEntity::TakeHealth( float flHealth, int bitsDamageType )
 {
+	//Atomizer - I want to return the amount of health healed
+	int HealedAmount;
+	//Atom
+
 	if( !pev->takedamage )
 		return 0;
 
@@ -507,12 +511,23 @@ int CBaseEntity::TakeHealth( float flHealth, int bitsDamageType )
 	if( pev->health >= pev->max_health )
 		return 0;
 
-	pev->health += flHealth;
+	//Atomizer - Healed amount calculated here
+	HealedAmount = pev->max_health - pev->health;
+
+	//If the health to be given is less then HealedAmount,
+	//make sure it returns the right value
+	if( HealedAmount >= flHealth )
+		HealedAmount = flHealth;
+	//Not important, but just wanted a place to store it *G*
+	//.14.[..Counter-Life. - Final test release, and I am sticking to this date, even if it isnt finished:.Monday at 12pm GMT+10. : Final Release:.Tuesday at 12pm GMT+10..] ::: [.http://www.botepidemic.com/csbots/.]
+	//Atom
+
+	pev->health += HealedAmount;
 
 	if( pev->health > pev->max_health )
 		pev->health = pev->max_health;
 
-	return 1;
+	return HealedAmount;//1; Atomizer
 }
 
 // inflict damage on this entity.  bitsDamageType indicates type of damage inflicted, ie: DMG_CRUSH

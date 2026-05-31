@@ -186,17 +186,14 @@ class CItemSuit : public CItem
 	void Precache( void )
 	{
 		PRECACHE_MODEL( "models/w_suit.mdl" );
+		PRECACHE_SOUND( "radio/letsgo.wav" ); //Haunter
 	}
 	BOOL MyTouch( CBasePlayer *pPlayer )
 	{
 		if( pPlayer->pev->weapons & ( 1<<WEAPON_SUIT ) )
 			return FALSE;
 
-		if( pev->spawnflags & SF_SUIT_SHORTLOGON )
-			EMIT_SOUND_SUIT( pPlayer->edict(), "!HEV_A0" );		// short version of suit logon,
-		else
-			EMIT_SOUND_SUIT( pPlayer->edict(), "!HEV_AAx" );	// long version of suit logon
-
+		EMIT_SOUND( pPlayer->edict(), CHAN_ITEM, "radio/letsgo.wav", 1, ATTN_NORM ); //Haunter
 		pPlayer->pev->weapons |= ( 1 << WEAPON_SUIT );
 		return TRUE;
 	}
@@ -215,7 +212,7 @@ class CItemBattery : public CItem
 	void Precache( void )
 	{
 		PRECACHE_MODEL( "models/w_battery.mdl" );
-		PRECACHE_SOUND( "items/gunpickup2.wav" );
+		PRECACHE_SOUND( "items/kevlar.wav" );
 	}
 	BOOL MyTouch( CBasePlayer *pPlayer )
 	{
@@ -228,12 +225,11 @@ class CItemBattery : public CItem
 			( pPlayer->pev->weapons & ( 1 << WEAPON_SUIT ) ) )
 		{
 			int pct;
-			char szcharge[64];
 
 			pPlayer->pev->armorvalue += gSkillData.batteryCapacity;
 			pPlayer->pev->armorvalue = Q_min( pPlayer->pev->armorvalue, MAX_NORMAL_BATTERY );
 
-			EMIT_SOUND( pPlayer->edict(), CHAN_ITEM, "items/gunpickup2.wav", 1, ATTN_NORM );
+			EMIT_SOUND( pPlayer->edict(), CHAN_ITEM, "items/kevlar.wav", 1, ATTN_NORM );
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev );
 				WRITE_STRING( STRING( pev->classname ) );
@@ -246,10 +242,6 @@ class CItemBattery : public CItem
 			if( pct > 0 )
 				pct--;
 
-			sprintf( szcharge,"!HEV_%1dP", pct );
-
-			//EMIT_SOUND_SUIT( ENT( pev ), szcharge );
-			pPlayer->SetSuitUpdate( szcharge, FALSE, SUIT_NEXT_IN_30SEC);
 			return TRUE;
 		}
 		return FALSE;
@@ -272,8 +264,6 @@ class CItemAntidote : public CItem
 	}
 	BOOL MyTouch( CBasePlayer *pPlayer )
 	{
-		pPlayer->SetSuitUpdate( "!HEV_DET4", FALSE, SUIT_NEXT_IN_1MIN );
-
 		pPlayer->m_rgItems[ITEM_ANTIDOTE] += 1;
 		return TRUE;
 	}
@@ -313,6 +303,7 @@ class CItemLongJump : public CItem
 	void Precache( void )
 	{
 		PRECACHE_MODEL( "models/w_longjump.mdl" );
+		PRECACHE_SOUND( "radio/letsgo.wav" ); //Haunter
 	}
 	BOOL MyTouch( CBasePlayer *pPlayer )
 	{
@@ -326,16 +317,218 @@ class CItemLongJump : public CItem
 			pPlayer->m_fLongJump = TRUE;// player now has longjump module
 
 			g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict(), "slj", "1" );
+			EMIT_SOUND( pPlayer->edict(), CHAN_ITEM, "radio/letsgo.wav", 1, ATTN_NORM ); //Haunter
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev );
 				WRITE_STRING( STRING( pev->classname ) );
 			MESSAGE_END();
 
-			EMIT_SOUND_SUIT( pPlayer->edict(), "!HEV_A1" );	// Play the longjump sound UNDONE: Kelly? correct sound?
-			return TRUE;		
+			return TRUE;
 		}
 		return FALSE;
 	}
 };
 
 LINK_ENTITY_TO_CLASS( item_longjump, CItemLongJump )
+
+class CBigMoney : public CBasePlayerItem
+{
+	void Spawn( void )
+	{
+		Precache( );
+		// motor
+		pev->movetype = MOVETYPE_TOSS;
+		pev->solid = SOLID_TRIGGER;
+		UTIL_SetOrigin( pev, pev->origin );
+		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
+
+		SET_MODEL(ENT(pev), "models/w_backpack.mdl");
+
+		SetTouch( &CBigMoney::GiveTouch );
+
+		pev->takedamage		= DAMAGE_NO;
+
+		//pev->dmg = 100;//Base money value
+		if( CVAR_GET_FLOAT("cl_getcash") == 1 )
+		{
+			m_iAmount = 250;
+		}
+		else if( CVAR_GET_FLOAT("cl_getcash") != 1 )
+		{
+			m_iAmount = 1500;
+		}
+	}
+	void Precache( void )
+	{
+		PRECACHE_MODEL ("models/w_backpack.mdl");
+		PRECACHE_SOUND("items/flip.wav");
+	}
+	void EXPORT GiveTouch( CBaseEntity *pOther )
+	{
+		if( pOther->IsPlayer() )
+		{
+			CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+
+			if( g_pGameRules->IsMultiplayer() )
+			{
+				if( pPlayer->m_iMoney < MP_MAXMONEY )
+				{
+					pev->model = iStringNull;// make invisible
+					SetThink( &CBaseEntity::SUB_Remove );
+					SetTouch( NULL );
+					pev->nextthink = gpGlobals->time + 0.1;
+
+					pPlayer->m_iMoney += 1500;
+					if( pPlayer->m_iMoney > MP_MAXMONEY )
+						pPlayer->m_iMoney = MP_MAXMONEY;
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/flip.wav", 1, ATTN_NORM);
+				}
+			}
+			else
+			{
+				if( pPlayer->m_iMoney < CVAR_GET_FLOAT("cl_maxmoney") )
+				{
+					if( CVAR_GET_FLOAT("cl_maxmoney") > 950000000 )
+					{
+						return;
+					}
+					else
+					{
+						pev->model = iStringNull;// make invisible
+						SetThink( &CBaseEntity::SUB_Remove );
+						SetTouch( NULL );
+						pev->nextthink = gpGlobals->time + 0.1;
+						if( CVAR_GET_FLOAT("cl_getcash") == 1 )
+						{
+							pPlayer->m_iMoney += 250;
+						}
+						else if( CVAR_GET_FLOAT("cl_getcash") != 1 )
+						{
+							pPlayer->m_iMoney += 1500;
+						}
+						EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/flip.wav", 1, ATTN_NORM);
+					}
+				}
+			}
+		}
+	}
+	short int m_iAmount;
+};
+
+//LINK_ENTITY_TO_CLASS( weaponbox, CBigMoney );
+
+class CTempMoney : public CBasePlayerItem
+{
+	void Spawn( void )
+	{
+		Precache( );
+		// motor
+		pev->movetype = MOVETYPE_TOSS;
+		pev->solid = SOLID_TRIGGER;
+		UTIL_SetOrigin( pev, pev->origin );
+		UTIL_SetSize(pev, Vector(-16, -16, 0), Vector(16, 16, 16));
+
+
+		SET_MODEL(ENT(pev), "models/money.mdl");
+
+		SetTouch( &CTempMoney::GiveTouch );
+
+		pev->takedamage		= DAMAGE_NO;
+
+		//pev->dmg = 100;//Base money value
+		if( CVAR_GET_FLOAT("cl_getcash") == 1 )
+		{
+			m_iAmount = 50;
+		}
+		else if( CVAR_GET_FLOAT("cl_getcash") != 1 )
+		{
+			m_iAmount = 300;
+		}
+	}
+	void Precache( void )
+	{
+		PRECACHE_MODEL ("models/money.mdl");
+		PRECACHE_SOUND("items/flip.wav");
+	}
+	void EXPORT GiveTouch( CBaseEntity *pOther )
+	{
+		if( pOther->IsPlayer() )
+		{
+			CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+
+			if( g_pGameRules->IsMultiplayer() )
+			{
+				if( pPlayer->m_iMoney < MP_MAXMONEY )
+				{
+					pev->model = iStringNull;// make invisible
+					SetThink( &CBaseEntity::SUB_Remove );
+					SetTouch( NULL );
+					pev->nextthink = gpGlobals->time + 0.1;
+
+					pPlayer->m_iMoney += 300;
+					if( pPlayer->m_iMoney > MP_MAXMONEY )
+						pPlayer->m_iMoney = MP_MAXMONEY;
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/flip.wav", 1, ATTN_NORM);
+				}
+			}
+			else
+			{
+				if( pPlayer->m_iMoney < CVAR_GET_FLOAT("cl_maxmoney") )
+				{
+					if( CVAR_GET_FLOAT("cl_maxmoney") > 950000000 )
+					{
+						return;
+					}
+					else
+					{
+						pev->model = iStringNull;// make invisible
+						SetThink( &CBaseEntity::SUB_Remove );
+						SetTouch( NULL );
+						pev->nextthink = gpGlobals->time + 0.1;
+						if( CVAR_GET_FLOAT("cl_getcash") == 1 )
+						{
+							pPlayer->m_iMoney += 50;
+						}
+						else if( CVAR_GET_FLOAT("cl_getcash") != 1 )
+						{
+							pPlayer->m_iMoney += 300;
+						}
+						EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/flip.wav", 1, ATTN_NORM);
+					}
+				}
+			}
+		}
+	}
+	short int m_iAmount;
+};
+
+LINK_ENTITY_TO_CLASS( weapon_crossbow, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_crossbow, CTempMoney )
+//Knife - LINK_ENTITY_TO_CLASS( weapon_crowbar, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_hornetgun, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_egon, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_egonclip, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_gauss, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_gaussclip, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_glock, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_9mmhandgun, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_glockclip, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_9mmclip, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_handgrenade, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_mp5, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_9mmAR, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_mp5clip, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_9mmAR, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_9mmbox, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_mp5grenades, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_ARgrenades, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_python, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_357, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_357, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_rpg, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_rpgclip, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_satchel, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_shotgun, CTempMoney )
+LINK_ENTITY_TO_CLASS( ammo_buckshot, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_snark, CTempMoney )
+LINK_ENTITY_TO_CLASS( weapon_tripmine, CTempMoney )

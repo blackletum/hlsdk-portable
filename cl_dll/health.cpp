@@ -240,7 +240,7 @@ int CHudHealth::Draw( float flTime )
 		int iHeight = gHUD.m_iFontHeight;
 		int iWidth = HealthWidth / 10;
 		UnpackRGB( r, g, b, RGB_YELLOWISH );
-		FillRGBA( x, y + gHUD.m_iHudNumbersYOffset, iWidth, iHeight, r, g, b, a );
+		FillRGBA( x, y + gHUD.m_iHudNumbersYOffset, iWidth, iHeight, 0, 0, 0, 0 );//Haunter
 	}
 
 	DrawDamage( flTime );

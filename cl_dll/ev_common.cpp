@@ -177,14 +177,59 @@ void EV_GetDefaultShellInfo( event_args_t *args, float *origin, float *velocity,
 	}
 
 	fR = gEngfuncs.pfnRandomFloat( 50, 70 );
-	fU = gEngfuncs.pfnRandomFloat( 100, 150 );
+	fU = gEngfuncs.pfnRandomFloat( 100, 130 );
+	fF = gEngfuncs.pfnRandomFloat( 100, 145 );
 
 	for( i = 0; i < 3; i++ )
 	{
-		ShellVelocity[i] = velocity[i] + right[i] * fR + up[i] * fU + forward[i] * 25;
+		ShellVelocity[i] = velocity[i] + right[i] * fR + up[i] * fU + forward[i] * fF;
 		ShellOrigin[i] = origin[i] + view_ofs[i] + up[i] * upScale + forward[i] * forwardScale + right[i] * rightScale;
 	}
 }
+
+/*Haunter
+=================
+EV_GetDefaultShellInfo
+
+Determine where to eject shells from
+=================
+*/
+void EV_GetDefaultShellInfo_Left( event_args_t *args, float *origin, float *velocity, float *ShellVelocity, float *ShellOrigin, float *forward, float *right, float *up, float forwardScale, float upScale, float rightScale )
+{
+	int i;
+	vec3_t view_ofs;
+	float fR, fU, fF;
+
+	int idx;
+
+	idx = args->entindex;
+
+	VectorClear( view_ofs );
+	view_ofs[2] = DEFAULT_VIEWHEIGHT;
+
+	if( EV_IsPlayer( idx ) )
+	{
+		if( EV_IsLocal( idx ) )
+		{
+			gEngfuncs.pEventAPI->EV_LocalPlayerViewheight( view_ofs );
+		}
+		else if( args->ducking == 1 )
+		{
+			view_ofs[2] = VEC_DUCK_VIEW;
+		}
+	}
+
+	fR = gEngfuncs.pfnRandomFloat( -50, -70 );
+	fU = gEngfuncs.pfnRandomFloat( 100, 150 );
+	fF = gEngfuncs.pfnRandomFloat( 100, 145 );
+
+	for( i = 0; i < 3; i++ )
+	{
+		ShellVelocity[i] = velocity[i] + right[i] * fR + up[i] * fU + forward[i] * fF;
+		ShellOrigin[i] = origin[i] + view_ofs[i] + up[i] * upScale + forward[i] * forwardScale + right[i] * rightScale;
+	}
+}
+//Haunter
 
 /*
 =================

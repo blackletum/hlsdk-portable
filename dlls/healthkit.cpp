@@ -116,6 +116,9 @@ public:
 	int m_iJuice;
 	int m_iOn;			// 0 = off, 1 = startup, 2 = going
 	float m_flSoundTime;
+	//Haunter
+	long int			TimeHS;
+	//Haunter
 };
 
 TYPEDESCRIPTION CWallHealth::m_SaveData[] =
@@ -193,16 +196,12 @@ void CWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	if( !pActivator->IsPlayer() )
 		return;
 
-	// if there is no juice left, turn it off
-	if( m_iJuice <= 0 )
-	{
-		pev->frame = 1;			
-		Off();
-	}
+	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
 
 	// if the player doesn't have the suit, or there is no juice left, make the deny noise
-	if( ( m_iJuice <= 0 ) || ( !( pActivator->pev->weapons & ( 1 << WEAPON_SUIT ) ) ) || ( ( chargerfix.value ) && ( pActivator->pev->health >= pActivator->pev->max_health ) ) )
+	if( !( pActivator->pev->weapons & ( 1 << WEAPON_SUIT ) ) || ( !( pActivator->pev->weapons & ( 1 << WEAPON_KNIFE ) ) ) )
 	{
+		ClientPrint( pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "Acquire the HEV suit & the knife first...\n" ) );
 		if( m_flSoundTime <= gpGlobals->time )
 		{
 			m_flSoundTime = gpGlobals->time + 0.62f;
@@ -217,27 +216,15 @@ void CWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 	// Time to recharge yet?
 	if( m_flNextCharge >= gpGlobals->time )
 		return;
+	ShowMenu( pPlayer, 0x27F, TimeHS, 0, "#Buy" ); //default 0x3FF
+	pPlayer->m_iArmor = 0; //Haunter
+	pPlayer->m_iMenu = 1;
+	pPlayer->m_iBuyable = 1;
 
-	// Play the on sound or the looping charging sound
-	if( !m_iOn )
-	{
-		m_iOn++;
-		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/medshot4.wav", 1.0, ATTN_NORM );
-		m_flSoundTime = 0.56f + gpGlobals->time;
-	}
-	if( ( m_iOn == 1 ) && ( m_flSoundTime <= gpGlobals->time ) )
-	{
-		m_iOn++;
-		EMIT_SOUND( ENT( pev ), CHAN_STATIC, "items/medcharge4.wav", 1.0, ATTN_NORM );
-	}
+//	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/medshot4.wav", 1.0, ATTN_NORM );
+	m_flSoundTime = 0.56f + gpGlobals->time;
+	//Atom
 
-	// charge the player
-	if( pActivator->TakeHealth( 1, DMG_GENERIC ) )
-	{
-		m_iJuice--;
-	}
-
-	// govern the rate of charge
 	m_flNextCharge = gpGlobals->time + 0.1f;
 }
 

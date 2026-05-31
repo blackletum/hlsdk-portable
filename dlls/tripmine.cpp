@@ -366,11 +366,11 @@ void CTripmineGrenade::DelayDeathThink( void )
 	TraceResult tr;
 	UTIL_TraceLine( pev->origin + m_vecDir * 8, pev->origin - m_vecDir * 64.0f,  dont_ignore_monsters, ENT( pev ), &tr );
 
-	Explode( &tr, DMG_BLAST );
+	Explode3( &tr, DMG_BLAST ); //Atomizer
 }
 #endif
-
-LINK_ENTITY_TO_CLASS( weapon_tripmine, CTripmine )
+#if 0 // Haunter
+//LINK_ENTITY_TO_CLASS( weapon_tripmine, CTripmine )
 
 void CTripmine::Spawn()
 {
@@ -542,3 +542,4 @@ void CTripmine::WeaponIdle( void )
 
 	SendWeaponAnim( iAnim );
 }
+#endif //Haunter

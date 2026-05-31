@@ -209,17 +209,9 @@ void CHAssassin::Shoot( void )
 
 	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT( 40, 90 ) + gpGlobals->v_up * RANDOM_FLOAT( 75, 200 ) + gpGlobals->v_forward * RANDOM_FLOAT( -40, 40 );
 	EjectBrass( pev->origin + gpGlobals->v_up * 32 + gpGlobals->v_forward * 12, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL ); 
-	FireBullets( 1, vecShootOrigin, vecShootDir, Vector( m_flDiviation, m_flDiviation, m_flDiviation ), 2048, BULLET_MONSTER_9MM ); // shoot +-8 degrees
+	FireBullets( 1, vecShootOrigin, vecShootDir, Vector( m_flDiviation, m_flDiviation, m_flDiviation ), 2048, BULLET_MONSTER_USP ); // shoot +-8 degrees
 
-	switch( RANDOM_LONG( 0, 1 ) )
-	{
-	case 0:
-		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "weapons/pl_gun1.wav", RANDOM_FLOAT( 0.6f, 0.8f ), ATTN_NORM );
-		break;
-	case 1:
-		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "weapons/pl_gun2.wav", RANDOM_FLOAT( 0.6f, 0.8f ), ATTN_NORM );
-		break;
-	}
+	EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "hassassin/sidearm_fire.wav", RANDOM_FLOAT( 0.6f, 0.8f ), ATTN_NORM ); //Haunter
 
 	pev->effects |= EF_MUZZLEFLASH;
 
@@ -304,12 +296,11 @@ void CHAssassin::Precache()
 {
 	PRECACHE_MODEL( "models/hassassin.mdl" );
 
-	PRECACHE_SOUND( "weapons/pl_gun1.wav" );
-	PRECACHE_SOUND( "weapons/pl_gun2.wav" );
+	PRECACHE_SOUND( "hassassin/sidearm_fire.wav" );//Haunter
 
 	PRECACHE_SOUND( "debris/beamstart1.wav" );
 
-	m_iShell = PRECACHE_MODEL( "models/shell.mdl" );// brass shell
+	m_iShell = PRECACHE_MODEL( "models/45calshell.mdl" );// brass shell
 }	
 
 //=========================================================

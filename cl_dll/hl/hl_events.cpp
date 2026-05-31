@@ -1,9 +1,9 @@
 /***
 *
 *	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
+*
+*	This product contains software technology licensed from Id
+*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
 *	All Rights Reserved.
 *
 *   Use, distribution, and modification of this source code and/or resulting
@@ -20,24 +20,44 @@
 extern "C"
 {
 // HLDM
-void EV_FireGlock1( struct event_args_s *args  );
-void EV_FireGlock2( struct event_args_s *args  );
-void EV_FireShotGunSingle( struct event_args_s *args  );
-void EV_FireShotGunDouble( struct event_args_s *args  );
-void EV_FireMP5( struct event_args_s *args  );
-void EV_FireMP52( struct event_args_s *args  );
-void EV_FirePython( struct event_args_s *args  );
-void EV_FireGauss( struct event_args_s *args  );
-void EV_SpinGauss( struct event_args_s *args  );
-void EV_Crowbar( struct event_args_s *args );
-void EV_FireCrossbow( struct event_args_s *args );
-void EV_FireCrossbow2( struct event_args_s *args );
-void EV_FireRpg( struct event_args_s *args );
-void EV_EgonFire( struct event_args_s *args );
-void EV_EgonStop( struct event_args_s *args );
-void EV_HornetGunFire( struct event_args_s *args );
-void EV_TripmineFire( struct event_args_s *args );
-void EV_SnarkFire( struct event_args_s *args );
+//Haunter
+void EV_Knife( struct event_args_s *args );
+
+void EV_USP( struct event_args_s *args );
+void EV_Glock18( struct event_args_s *args );
+void EV_Deagle( struct event_args_s *args );
+void EV_P228( struct event_args_s *args );
+void EV_ELEFT( struct event_args_s *args );
+void EV_ERIGHT( struct event_args_s *args );
+void EV_FiveseveN( struct event_args_s *args );
+
+void EV_M3( struct event_args_s *args );
+void EV_XM1014( struct event_args_s *args );
+
+void EV_MP5N( struct event_args_s *args );
+void EV_TMP( struct event_args_s *args );
+void EV_P90( struct event_args_s *args );
+void EV_MAC10( struct event_args_s *args );
+void EV_UMP45( struct event_args_s *args );
+
+void EV_AK47( struct event_args_s *args );
+void EV_M4A1( struct event_args_s *args );
+void EV_M4A12( struct event_args_s *args );
+void EV_SG552( struct event_args_s *args );
+void EV_AUG( struct event_args_s *args );
+void EV_FAMAS( struct event_args_s *args );
+void EV_GALIL( struct event_args_s *args );
+
+void EV_AWP( struct event_args_s *args );
+void EV_SCOUT( struct event_args_s *args );
+void EV_G3SG1( struct event_args_s *args );
+void EV_SG550( struct event_args_s *args );
+
+void EV_M249( struct event_args_s *args );
+void EV_RPGRENADE( struct event_args_s *args );
+void EV_ULTIMATE( struct event_args_s *args );
+void EV_ULTIMATE2( struct event_args_s *args );
+//Haunter
 
 void EV_TrainPitchAdjust( struct event_args_s *args );
 void EV_VehiclePitchAdjust( event_args_t *args );
@@ -58,24 +78,45 @@ That was what we were going to do, but we ran out of time...oh well.
 */
 void Game_HookEvents( void )
 {
-	gEngfuncs.pfnHookEvent( "events/glock1.sc", EV_FireGlock1 );
-	gEngfuncs.pfnHookEvent( "events/glock2.sc", EV_FireGlock2 );
-	gEngfuncs.pfnHookEvent( "events/shotgun1.sc", EV_FireShotGunSingle );
-	gEngfuncs.pfnHookEvent( "events/shotgun2.sc", EV_FireShotGunDouble );
-	gEngfuncs.pfnHookEvent( "events/mp5.sc", EV_FireMP5 );
-	gEngfuncs.pfnHookEvent( "events/mp52.sc", EV_FireMP52 );
-	gEngfuncs.pfnHookEvent( "events/python.sc", EV_FirePython );
-	gEngfuncs.pfnHookEvent( "events/gauss.sc", EV_FireGauss );
-	gEngfuncs.pfnHookEvent( "events/gaussspin.sc", EV_SpinGauss );
+	//Haunter
+	gEngfuncs.pfnHookEvent( "events/knife.sc", EV_Knife );
+
+	gEngfuncs.pfnHookEvent( "events/usp.sc", EV_USP );
+	gEngfuncs.pfnHookEvent( "events/glock18.sc", EV_Glock18 );
+	gEngfuncs.pfnHookEvent( "events/deagle.sc", EV_Deagle );
+	gEngfuncs.pfnHookEvent( "events/p228.sc", EV_P228 );
+	gEngfuncs.pfnHookEvent( "events/elite_left.sc", EV_ELEFT );
+	gEngfuncs.pfnHookEvent( "events/elite_right.sc", EV_ERIGHT );
+	gEngfuncs.pfnHookEvent( "events/fiveseven.sc", EV_FiveseveN );
+
+	gEngfuncs.pfnHookEvent( "events/m3.sc", EV_M3 );
+	gEngfuncs.pfnHookEvent( "events/xm1014.sc", EV_XM1014 );
+
+	gEngfuncs.pfnHookEvent( "events/mp5n.sc", EV_MP5N );
+	gEngfuncs.pfnHookEvent( "events/tmp.sc", EV_TMP );
+	gEngfuncs.pfnHookEvent( "events/p90.sc", EV_P90 );
+	gEngfuncs.pfnHookEvent( "events/mac10.sc", EV_MAC10 );
+	gEngfuncs.pfnHookEvent( "events/ump45.sc", EV_UMP45 );
+
+	gEngfuncs.pfnHookEvent( "events/ak47.sc", EV_AK47 );
+	gEngfuncs.pfnHookEvent( "events/m4a1.sc", EV_M4A1 );
+	gEngfuncs.pfnHookEvent( "events/m4a12.sc", EV_M4A12 );
+	gEngfuncs.pfnHookEvent( "events/sg552.sc", EV_SG552 );
+	gEngfuncs.pfnHookEvent( "events/aug.sc", EV_AUG );
+	gEngfuncs.pfnHookEvent( "events/famas.sc", EV_FAMAS );
+	gEngfuncs.pfnHookEvent( "events/galil.sc", EV_GALIL );
+
+	gEngfuncs.pfnHookEvent( "events/awp.sc", EV_AWP );
+	gEngfuncs.pfnHookEvent( "events/scout.sc", EV_SCOUT );
+	gEngfuncs.pfnHookEvent( "events/g3sg1.sc", EV_G3SG1 );
+	gEngfuncs.pfnHookEvent( "events/sg550.sc", EV_SG550 );
+
+	gEngfuncs.pfnHookEvent( "events/m249.sc", EV_M249 );
+	gEngfuncs.pfnHookEvent( "events/rpgrenade.sc", EV_RPGRENADE );
+	gEngfuncs.pfnHookEvent( "events/ultimate.sc", EV_ULTIMATE );
+	gEngfuncs.pfnHookEvent( "events/ultimate2.sc", EV_ULTIMATE2 );
+	//Haunter
+
 	gEngfuncs.pfnHookEvent( "events/train.sc", EV_TrainPitchAdjust );
-	gEngfuncs.pfnHookEvent( "events/crowbar.sc", EV_Crowbar );
-	gEngfuncs.pfnHookEvent( "events/crossbow1.sc", EV_FireCrossbow );
-	gEngfuncs.pfnHookEvent( "events/crossbow2.sc", EV_FireCrossbow2 );
-	gEngfuncs.pfnHookEvent( "events/rpg.sc", EV_FireRpg );
-	gEngfuncs.pfnHookEvent( "events/egon_fire.sc", EV_EgonFire );
-	gEngfuncs.pfnHookEvent( "events/egon_stop.sc", EV_EgonStop );
-	gEngfuncs.pfnHookEvent( "events/firehornet.sc", EV_HornetGunFire );
-	gEngfuncs.pfnHookEvent( "events/tripfire.sc", EV_TripmineFire );
-	gEngfuncs.pfnHookEvent( "events/snarkfire.sc", EV_SnarkFire );
 	gEngfuncs.pfnHookEvent( "events/vehicle.sc", EV_VehiclePitchAdjust );
 }

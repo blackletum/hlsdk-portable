@@ -678,4 +678,7 @@ void CLeech::Killed( entvars_t *pevAttacker, int iGib )
 	pev->movetype = MOVETYPE_TOSS;
 	pev->takedamage = DAMAGE_NO;
 	SetThink( &CLeech::DeadThink );
+	//Haunter
+	CBaseMonster::Killed( pevAttacker, GIB_NEVER );
+	//Haunter
 }

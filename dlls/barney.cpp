@@ -35,10 +35,20 @@
 #define		BARNEY_AE_DRAW		( 2 )
 #define		BARNEY_AE_SHOOT		( 3 )
 #define		BARNEY_AE_HOLSTER	( 4 )
+#define		BARNEY_AE_RELOAD	( 5 ) //Haunter
+
+#define BARNEY_CLIP					8 //Haunter
 
 #define	BARNEY_BODY_GUNHOLSTERED	0
 #define	BARNEY_BODY_GUNDRAWN		1
 #define BARNEY_BODY_GUNGONE		2
+
+//Haunter
+enum
+{
+	SCHED_BARNEY_COVER_AND_RELOAD,
+};
+//Haunter
 
 class CBarney : public CTalkMonster
 {
@@ -50,6 +60,7 @@ public:
 	void BarneyFirePistol( void );
 	void AlertSound( void );
 	int Classify( void );
+	void CheckAmmo ( void ); //Haunter
 	void HandleAnimEvent( MonsterEvent_t *pEvent );
 
 	void RunTask( Task_t *pTask );
@@ -81,6 +92,10 @@ public:
 	float m_painTime;
 	float m_checkAttackTime;
 	BOOL m_lastAttackCheck;
+	//Haunter
+	int		m_ClipLeft;
+	int		m_iDEShell;
+	//Haunter
 
 	// UNDONE: What is this for?  It isn't used?
 	float m_flPlayerDamage;// how much pain has the player inflicted on me?
@@ -392,21 +407,43 @@ void CBarney::BarneyFirePistol( void )
 	SetBlending( 0, angDir.x );
 	pev->effects = EF_MUZZLEFLASH;
 
-	FireBullets( 1, vecShootOrigin, vecShootDir, VECTOR_CONE_2DEGREES, 1024, BULLET_MONSTER_9MM );
+	Vector	vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT( 40, 90 ) + gpGlobals->v_up * RANDOM_FLOAT( 75, 200 ) + gpGlobals->v_forward * RANDOM_FLOAT( -40, 40 );
+/*	EjectBrass ( vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iDEShell, TE_BOUNCE_SHELL );
+
+	FireBullets( 1, vecShootOrigin, vecShootDir, VECTOR_CONE_2DEGREES, 1024, BULLET_MONSTER_DE );*/
+
+	EjectBrass( vecShootOrigin - vecShootDir * 24, vecShellVelocity, pev->angles.y, m_iDEShell, TE_BOUNCE_SHOTSHELL );
+
+	FireBullets( 10, vecShootOrigin, vecShootDir, VECTOR_CONE_10DEGREES, 1024, BULLET_MONSTER_BUCKSHOT );
 
 	int pitchShift = RANDOM_LONG( 0, 20 );
-	
+
 	// Only shift about half the time
 	if( pitchShift > 10 )
 		pitchShift = 0;
 	else
 		pitchShift -= 5;
-	EMIT_SOUND_DYN( ENT( pev ), CHAN_WEAPON, "barney/ba_attack2.wav", 1.0f, ATTN_NORM, 0, 100 + pitchShift );
+	EMIT_SOUND_DYN( ENT( pev ), CHAN_WEAPON, "barney/sidearm_fire.wav", 1.0f, ATTN_NORM, 0, 100 + pitchShift );
 
 	CSoundEnt::InsertSound( bits_SOUND_COMBAT, pev->origin, 384, 0.3f );
 
 	// UNDONE: Reload?
 	m_cAmmoLoaded--;// take away a bullet!
+
+	// Haunter - Light up the world!
+	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+		WRITE_BYTE( TE_DLIGHT );
+		WRITE_COORD( vecShootOrigin.x ); // origin
+		WRITE_COORD( vecShootOrigin.y );
+		WRITE_COORD( vecShootOrigin.z );
+		WRITE_BYTE( 16 );     // radius
+		WRITE_BYTE( 255 );     // R
+		WRITE_BYTE( 255 );     // G
+		WRITE_BYTE( 128 );     // B
+		WRITE_BYTE( 5 );     // life * 10
+		WRITE_BYTE( 32 ); // decay
+	MESSAGE_END();
+	// Haunter - Light up the world!
 }
 
 //=========================================================
@@ -422,6 +459,15 @@ void CBarney::HandleAnimEvent( MonsterEvent_t *pEvent )
 	case BARNEY_AE_SHOOT:
 		BarneyFirePistol();
 		break;
+
+	//Haunter
+	case BARNEY_AE_RELOAD:
+		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "barney/sidearm_reload.wav", 1, ATTN_NORM );
+		m_cAmmoLoaded = m_ClipLeft;
+		ClearConditions( bits_COND_NO_AMMO_LOADED );
+		break;
+	//Haunter
+
 	case BARNEY_AE_DRAW:
 		// barney's bodygroup switches here so he can pull gun from holster
 		pev->body = BARNEY_BODY_GUNDRAWN;
@@ -458,6 +504,11 @@ void CBarney::Spawn()
 	pev->body = 0; // gun in holster
 	m_fGunDrawn = FALSE;
 
+	//Haunter
+	m_ClipLeft = BARNEY_CLIP;
+	m_cAmmoLoaded = m_ClipLeft;
+	//Haunter
+
 	m_afCapability = bits_CAP_HEAR | bits_CAP_TURN_HEAD | bits_CAP_DOORS_GROUP;
 
 	MonsterInit();
@@ -471,8 +522,8 @@ void CBarney::Precache()
 {
 	PRECACHE_MODEL( "models/barney.mdl" );
 
-	PRECACHE_SOUND( "barney/ba_attack1.wav" );
-	PRECACHE_SOUND( "barney/ba_attack2.wav" );
+	PRECACHE_SOUND( "barney/sidearm_fire.wav" );
+	PRECACHE_SOUND( "barney/sidearm_reload.wav" );
 
 	PRECACHE_SOUND( "barney/ba_pain1.wav" );
 	PRECACHE_SOUND( "barney/ba_pain2.wav" );
@@ -481,6 +532,8 @@ void CBarney::Precache()
 	PRECACHE_SOUND( "barney/ba_die1.wav" );
 	PRECACHE_SOUND( "barney/ba_die2.wav" );
 	PRECACHE_SOUND( "barney/ba_die3.wav" );
+
+	m_iDEShell = PRECACHE_MODEL( "models/shotgunshell.mdl" ); //Haunter
 
 	// every new barney must call this, otherwise
 	// when a level is loaded, nobody will talk (time is reset to 0)
@@ -629,19 +682,22 @@ void CBarney::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir
 	{
 	case HITGROUP_CHEST:
 	case HITGROUP_STOMACH:
-		if (bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_BLAST ) )
+		/*if (bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_BLAST ) )
 		{
 			flDamage = flDamage * 0.5f;
 		}
+		break;*/
+		flDamage = flDamage - 10;
 		break;
 	case 10:
 		if( bitsDamageType & ( DMG_BULLET | DMG_SLASH | DMG_CLUB ) )
 		{
-			flDamage -= 20.0f;
+			flDamage -= 1000.0f; //default -=20 Haunter
 			if( flDamage <= 0.0f )
 			{
 				UTIL_Ricochet( ptr->vecEndPos, 1.0f );
-				flDamage = 0.01f;
+				//Haunter default = 0.01
+				flDamage = 0;
 			}
 		}
 
@@ -655,20 +711,40 @@ void CBarney::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir
 
 void CBarney::Killed( entvars_t *pevAttacker, int iGib )
 {
-	if( pev->body < BARNEY_BODY_GUNGONE )
+	//Haunter
+	if( CVAR_GET_FLOAT( "cl_getcash" ) != 1 )
 	{
-		// drop the gun!
+		if( pev->body < BARNEY_BODY_GUNGONE )
+		{
+			// drop the gun!
+			Vector vecGunPos;
+			Vector vecGunAngles;
+
+			pev->body = BARNEY_BODY_GUNGONE;
+
+			GetAttachment( 0, vecGunPos, vecGunAngles );
+
+			CBaseEntity *pGun = DropItem( "weapon_9mmhandgun", vecGunPos, vecGunAngles );
+		}
+	}
+	else if( CVAR_GET_FLOAT( "cl_getcash" ) == 1 )
+	{
 		Vector vecGunPos;
 		Vector vecGunAngles;
 
-		pev->body = BARNEY_BODY_GUNGONE;
-
+		if( pev->body == BARNEY_BODY_GUNHOLSTERED )
+		{
+			pev->body = BARNEY_BODY_GUNHOLSTERED;
+		}
+		if( pev->body == BARNEY_BODY_GUNDRAWN )
+		{
+			pev->body = BARNEY_BODY_GUNDRAWN;
+		}
 		GetAttachment( 0, vecGunPos, vecGunAngles );
-
-		DropItem( "weapon_9mmhandgun", vecGunPos, vecGunAngles );
 	}
+	//Haunter
 
-	SetUse( NULL );	
+	SetUse( NULL );
 	CTalkMonster::Killed( pevAttacker, iGib );
 }
 

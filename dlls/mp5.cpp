@@ -35,8 +35,8 @@ enum mp5_e
 	MP5_FIRE3
 };
 
-LINK_ENTITY_TO_CLASS( weapon_mp5, CMP5 )
-LINK_ENTITY_TO_CLASS( weapon_9mmAR, CMP5 )
+//LINK_ENTITY_TO_CLASS( weapon_mp5, CMP5 )
+//LINK_ENTITY_TO_CLASS( weapon_9mmAR, CMP5 )
 
 //=========================================================
 //=========================================================
@@ -155,7 +155,7 @@ void CMP5::PrimaryAttack()
 	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
+	Vector vecAiming = gpGlobals->v_forward;
 	Vector vecDir;
 #if CLIENT_DLL
 	if( bIsMultiplayer() )
@@ -255,8 +255,6 @@ void CMP5::WeaponIdle( void )
 {
 	ResetEmptySound();
 
-	m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
-
 	if( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
@@ -301,8 +299,8 @@ class CMP5AmmoClip : public CBasePlayerAmmo
 	}
 };
 
-LINK_ENTITY_TO_CLASS( ammo_mp5clip, CMP5AmmoClip )
-LINK_ENTITY_TO_CLASS( ammo_9mmAR, CMP5AmmoClip )
+//LINK_ENTITY_TO_CLASS( ammo_mp5clip, CMP5AmmoClip )
+//LINK_ENTITY_TO_CLASS( ammo_9mmAR, CMP5AmmoClip )
 
 class CMP5Chainammo : public CBasePlayerAmmo
 {
@@ -328,7 +326,7 @@ class CMP5Chainammo : public CBasePlayerAmmo
 	}
 };
 
-LINK_ENTITY_TO_CLASS( ammo_9mmbox, CMP5Chainammo )
+//LINK_ENTITY_TO_CLASS( ammo_9mmbox, CMP5Chainammo )
 
 class CMP5AmmoGrenade : public CBasePlayerAmmo
 {
@@ -355,5 +353,5 @@ class CMP5AmmoGrenade : public CBasePlayerAmmo
 	}
 };
 
-LINK_ENTITY_TO_CLASS( ammo_mp5grenades, CMP5AmmoGrenade )
-LINK_ENTITY_TO_CLASS( ammo_ARgrenades, CMP5AmmoGrenade )
+//LINK_ENTITY_TO_CLASS( ammo_mp5grenades, CMP5AmmoGrenade )
+//LINK_ENTITY_TO_CLASS( ammo_ARgrenades, CMP5AmmoGrenade )

@@ -837,6 +837,12 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "player/pl_step3.wav" );
 	PRECACHE_SOUND( "player/pl_step4.wav" );
 
+	//Haunter
+	PRECACHE_SOUND("player/die1.wav");			//player death sounds
+	PRECACHE_SOUND("player/die2.wav");
+	PRECACHE_SOUND("player/die3.wav");
+	//Haunter
+
 	PRECACHE_SOUND( "common/npc_step1.wav" );		// NPC walk on concrete
 	PRECACHE_SOUND( "common/npc_step2.wav" );
 	PRECACHE_SOUND( "common/npc_step3.wav" );
@@ -924,6 +930,31 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "common/wpn_moveselect.wav" );
 	PRECACHE_SOUND( "common/wpn_select.wav" );
 	PRECACHE_SOUND( "common/wpn_denyselect.wav" );
+
+	//Haunter
+	PRECACHE_MODEL("sprites/wall_puff1.spr");
+	PRECACHE_MODEL("sprites/chamber_smoke1.spr");
+
+	PRECACHE_SOUND("items/kevlar.wav");
+	PRECACHE_SOUND("weapons/dryfire_rifle.wav");
+	PRECACHE_SOUND("weapons/dryfire_pistol.wav");
+
+	PRECACHE_MODEL("models/shrapnel.mdl");
+	PRECACHE_SOUND("weapons/xbow_hitbod1.wav");
+	PRECACHE_SOUND("weapons/xbow_hitbod2.wav");
+	PRECACHE_SOUND("weapons/xbow_fly1.wav");
+	PRECACHE_SOUND("weapons/xbow_hit1.wav");
+	PRECACHE_SOUND("weapons/ric1.wav");
+	PRECACHE_SOUND("weapons/ric2.wav");
+	PRECACHE_SOUND("weapons/ric3.wav");
+	PRECACHE_SOUND("weapons/ric4.wav");
+	PRECACHE_SOUND("weapons/ric5.wav");
+	PRECACHE_SOUND("fvox/beep.wav");
+	PRECACHE_SOUND("items/equip_nvg.wav" );
+	PRECACHE_SOUND("items/nvg_on.wav" );
+	PRECACHE_SOUND("items/nvg_off.wav" );
+	PRECACHE_MODEL("sprites/streak.spr");
+	//Haunter
 
 	// geiger sounds
 	PRECACHE_SOUND( "player/geiger6.wav" );
@@ -1679,11 +1710,13 @@ int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 						item->m_fInReload		= gun->m_fInReload;
 						item->m_fInSpecialReload	= gun->m_fInSpecialReload;
 						item->fuser1			= Q_max( gun->pev->fuser1, -0.001f );
+						//Haunter
 						item->fuser2			= gun->m_flStartThrow;
-						item->fuser3			= gun->m_flReleaseThrow;
-						item->iuser1			= gun->m_chargeReady;
+						item->fuser3			= gun->m_iBurstFire;
+					//	item->fuser3			= gun->m_flReleaseThrow;
+						item->iuser1			= gun->m_iSilenced;
 						item->iuser2			= gun->m_fInAttack;
-						item->iuser3			= gun->m_fireState;
+					//	item->fuser2			= gun->m_iBurstFire2;
 
 						//item->m_flPumpTime		= max( gun->m_flPumpTime, -0.001 );
 					}
@@ -1797,10 +1830,10 @@ void UpdateClientData( const struct edict_s *ent, int sendweapons, struct client
 					cd->vuser4.y = pl->m_rgAmmo[gun->m_iPrimaryAmmoType];
 					cd->vuser4.z = pl->m_rgAmmo[gun->m_iSecondaryAmmoType];
 
-					if( pl->m_pActiveItem->m_iId == WEAPON_RPG )
+					if( pl->m_pActiveItem->m_iId == WEAPON_RPGRENADE )
 					{
-						cd->vuser2.y = ( (CRpg *)pl->m_pActiveItem )->m_fSpotActive;
-						cd->vuser2.z = ( (CRpg *)pl->m_pActiveItem )->m_cActiveRockets;
+					//	cd->vuser2.y = ( (CRpg *)pl->m_pActiveItem )->m_fSpotActive;
+						cd->vuser2.z = ( (CRPGRENADE *)pl->m_pActiveItem )->m_cActiveRockets;
 					}
 				}
 			}

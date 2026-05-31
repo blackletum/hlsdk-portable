@@ -303,12 +303,6 @@ int CHudDeathNotice::MsgFunc_DeathMsg( const char *pszName, int iSize, void *pbu
 		{
 			ConsolePrint( " with " );
 
-			// replace the code names with the 'real' names
-			if( !strcmp( killedwith + 2, "egon" ) )
-				strcpy( killedwith, "d_gluon gun" );
-			if( !strcmp( killedwith + 2, "gauss" ) )
-				strcpy( killedwith, "d_tau cannon" );
-
 			ConsolePrint( killedwith + 2 ); // skip over the "d_" part
 		}
 

@@ -96,6 +96,10 @@ void CGrenade::Explode( TraceResult *, int ) { }
 void CGrenade::Killed( entvars_t *, int ) { }
 void CGrenade::Spawn( void ) { }
 CGrenade *CGrenade::ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time ){ return 0; }
+//Atomizer
+CGrenade *CGrenade::ShootTimed2( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity, float time ){ return 0; }
+CGrenade *CGrenade::ShootM203( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity ){ return 0; }
+//Atom
 CGrenade *CGrenade::ShootContact( entvars_t *pevOwner, Vector vecStart, Vector vecVelocity ){ return 0; }
 void CGrenade::DetonateUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ){ }
 
@@ -314,7 +318,7 @@ void ApplyMultiDamage( entvars_t *pevInflictor, entvars_t *pevAttacker ) { }
 void AddMultiDamage( entvars_t *pevInflictor, CBaseEntity *pEntity, float flDamage, int bitsDamageType) { }
 void SpawnBlood( Vector vecSpot, int bloodColor, float flDamage ) { }
 int DamageDecal( CBaseEntity *pEntity, int bitsDamageType ) { return 0; }
-void DecalGunshot( TraceResult *pTrace, int iBulletType ) { }
+void DecalGunshot( TraceResult *pTrace, int iBulletType, bool ClientOnly, entvars_t* pShooter ) { }
 void EjectBrass( const Vector &vecOrigin, const Vector &vecVelocity, float rotation, int model, int soundtype ) { }
 void AddAmmoNameToAmmoRegistry( const char *szAmmoname ) { }
 int CBasePlayerItem::Restore( class CRestore & ) { return 1; }

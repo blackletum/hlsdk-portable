@@ -224,37 +224,11 @@ void CGameRules::RefreshSkillData ( void )
 
 	// PLAYER WEAPONS
 
-	// Crowbar whack
-	gSkillData.plrDmgCrowbar = GetSkillCvar( "sk_plr_crowbar" );
-
-	// Glock Round
-	gSkillData.plrDmg9MM = GetSkillCvar( "sk_plr_9mm_bullet" );
-
-	// 357 Round
-	gSkillData.plrDmg357 = GetSkillCvar( "sk_plr_357_bullet" );
-
-	// MP5 Round
-	gSkillData.plrDmgMP5 = GetSkillCvar( "sk_plr_9mmAR_bullet" );
-
 	// M203 grenade
 	gSkillData.plrDmgM203Grenade = GetSkillCvar( "sk_plr_9mmAR_grenade" );
 
-	// Shotgun buckshot
-	gSkillData.plrDmgBuckshot = GetSkillCvar( "sk_plr_buckshot" );
-
-	// Crossbow
-	gSkillData.plrDmgCrossbowClient = GetSkillCvar( "sk_plr_xbow_bolt_client" );
-	gSkillData.plrDmgCrossbowMonster = GetSkillCvar( "sk_plr_xbow_bolt_monster" );
-
 	// RPG
 	gSkillData.plrDmgRPG = GetSkillCvar( "sk_plr_rpg" );
-
-	// Gauss gun
-	gSkillData.plrDmgGauss = GetSkillCvar( "sk_plr_gauss" );
-
-	// Egon Gun
-	gSkillData.plrDmgEgonNarrow = GetSkillCvar( "sk_plr_egon_narrow" );
-	gSkillData.plrDmgEgonWide = GetSkillCvar( "sk_plr_egon_wide" );
 
 	// Hand Grendade
 	gSkillData.plrDmgHandGrenade = GetSkillCvar( "sk_plr_hand_grenade" );
@@ -267,7 +241,15 @@ void CGameRules::RefreshSkillData ( void )
 
 	// MONSTER WEAPONS
 	gSkillData.monDmg12MM = GetSkillCvar( "sk_12mm_bullet" );
-	gSkillData.monDmgMP5 = GetSkillCvar ("sk_9mmAR_bullet" );
+	gSkillData.monDmgMP5 = GetSkillCvar ("sk_HgruntAR_bullet" );
+	//Haunter
+	gSkillData.monDmgM249 = GetSkillCvar ("sk_HgruntMG_bullet" );
+	gSkillData.monDmgUSP = GetSkillCvar( "sk_Hassassin_bullet");
+	gSkillData.monDmgBS = GetSkillCvar( "sk_Barney_bullet");
+	gSkillData.monDmgSentry = GetSkillCvar ("sk_SentryMG_bullet" );
+	gSkillData.monDmgTurret = GetSkillCvar( "sk_TurretMG_bullet");
+	gSkillData.monDmgApache = GetSkillCvar( "sk_ApacheMG_bullet");
+	//Haunter
 	gSkillData.monDmg9MM = GetSkillCvar( "sk_9mm_bullet" );
 
 	// MONSTER HORNET
@@ -330,11 +312,6 @@ CGameRules *InstallGameRules( void )
 			// teamplay
 			g_teamplay = 1;
 			return new CHalfLifeTeamplay;
-		}
-		if( sv_busters.value > 0 )
-		{
-			g_teamplay = 0;
-			return new CMultiplayBusters;
 		}
 		if( (int)gpGlobals->deathmatch == 1 )
 		{

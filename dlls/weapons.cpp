@@ -45,6 +45,27 @@ DLL_GLOBAL	short g_sModelIndexWExplosion;// holds the index for the underwater e
 DLL_GLOBAL	short g_sModelIndexBubbles;// holds the index for the bubbles model
 DLL_GLOBAL	short g_sModelIndexBloodDrop;// holds the sprite index for the initial blood
 DLL_GLOBAL	short g_sModelIndexBloodSpray;// holds the sprite index for splattered blood
+//Atomizer
+DLL_GLOBAL	short	g_sModelIndexSmokePuff;
+DLL_GLOBAL	short	g_sModelIndexFireball2;
+DLL_GLOBAL	short	g_sModelIndexFireball3;
+DLL_GLOBAL	short	g_sModelIndexFireball4;
+//Haunter
+DLL_GLOBAL	short	g_sModelIndexHE1;
+DLL_GLOBAL	short	g_sModelIndexHE2;
+DLL_GLOBAL	short	g_sModelIndexHE3;
+DLL_GLOBAL	short	g_sModelIndexRPG1;
+DLL_GLOBAL	short	g_sModelIndexRPG2;
+DLL_GLOBAL	short	g_sModelIndexRPG3;
+DLL_GLOBAL	short	g_sModelIndexC41;
+DLL_GLOBAL	short	g_sModelIndexC42;
+DLL_GLOBAL	short	g_sModelIndexC43;
+
+DLL_GLOBAL	short	g_sModelIndexGas1;
+//Haunter
+DLL_GLOBAL	short	g_sModelIndexRadio;
+//Atom
+
 
 ItemInfo CBasePlayerItem::ItemInfoArray[MAX_WEAPONS];
 AmmoInfo CBasePlayerItem::AmmoInfoArray[MAX_AMMO_SLOTS];
@@ -234,7 +255,7 @@ void EjectBrass( const Vector &vecOrigin, const Vector &vecVelocity, float rotat
 		WRITE_ANGLE( rotation );
 		WRITE_SHORT( model );
 		WRITE_BYTE( soundtype );
-		WRITE_BYTE( 25 );// 2.5 seconds
+		WRITE_BYTE( 60 );// 2.5 seconds
 	MESSAGE_END();
 }
 
@@ -455,7 +476,26 @@ void W_Precache( void )
 	g_sModelIndexSmoke = PRECACHE_MODEL( "sprites/steam1.spr" );// smoke
 	g_sModelIndexBubbles = PRECACHE_MODEL( "sprites/bubble.spr" );//bubbles
 	g_sModelIndexBloodSpray = PRECACHE_MODEL( "sprites/bloodspray.spr" ); // initial blood
-	g_sModelIndexBloodDrop = PRECACHE_MODEL( "sprites/blood.spr" ); // splattered blood 
+	g_sModelIndexBloodDrop = PRECACHE_MODEL( "sprites/blood.spr" ); // splattered blood
+
+	//Atomizer
+	g_sModelIndexSmokePuff = PRECACHE_MODEL ("sprites/smokepuff.spr");
+	g_sModelIndexFireball2 = PRECACHE_MODEL ("sprites/eexplo.spr");
+	g_sModelIndexFireball3 = PRECACHE_MODEL ("sprites/fexplo.spr");
+	g_sModelIndexFireball4 = PRECACHE_MODEL ("sprites/fexplo1.spr");
+
+	g_sModelIndexHE1 = PRECACHE_MODEL ("sprites/HEexplode1.spr");
+	g_sModelIndexHE2 = PRECACHE_MODEL ("sprites/HEexplode2.spr");
+	g_sModelIndexHE3 = PRECACHE_MODEL ("sprites/HEexplode3.spr");
+	g_sModelIndexRPG1 = PRECACHE_MODEL ("sprites/RPexplode1.spr");
+	g_sModelIndexRPG2 = PRECACHE_MODEL ("sprites/RPexplode2.spr");
+	g_sModelIndexRPG3 = PRECACHE_MODEL ("sprites/RPexplode3.spr");
+	g_sModelIndexC41 = PRECACHE_MODEL ("sprites/C4explode1.spr");
+	g_sModelIndexC42 = PRECACHE_MODEL ("sprites/C4explode2.spr");
+	g_sModelIndexC43 = PRECACHE_MODEL ("sprites/C4explode3.spr");
+
+	g_sModelIndexGas1 = PRECACHE_MODEL ("sprites/gas_smoke1.spr");
+	//Atom
 
 	g_sModelIndexLaser = PRECACHE_MODEL( g_pModelNameLaser );
 	g_sModelIndexLaserDot = PRECACHE_MODEL( "sprites/laserdot.spr" );
@@ -476,6 +516,9 @@ void W_Precache( void )
 	PRECACHE_SOUND( "weapons/bullet_hit2.wav" );	// hit by bullet
 
 	PRECACHE_SOUND( "items/weapondrop1.wav" );// weapon falls to the ground
+	//Haunter
+	PRECACHE_MODEL("models/w_backpack.mdl");
+	//Haunter
 }
 
 TYPEDESCRIPTION	CBasePlayerItem::m_SaveData[] =
@@ -566,14 +609,6 @@ void CBasePlayerItem::FallThink( void )
 		SetThink( NULL );
 	}
 
-	if( g_pGameRules->IsBustingGame())
-	{
-		if( !FNullEnt( pev->owner ))
-			return;
-
-		if( FClassnameIs( pev, "weapon_egon" ))
-			UTIL_Remove( this );
-	}
 }
 
 //=========================================================
@@ -921,8 +956,126 @@ BOOL CanAttack( float attack_time, float curtime, BOOL isPredicted )
 	}
 }
 
+//Atomizer
+//Kick the view..
+void CBasePlayerWeapon::KickBack (float up_base, float lateral_base, float up_modifier, float lateral_modifier, float up_max, float lateral_max, int direction_change)
+{
+	float flKickUp;
+	float flKickLateral;
+
+	if (m_pPlayer->m_iShotsFired == 1) // This is the first round fired
+	{
+		flKickUp = up_base;
+		flKickLateral = lateral_base;
+	}
+	else
+	{
+		flKickUp = up_base + m_pPlayer->m_iShotsFired*up_modifier;
+		flKickLateral = lateral_base + m_pPlayer->m_iShotsFired*lateral_modifier;
+	}
+
+//	ALERT (at_console, "Max UP KICK : %fl\n", up_max);
+//	ALERT (at_console, "Current UP KICK : %fl\n\n", flKickUp);
+
+	m_pPlayer->pev->punchangle.x -= flKickUp;
+	if (m_pPlayer->pev->punchangle.x < -1 * up_max)
+		m_pPlayer->pev->punchangle.x = -1 * up_max;
+
+	if ( !RANDOM_LONG (0,direction_change) )
+	{
+		flKickLateral /= 2;
+		m_iDirection = 1 - m_iDirection;
+	}
+
+
+	if (m_iDirection == 1)
+	{
+		m_pPlayer->pev->punchangle.y += flKickLateral;
+		if (m_pPlayer->pev->punchangle.y > lateral_max)
+			m_pPlayer->pev->punchangle.y = lateral_max;
+	}
+	else
+	{
+		m_pPlayer->pev->punchangle.y -= flKickLateral;
+		if (m_pPlayer->pev->punchangle.y < -1 * lateral_max)
+			m_pPlayer->pev->punchangle.y = -1 * lateral_max;
+	}
+
+}
+
+//Atom
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
+	//Haunter
+
+	//Switch weapons if the players current weapon is grenades
+	//and he has ran out of them
+	if( ( m_pPlayer->m_pActiveItem->m_iId == WEAPON_HEGRENADE ) || ( m_pPlayer->m_pActiveItem->m_iId == WEAPON_FLASHBANG ) )
+	{
+		if( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 )
+		{
+			g_pGameRules->GetNextBestWeapon( m_pPlayer, this );
+			//Holster();
+		}
+	}
+
+	//Return zoom level back to previous zoom level before we fired a shot. This is used only for the AWP and the Scout.
+	if( ( m_flNextPrimaryAttack <= UTIL_WeaponTimeBase() ) && ( m_pPlayer->m_bResumeZoom == TRUE ) )
+	{
+		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = m_pPlayer->m_iLastZoom;
+
+		if( m_pPlayer->pev->fov == m_pPlayer->m_iLastZoom )
+		{
+			// get rid of the model and return the fade level in zoom.
+
+//			if ( this->m_iId == 24 )
+//				UTIL_ScreenFade( m_pPlayer, Vector(10,180,10), 1.5, 9999, 80, FFADE_OUT );
+		//	m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_awp.mdl");
+			m_pPlayer->m_bResumeZoom = FALSE;
+		}
+	}
+	//Haunter XYZ
+	/*if ( (m_pPlayer->m_bIsSilencing == TRUE) && (m_pPlayer->m_iSilencing == 1))
+	{
+		//m_iSilenced = m_pPlayer->m_iSilencing; // Is this correct?
+
+		if (m_iSilenced == 1)
+		{
+            m_iSilenced = 1;
+		}
+		else if (m_iSilenced == 0)
+		{
+			m_iSilenced = 0;
+		}
+
+		//m_pPlayer->m_iSilencing = 0;
+		//m_fInSilencing = FALSE;
+	}
+
+	if ( (m_pPlayer->m_bIsSilencing == FALSE) && (m_pPlayer->m_iSilencing == 1) )
+	{
+		if (m_iSilenced == 1)
+		{
+            m_iSilenced = 0;
+		}
+		else if (m_iSilenced == 0)
+		{
+			m_iSilenced = 1;
+		}
+
+		m_pPlayer->m_bIsSilencing = TRUE;
+		m_pPlayer->m_iSilencing = 0;
+	}
+
+	/*if ( m_pPlayer->m_pActiveItem->m_iId == WEAPON_USP )
+	{
+		if ( (m_pPlayer->m_bIsSilencing == TRUE) && (m_flTimeWeaponIdle <= 0.0) )
+		{
+			m_pPlayer->m_bIsSilencing = FALSE;
+		}
+	}*/
+	//Haunter
+
 	if( ( m_fInReload ) && ( m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase() ) )
 	{
 		// complete the reload. 
@@ -971,6 +1124,22 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	else if( !( m_pPlayer->pev->button & ( IN_ATTACK | IN_ATTACK2 ) ) )
 	{
 		// no fire buttons down
+
+		//Atomizer
+		// The following code prevents the player from tapping the firebutton repeatedly
+		// to simulate full auto and retaining the single shot accuracy of single fire
+		if (m_bDelayFire == TRUE)
+		{
+			m_pPlayer->m_iShotsFired = 20;
+			m_bDelayFire = FALSE;
+		}
+
+		if (m_pPlayer->m_iShotsFired > 0)
+		{
+			m_pPlayer->m_iShotsFired--;
+		}
+		//Atom
+
 		m_fFireOnEmpty = FALSE;
 
 		if( !IsUseable() && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0f : gpGlobals->time ) ) 
@@ -1312,7 +1481,7 @@ int CBasePlayerWeapon::UpdateClientData( CBasePlayer *pPlayer )
 	}
 
 	// If the ammo, state, or fov has changed, update the weapon
-	if( m_iClip != m_iClientClip || state != m_iClientWeaponState || pPlayer->m_iFOV != pPlayer->m_iClientFOV )
+	if( m_iClip != m_iClientClip || state != m_iClientWeaponState || m_pPlayer->pev->fov != pPlayer->m_iClientFOV ) //Haunter
 	{
 		bSend = TRUE;
 	}
@@ -1416,7 +1585,8 @@ BOOL CBasePlayerWeapon::AddSecondaryAmmo( int iCount, char *szName, int iMax )
 //=========================================================
 BOOL CBasePlayerWeapon::IsUseable( void )
 {
-	if( m_iClip > 0 )
+	//Atomizer - Always useable
+	/*if( m_iClip > 0 )
 	{
 		return TRUE;
 	}
@@ -1446,13 +1616,17 @@ BOOL CBasePlayerWeapon::IsUseable( void )
 		}
 	}
 
-	// clip is empty (or nonexistant) and the player has no more ammo of this type. 
-	return FALSE;
+	// clip is empty (or nonexistant) and the player has no more ammo of this type.
+	return FALSE;*/
+	//Atom
+
+	return TRUE;
 }
 
 BOOL CBasePlayerWeapon::CanDeploy( void )
 {
-	BOOL bHasAmmo = 0;
+	//Atomizer - Always able to deploy
+	/*BOOL bHasAmmo = 0;
 
 	if( !pszAmmo1() )
 	{
@@ -1493,7 +1667,7 @@ BOOL CBasePlayerWeapon::DefaultDeploy( const char *szViewModel, const char *szWe
 	SendWeaponAnim( iAnim, skiplocal, body );
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.0f;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.55f; //Haunter default 1.0
 	m_flLastFireTime = 0.0f;
 
 	return TRUE;
@@ -1520,12 +1694,40 @@ BOOL CBasePlayerWeapon::DefaultReload( int iClipSize, int iAnim, float fDelay, i
 	return TRUE;
 }
 
+//Haunter XYZ
+BOOL CBasePlayerWeapon::EquipSilencer( int iAnim, float fDelay, int body )
+{
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
+
+	m_fInSilencing = TRUE;
+
+	//!!UNDONE -- reload sound goes here !!!
+	SendWeaponAnim( iAnim );
+
+	if ( (m_pPlayer->m_bIsSilencing == TRUE) )
+	{
+		if (m_iSilenced == 0)
+		{
+            m_iSilenced = 1;
+		}
+		else if (m_iSilenced == 1)
+		{
+			m_iSilenced = 0;
+		}
+	}
+
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + fDelay;
+
+	return TRUE;
+}
+//Haunter
+
 BOOL CBasePlayerWeapon::PlayEmptySound( void )
 {
 	if( m_iPlayEmptySound )
 	{
-		EMIT_SOUND( ENT( m_pPlayer->pev ), CHAN_WEAPON, "weapons/357_cock1.wav", 0.8, ATTN_NORM );
-		m_iPlayEmptySound = 0;
+		EMIT_SOUND( ENT( m_pPlayer->pev ), CHAN_WEAPON, "weapons/dryfire_rifle.wav"/*Haunter*/, 0.8, ATTN_NORM );
+		m_iPlayEmptySound = 1;//Haunter default: 0
 		return 0;
 	}
 	return 0;
@@ -1622,7 +1824,7 @@ void CBasePlayerAmmo::Materialize( void )
 
 void CBasePlayerAmmo::DefaultTouch( CBaseEntity *pOther )
 {
-	if( !pOther->IsPlayer() || IsPlayerBusting( pOther ))
+	if( !pOther->IsPlayer() )
 	{
 		return;
 	}
@@ -1770,7 +1972,7 @@ IMPLEMENT_SAVERESTORE( CWeaponBox, CBaseEntity )
 //=========================================================
 void CWeaponBox::Precache( void )
 {
-	PRECACHE_MODEL( "models/w_weaponbox.mdl" );
+	PRECACHE_MODEL( "models/w_backpack.mdl" );
 }
 
 //=========================================================
@@ -1802,7 +2004,7 @@ void CWeaponBox::Spawn( void )
 
 	UTIL_SetSize( pev, g_vecZero, g_vecZero );
 
-	SET_MODEL( ENT( pev ), "models/w_weaponbox.mdl" );
+	SET_MODEL( ENT( pev ), "models/w_backpack.mdl" );
 }
 
 //=========================================================
@@ -1868,8 +2070,7 @@ void CWeaponBox::Touch( CBaseEntity *pOther )
 
 	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
 	int i;
-
-	// dole out ammo
+//Atomizer
 	for( i = 0; i < MAX_AMMO_SLOTS; i++ )
 	{
 		if( !FStringNull( m_rgiszAmmo[i] ) )
@@ -1903,7 +2104,7 @@ void CWeaponBox::Touch( CBaseEntity *pOther )
 				}
 			}
 
-			// there's some ammo of this type. 
+			// there's some ammo of this type.
 			pPlayer->GiveAmmo( m_rgAmmo[i], STRING( m_rgiszAmmo[i] ), MaxAmmoCarry( m_rgiszAmmo[i] ) );
 
 			//ALERT( at_console, "Gave %d rounds of %s\n", m_rgAmmo[i], STRING( m_rgiszAmmo[i] ) );
@@ -1914,10 +2115,253 @@ void CWeaponBox::Touch( CBaseEntity *pOther )
 		}
 	}
 
-	// go through my weapons and try to give the usable ones to the player. 
-	// it's important the the player be given ammo first, so the weapons code doesn't refuse 
-	// to deploy a better weapon that the player may pick up because he has no ammo for it.
+
 	for( i = 0; i < MAX_ITEM_TYPES; i++ )
+	{
+		//ClientPrint( pPlayer->pev, HUD_PRINTTALK, "FOR()");
+		if( m_rgpPlayerItems[i] )
+		{
+			CBasePlayerItem *pItem;
+
+			//ClientPrint( pPlayer->pev, HUD_PRINTTALK, "Made it into the if");
+
+			// have at least one weapon in this slot
+			while( m_rgpPlayerItems[i] )
+			{
+				//ALERT ( at_console, "trying to give %s\n", STRING( m_rgpPlayerItems[ i ]->pev->classname ) );
+				pItem = m_rgpPlayerItems[i];
+				//m_rgpPlayerItems[ i ] = m_rgpPlayerItems[ i ]->m_pNext;// unlink this weapon from the box
+				//ClientPrint( pPlayer->pev, HUD_PRINTTALK, "Made it to the while loop");
+
+				switch ( pItem->m_iId )
+				{
+					case WEAPON_AK47:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+							/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_AUG:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+							/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_AWP:
+						if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+						{
+							return;
+						}
+						break;
+					case WEAPON_DEAGLE:
+						if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228")
+							|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_FAMAS:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+							/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_ELITE:
+						if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228")
+							|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_FIVESEVEN:
+						if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228")
+							|| pPlayer->HasNamedPlayerItem("weapon_dualde") || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite"))
+						{
+							return;
+						}
+						break;
+					case WEAPON_G3SG1:
+						if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+						{
+							return;
+						}
+						break;
+					case WEAPON_GALIL:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+							/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_GLOCK18:
+						if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228")
+							|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_M249:
+						if ( pPlayer->HasNamedPlayerItem("weapon_m249"))
+						{
+							return;
+						}
+						break;
+					case WEAPON_ULTIMATE:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ultimate"))
+						{
+							return;
+						}
+						break;
+					case WEAPON_M3:
+						if ( pPlayer->HasNamedPlayerItem("weapon_xm1014") || pPlayer->HasNamedPlayerItem("weapon_m3"))
+						{
+							return;
+						}
+						break;
+					case WEAPON_XM1014:
+						if ( pPlayer->HasNamedPlayerItem("weapon_xm1014") || pPlayer->HasNamedPlayerItem("weapon_m3"))
+						{
+							return;
+						}
+						break;
+					case WEAPON_M4A1:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+							/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_MAC10:
+						if ( pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_MP5N:
+						if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45")  )
+						{
+							return;
+						}
+						break;
+					case WEAPON_SG550:
+						if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+						{
+							return;
+						}
+						break;
+					case WEAPON_SG552:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+							/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_TMP:
+						if ( pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_UMP45:
+						if ( pPlayer->HasNamedPlayerItem("weapon_ump45") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_tmp") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_USP:
+						if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228")
+							|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_P90:
+						if ( pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_KNIFE:
+						if ( pPlayer->HasNamedPlayerItem("weapon_knife") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_P228:
+						if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228")
+							|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+						{
+							return;
+						}
+						break;
+					case WEAPON_SCOUT:
+						if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+							pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+							pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+						{
+							return;
+						}
+						break;
+					case WEAPON_RPGRENADE:
+						if ( pPlayer->HasNamedPlayerItem("weapon_rpgrenade"))
+						{
+							return;
+						}
+						break;
+
+					case WEAPON_FLASHBANG:
+						break;
+					case WEAPON_HEGRENADE:
+						break;
+					/*default:
+						//ClientPrint( pPlayer->pev, HUD_PRINTTALK, "In the switch, but weapon didnt match");
+						break;*/
+				}
+				m_rgpPlayerItems[i] = m_rgpPlayerItems[i]->m_pNext;// unlink this weapon from the box
+
+				if( pPlayer->AddPlayerItem( pItem ) )
+				{
+					pItem->AttachToPlayer( pPlayer );
+				}
+			}
+		}
+	}
+
+// dole out ammo
+	/*for ( i = 0 ; i < MAX_AMMO_SLOTS ; i++ )
+	{
+		if ( !FStringNull( m_rgiszAmmo[ i ] ) )
+		{
+			// there's some ammo of this type.
+			pPlayer->GiveAmmo( m_rgAmmo[ i ], (char *)STRING( m_rgiszAmmo[ i ] ), MaxAmmoCarry( m_rgiszAmmo[ i ] ) );
+
+			//ALERT ( at_console, "Gave %d rounds of %s\n", m_rgAmmo[i], STRING(m_rgiszAmmo[i]) );
+
+			// now empty the ammo from the weaponbox since we just gave it to the player
+			m_rgiszAmmo[ i ] = iStringNull;
+			m_rgAmmo[ i ] = 0;
+		}
+	}*/
+
+// go through my weapons and try to give the usable ones to the player.
+// it's important the the player be given ammo first, so the weapons code doesn't refuse
+// to deploy a better weapon that the player may pick up because he has no ammo for it.
+	/*for( i = 0; i < MAX_ITEM_TYPES; i++ )
 	{
 		if( m_rgpPlayerItems[i] )
 		{
@@ -2015,7 +2459,7 @@ BOOL CWeaponBox::PackAmmo( int iszName, int iCount )
 	if( iMaxCarry != -1 && iCount > 0 )
 	{
 		//ALERT( at_console, "Packed %d rounds of %s\n", iCount, STRING( iszName ) );
-		GiveAmmo( iCount, STRING( iszName ), iMaxCarry );
+		//GiveAmmo( iCount, STRING( iszName ), iMaxCarry );
 		return TRUE;
 	}
 
@@ -2130,12 +2574,83 @@ void CBasePlayerWeapon::PrintState( void )
 	ALERT( at_console, "m_iclip:  %i\n", m_iClip );
 }
 
+//Haunter
+TYPEDESCRIPTION	CKnife::m_SaveData[] =
+{
+	DEFINE_FIELD( CKnife, m_iSwing, FIELD_INTEGER ),
+};
+IMPLEMENT_SAVERESTORE( CKnife, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CUSP::m_SaveData[] =
+{
+	DEFINE_FIELD( CUSP, m_iSilenced, FIELD_INTEGER ),
+	DEFINE_FIELD( CUSP,	m_fInSilencing, FIELD_INTEGER ),
+	DEFINE_FIELD( CUSP,	m_bIsSilencing, FIELD_BOOLEAN ),
+};
+IMPLEMENT_SAVERESTORE( CUSP, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CGlock18::m_SaveData[] =
+{
+	DEFINE_FIELD( CGlock18, m_iBurstFire, FIELD_INTEGER ),
+};
+IMPLEMENT_SAVERESTORE( CGlock18, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CULTIMATE::m_SaveData[] =
+{
+	DEFINE_FIELD( CULTIMATE, m_cActiveRockets, FIELD_INTEGER ),
+};
+IMPLEMENT_SAVERESTORE( CULTIMATE, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CJusticeRocket::m_SaveData[] =
+{
+	DEFINE_FIELD( CJusticeRocket, m_flIgniteTime, FIELD_TIME ),
+	DEFINE_FIELD( CJusticeRocket, m_pLauncher, FIELD_CLASSPTR ),
+};
+IMPLEMENT_SAVERESTORE( CJusticeRocket, CGrenade )
+
+
+TYPEDESCRIPTION	CM3::m_SaveData[] =
+{
+	DEFINE_FIELD( CM3, m_flNextReload, FIELD_TIME ),
+	DEFINE_FIELD( CM3, m_fInReload, FIELD_INTEGER ),
+	DEFINE_FIELD( CM3, m_flPumpTime, FIELD_TIME ),
+};
+IMPLEMENT_SAVERESTORE( CM3, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CXM1014::m_SaveData[] =
+{
+	DEFINE_FIELD( CXM1014, m_flNextReload, FIELD_TIME ),
+	DEFINE_FIELD( CXM1014, m_fInReload, FIELD_INTEGER ),
+	// DEFINE_FIELD( CM3, m_iShell, FIELD_INTEGER ),
+	DEFINE_FIELD( CXM1014, m_flPumpTime, FIELD_TIME ),
+};
+IMPLEMENT_SAVERESTORE( CXM1014, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CRPGRENADE::m_SaveData[] =
+{
+	DEFINE_FIELD( CRPGRENADE, m_cActiveRockets, FIELD_INTEGER ),
+};
+IMPLEMENT_SAVERESTORE( CRPGRENADE, CBasePlayerWeapon )
+
+TYPEDESCRIPTION	CRpgRocket2::m_SaveData[] =
+{
+	DEFINE_FIELD( CRpgRocket2, m_flIgniteTime, FIELD_TIME ),
+	DEFINE_FIELD( CRpgRocket2, m_pLauncher, FIELD_CLASSPTR ),
+};
+IMPLEMENT_SAVERESTORE( CRpgRocket2, CGrenade )
+
+TYPEDESCRIPTION	CC4::m_SaveData[] =
+{
+	DEFINE_FIELD( CC4, m_chargeReady, FIELD_INTEGER ),
+};
+IMPLEMENT_SAVERESTORE( CC4, CBasePlayerWeapon )
+//Haunter
+
 TYPEDESCRIPTION	CRpg::m_SaveData[] =
 {
 	DEFINE_FIELD( CRpg, m_fSpotActive, FIELD_INTEGER ),
 	DEFINE_FIELD( CRpg, m_cActiveRockets, FIELD_INTEGER ),
 };
-
 IMPLEMENT_SAVERESTORE( CRpg, CBasePlayerWeapon )
 
 TYPEDESCRIPTION	CRpgRocket::m_SaveData[] =
@@ -2143,55 +2658,4 @@ TYPEDESCRIPTION	CRpgRocket::m_SaveData[] =
 	DEFINE_FIELD( CRpgRocket, m_flIgniteTime, FIELD_TIME ),
 	DEFINE_FIELD( CRpgRocket, m_hLauncher, FIELD_EHANDLE ),
 };
-
 IMPLEMENT_SAVERESTORE( CRpgRocket, CGrenade )
-
-TYPEDESCRIPTION	CShotgun::m_SaveData[] =
-{
-	DEFINE_FIELD( CShotgun, m_flNextReload, FIELD_TIME ),
-	DEFINE_FIELD( CShotgun, m_fInSpecialReload, FIELD_INTEGER ),
-	// DEFINE_FIELD( CShotgun, m_iShell, FIELD_INTEGER ),
-	DEFINE_FIELD( CShotgun, m_flPumpTime, FIELD_TIME ),
-};
-
-IMPLEMENT_SAVERESTORE( CShotgun, CBasePlayerWeapon )
-
-TYPEDESCRIPTION	CGauss::m_SaveData[] =
-{
-	DEFINE_FIELD( CGauss, m_fInAttack, FIELD_INTEGER ),
-	//DEFINE_FIELD( CGauss, m_flStartCharge, FIELD_TIME ),
-	//DEFINE_FIELD( CGauss, m_flPlayAftershock, FIELD_TIME ),
-	//DEFINE_FIELD( CGauss, m_flNextAmmoBurn, FIELD_TIME ),
-	DEFINE_FIELD( CGauss, m_fPrimaryFire, FIELD_BOOLEAN ),
-};
-
-IMPLEMENT_SAVERESTORE( CGauss, CBasePlayerWeapon )
-
-TYPEDESCRIPTION	CEgon::m_SaveData[] =
-{
-	//DEFINE_FIELD( CEgon, m_pBeam, FIELD_CLASSPTR ),
-	//DEFINE_FIELD( CEgon, m_pNoise, FIELD_CLASSPTR ),
-	//DEFINE_FIELD( CEgon, m_pSprite, FIELD_CLASSPTR ),
-	DEFINE_FIELD( CEgon, m_shootTime, FIELD_TIME ),
-	DEFINE_FIELD( CEgon, m_fireState, FIELD_INTEGER ),
-	DEFINE_FIELD( CEgon, m_fireMode, FIELD_INTEGER ),
-	DEFINE_FIELD( CEgon, m_shakeTime, FIELD_TIME ),
-	DEFINE_FIELD( CEgon, m_flAmmoUseTime, FIELD_TIME ),
-};
-
-IMPLEMENT_SAVERESTORE( CEgon, CBasePlayerWeapon )
-
-TYPEDESCRIPTION CHgun::m_SaveData[] =
-{
-	DEFINE_FIELD( CHgun, m_flRechargeTime, FIELD_TIME ),
-	DEFINE_FIELD( CHgun, m_iFirePhase, FIELD_INTEGER ),
-};
-
-IMPLEMENT_SAVERESTORE( CHgun, CBasePlayerWeapon )
-
-TYPEDESCRIPTION	CSatchel::m_SaveData[] = 
-{
-	DEFINE_FIELD( CSatchel, m_chargeReady, FIELD_INTEGER ),
-};
-
-IMPLEMENT_SAVERESTORE( CSatchel, CBasePlayerWeapon )

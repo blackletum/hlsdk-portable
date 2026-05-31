@@ -109,7 +109,7 @@ void CHEGrenade::Holster( )
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_HEGRENADE);
-		SetThink( DestroyItem );
+		SetThink( &CHEGrenade::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumHEGrenades = 0;
@@ -134,7 +134,7 @@ void CHEGrenade::PrimaryAttack()
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_HEGRENADE);
-		SetThink( DestroyItem );
+		SetThink( &CHEGrenade::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumHEGrenades = 0;
@@ -151,7 +151,7 @@ void CHEGrenade::Grenade(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_HEGRENADE);
-		SetThink( DestroyItem );
+		SetThink( &CHEGrenade::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumHEGrenades = 0;
@@ -166,7 +166,7 @@ void CHEGrenade::WeaponIdle( void )
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_HEGRENADE);
-		SetThink( DestroyItem );
+		SetThink( &CHEGrenade::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumHEGrenades = 0;

@@ -44,7 +44,6 @@ extern cvar_t defaultteam;
 extern cvar_t allowmonsters;
 extern cvar_t bhopcap;
 extern cvar_t sv_pushable_fixed_tick_fudge;
-extern cvar_t sv_busters;
 
 //Haunter
 extern cvar_t	startmoneymp;

@@ -131,6 +131,8 @@ public:
 
 	float m_flPingTime;	// Time until the next ping, used when searching
 	float m_flSpinUpTime;	// Amount of time until the barrel should spin down when searching
+
+	int m_iShellBigT;
 };
 
 TYPEDESCRIPTION	CBaseTurret::m_SaveData[] =
@@ -203,6 +205,8 @@ public:
 	void Precache( void );
 	// other functions
 	void Shoot( Vector &vecSrc, Vector &vecDirToEnemy );
+
+	int m_iShellMiniT;
 };
 
 LINK_ENTITY_TO_CLASS( monster_turret, CTurret )
@@ -280,6 +284,7 @@ void CBaseTurret::Precache()
 	PRECACHE_SOUND( "turret/tu_spindown.wav" );
 	PRECACHE_SOUND( "turret/tu_search.wav" );
 	PRECACHE_SOUND( "turret/tu_alert.wav" );
+	m_iShellBigT = PRECACHE_MODEL( "models/556mmshell.mdl" );
 }
 
 void CBaseTurret::UpdateOnRemove()
@@ -324,8 +329,11 @@ void CTurret::Spawn()
 void CTurret::Precache()
 {
 	CBaseTurret::Precache();
-	PRECACHE_MODEL( "models/turret.mdl" );	
+	PRECACHE_MODEL( "models/turret.mdl" );
 	PRECACHE_MODEL( TURRET_GLOW_SPRITE );
+	PRECACHE_SOUND( "turret/turret_fire.wav" );
+
+	m_iShellT = PRECACHE_MODEL( "models/556mmshell.mdl" );
 }
 
 void CMiniTurret::Spawn()
@@ -350,10 +358,12 @@ void CMiniTurret::Spawn()
 void CMiniTurret::Precache()
 {
 	CBaseTurret::Precache();
-	PRECACHE_MODEL( "models/miniturret.mdl" );	
+	PRECACHE_MODEL( "models/miniturret.mdl" );
 	PRECACHE_SOUND( "weapons/hks1.wav" );
 	PRECACHE_SOUND( "weapons/hks2.wav" );
 	PRECACHE_SOUND( "weapons/hks3.wav" );
+
+	m_iShellMiniT = PRECACHE_MODEL( "models/556mmshell.mdl" );
 }
 
 void CBaseTurret::Initialize( void )
@@ -618,14 +628,22 @@ void CBaseTurret::ActiveThink( void )
 
 void CTurret::Shoot( Vector &vecSrc, Vector &vecDirToEnemy )
 {
-	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_12MM, 1 );
-	EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.6 );
+	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT( 40, 90 ) + gpGlobals->v_up * RANDOM_FLOAT( 75, 200 ) + gpGlobals->v_forward * RANDOM_FLOAT( -40, 40 );
+
+	EjectBrass( vecSrc, vecShellVelocity, pev->angles.y, m_iShellT, TE_BOUNCE_SHELL );
+
+	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_TURRET, 1 );
+	EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "turret/turret_fire.wav", 1, 0.6 );
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
 
 void CMiniTurret::Shoot( Vector &vecSrc, Vector &vecDirToEnemy )
 {
-	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_9MM, 1 );
+	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT( 40, 90 ) + gpGlobals->v_up * RANDOM_FLOAT( 75, 200 ) + gpGlobals->v_forward * RANDOM_FLOAT( -40, 40 );
+
+	EjectBrass( vecSrc, vecShellVelocity, pev->angles.y, m_iShellMiniT, TE_BOUNCE_SHELL );
+
+	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_TURRET, 1 );
 
 	switch( RANDOM_LONG( 0, 2 ) )
 	{
@@ -1144,6 +1162,10 @@ public:
 	int TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType );
 	void EXPORT SentryTouch( CBaseEntity *pOther );
 	void EXPORT SentryDeath( void );
+
+	//Haunter
+	int m_iShell;
+	//Haunter
 };
 
 LINK_ENTITY_TO_CLASS( monster_sentry, CSentry )
@@ -1155,6 +1177,10 @@ void CSentry::Precache()
 	PRECACHE_SOUND( "weapons/hks1.wav" );
 	PRECACHE_SOUND( "weapons/hks2.wav" );
 	PRECACHE_SOUND( "weapons/hks3.wav" );
+	//Haunter
+	PRECACHE_SOUND( "sentry/sentry_fire.wav" );
+	m_iShell = PRECACHE_MODEL( "models/556mmshell.mdl" );
+	//Haunter
 }
 
 void CSentry::Spawn()
@@ -1180,20 +1206,15 @@ void CSentry::Spawn()
 
 void CSentry::Shoot( Vector &vecSrc, Vector &vecDirToEnemy )
 {
-	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_MP5, 1 );
+//	Vector vecShootOrigin = GetGunPosition();
+	Vector vecShellVelocity = gpGlobals->v_right * RANDOM_FLOAT( 40, 90 ) + gpGlobals->v_up * RANDOM_FLOAT( 75, 200 ) + gpGlobals->v_forward * RANDOM_FLOAT( -40, 40 );
 
-	switch( RANDOM_LONG( 0, 2 ) )
-	{
-	case 0:
-		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "weapons/hks1.wav", 1, ATTN_NORM );
-		break;
-	case 1:
-		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_NORM );
-		break;
-	case 2:
-		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "weapons/hks3.wav", 1, ATTN_NORM );
-		break;
-	}
+	EjectBrass( vecSrc, vecShellVelocity, pev->angles.y, m_iShell, TE_BOUNCE_SHELL );
+
+	FireBullets( 1, vecSrc, vecDirToEnemy, TURRET_SPREAD, TURRET_RANGE, BULLET_MONSTER_SENTRY, 1 );
+
+	EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "sentry/sentry_fire.wav", 1, ATTN_NORM );
+
 	pev->effects = pev->effects | EF_MUZZLEFLASH;
 }
 

@@ -381,6 +381,9 @@ void CBarnacle::Killed( entvars_t *pevAttacker, int iGib )
 
 	pev->nextthink = gpGlobals->time + 0.1f;
 	SetThink( &CBarnacle::WaitTillDead );
+	//Haunter
+	//CBaseMonster::Killed( pevAttacker, iGib );
+	//Haunter
 }
 
 //=========================================================

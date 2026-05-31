@@ -212,7 +212,7 @@ void DLLEXPORT HUD_TxferPredictionData( struct entity_state_s *ps, const struct 
 	}
 
 	// Fire prevention
-	pcd->iuser4 					= ppcd->iuser4;
+	//pcd->iuser4 					= ppcd->iuser4;
 
 	pcd->fuser2					= ppcd->fuser2;
 	pcd->fuser3					= ppcd->fuser3;

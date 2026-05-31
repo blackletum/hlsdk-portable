@@ -17,6 +17,12 @@
 #include "cl_entity.h"
 #include "triangleapi.h"
 
+//Haunter
+//#include "tri_scope.h"
+
+//extern CTriScope *pTriScope;
+//Haunter
+
 extern "C"
 {
 	void DLLEXPORT HUD_DrawNormalTriangles( void );
@@ -114,3 +120,17 @@ void DLLEXPORT HUD_DrawTransparentTriangles( void )
 //	Draw_Triangles();
 #endif
 }
+
+//Haunter
+/*
+=================
+HUD_DrawOrthoTriangles
+Orthogonal Triangles -- (relative to resolution,
+smackdab on the screen) add them here
+=================
+*/
+void HUD_DrawOrthoTriangles( void )
+{
+//	pTriScope->Render();
+}
+//Haunter

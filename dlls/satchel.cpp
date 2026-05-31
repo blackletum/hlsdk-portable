@@ -185,13 +185,14 @@ void CSatchelCharge::BounceSound( void )
 	}
 }
 
-LINK_ENTITY_TO_CLASS( weapon_satchel, CSatchel )
+//LINK_ENTITY_TO_CLASS( weapon_satchel, CSatchel )
 
 //=========================================================
 // CALLED THROUGH the newly-touched weapon's instance. The existing player weapon is pOriginal
 //=========================================================
 int CSatchel::AddDuplicate( CBasePlayerItem *pOriginal )
 {
+	/*
 #if !CLIENT_DLL
 	CSatchel *pSatchel;
 	int nNumSatchels, nSatchelsInPocket;
@@ -226,13 +227,14 @@ int CSatchel::AddDuplicate( CBasePlayerItem *pOriginal )
 	}
 #endif
 	return CBasePlayerWeapon::AddDuplicate( pOriginal );
+	*/
 }
 
 //=========================================================
 //=========================================================
 int CSatchel::AddToPlayer( CBasePlayer *pPlayer )
 {
-	int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
+	/*int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
 
 	pPlayer->pev->weapons |= ( 1 << m_iId );
 	m_chargeReady = SATCHEL_IDLE;// this satchel charge weapon now forgets that any satchels are deployed by it.
@@ -287,12 +289,12 @@ int CSatchel::GetItemInfo( ItemInfo *p )
 //=========================================================
 BOOL CSatchel::IsUseable( void )
 {
-	return CanDeploy();
+	/*return CanDeploy();*/
 }
 
 BOOL CSatchel::CanDeploy( void )
 {
-	if( m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] > 0 ) 
+	/*if( m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] > 0 )
 	{
 		// player is carrying some satchels
 		return TRUE;
@@ -304,31 +306,31 @@ BOOL CSatchel::CanDeploy( void )
 		return TRUE;
 	}
 
-	return FALSE;
+	return FALSE;*/
 }
 
 BOOL CSatchel::Deploy()
 {
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0f;
+	/*m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0f;
 	BOOL result;
 
 	if( m_chargeReady )
 		result = DefaultDeploy( "models/v_satchel_radio.mdl", "models/p_satchel_radio.mdl", SATCHEL_RADIO_DRAW, "hive" );
 	else
 		result = DefaultDeploy( "models/v_satchel.mdl", "models/p_satchel.mdl", SATCHEL_DRAW, "trip" );
-	
+
 #if WEAPONS_ANIMATION_TIMES_FIX
 	if ( result )
 	{
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 2.0f;
 	}
 #endif
-	return result;
+	return result;*/
 }
 
 void CSatchel::Holster( int skiplocal /* = 0 */ )
 {
-	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
+	/*m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
 
 	if( m_chargeReady )
 	{
@@ -344,11 +346,12 @@ void CSatchel::Holster( int skiplocal /* = 0 */ )
 	{
 		m_pPlayer->pev->weapons &= ~( 1 << WEAPON_SATCHEL );
 		DestroyItem();
-	}
+	}*/
 }
 
 void CSatchel::PrimaryAttack( void )
 {
+	/*
 #if SATCHEL_OLD_BEHAVIOUR
 	switch( m_chargeReady )
 	{
@@ -392,10 +395,12 @@ void CSatchel::PrimaryAttack( void )
 		Throw();
 	}
 #endif
+	*/
 }
 
 void CSatchel::SecondaryAttack( void )
 {
+	/*
 #if SATCHEL_OLD_BEHAVIOUR
 	if( m_chargeReady != SATCHEL_RELOAD )
 	{
@@ -436,11 +441,12 @@ void CSatchel::SecondaryAttack( void )
 		break;
 	}
 #endif
+	*/
 }
 
 void CSatchel::Throw( void )
 {
-	if( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] )
+	/*if( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] )
 	{
 #if !CLIENT_DLL
 		Vector vecSrc = m_pPlayer->pev->origin;
@@ -468,12 +474,12 @@ void CSatchel::Throw( void )
 
 		m_flNextPrimaryAttack = GetNextAttackDelay( 1.0f );
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5f;
-	}
+	}*/
 }
 
 void CSatchel::WeaponIdle( void )
 {
-	if( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
+	/*if( m_flTimeWeaponIdle > UTIL_WeaponTimeBase() )
 		return;
 
 	switch( m_chargeReady )

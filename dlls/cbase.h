@@ -252,6 +252,10 @@ public:
 	int ShouldToggle( USE_TYPE useType, BOOL currentState );
 	void FireBullets( ULONG cShots, Vector  vecSrc, Vector	vecDirShooting,	Vector	vecSpread, float flDistance, int iBulletType, int iTracerFreq = 4, int iDamage = 0, entvars_t *pevAttacker = NULL  );
 	Vector FireBulletsPlayer( ULONG cShots, Vector  vecSrc, Vector	vecDirShooting,	Vector	vecSpread, float flDistance, int iBulletType, int iTracerFreq = 4, int iDamage = 0, entvars_t *pevAttacker = NULL, int shared_rand = 0 );
+	//Atomizer
+	Vector FireBulletsPlayer2( ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iPenetration, int iBulletType, int iDamage, float flRangeModifier, entvars_t *pevAttacker = NULL, int shared_rand = 0, bool bPistol = NULL );
+	Vector FireBulletsHGrunt( ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iPenetration, int iBulletType, int iDamage, float flRangeModifier, entvars_t *pevAttacker = NULL, int shared_rand = 0, bool bPistol = NULL );
+	//Atom
 
 	virtual CBaseEntity *Respawn( void ) { return NULL; }
 

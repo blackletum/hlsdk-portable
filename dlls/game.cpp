@@ -48,13 +48,19 @@ cvar_t decalfrequency	= { "decalfrequency","30", FCVAR_SERVER };
 cvar_t teamlist		= { "mp_teamlist","hgrunt;scientist", FCVAR_SERVER };
 cvar_t teamoverride	= { "mp_teamoverride","1" };
 cvar_t defaultteam	= { "mp_defaultteam","0" };
-cvar_t allowmonsters	= { "mp_allowmonsters","0", FCVAR_SERVER };
+cvar_t allowmonsters	= { "mp_allowmonsters","1", FCVAR_SERVER };
 cvar_t bhopcap		= { "mp_bhopcap", "1", FCVAR_SERVER };
 
 cvar_t allow_spectators = { "allow_spectators", "0", FCVAR_SERVER };	// 0 prevents players from being spectators
 cvar_t multibyte_only = { "mp_multibyte_only", "0", FCVAR_SERVER };
 
 cvar_t mp_chattime	= { "mp_chattime","10", FCVAR_SERVER };
+
+//Haunter
+cvar_t	startmoneymp = {"mp_startmoney", "800", FCVAR_SERVER };
+cvar_t	buytimemp = {"mp_buytime", "3", FCVAR_SERVER };
+cvar_t	getcashmp = {"mp_getcash", "1", FCVAR_SERVER };
+//Haunter
 
 // Engine Cvars
 cvar_t *g_psv_gravity;
@@ -487,7 +493,6 @@ cvar_t	sk_player_leg3	= { "sk_player_leg3","1" };
 // END Cvars for Skill Level settings
 
 cvar_t sv_pushable_fixed_tick_fudge = { "sv_pushable_fixed_tick_fudge", "15" };
-cvar_t sv_busters = { "sv_busters", "0" };
 
 // Register your console variables here
 // This gets called one time when the game is initialied
@@ -536,8 +541,13 @@ void GameDLLInit( void )
 	CVAR_REGISTER( &bhopcap );
 	CVAR_REGISTER( &multibyte_only );
 
+	//Haunter
+	CVAR_REGISTER( &startmoneymp );
+	CVAR_REGISTER( &buytimemp );
+	CVAR_REGISTER( &getcashmp );
+	//Haunter
+
 	CVAR_REGISTER( &mp_chattime );
-	CVAR_REGISTER( &sv_busters );
 
 
 // REGISTER CVARS FOR SKILL LEVEL STUFF
@@ -760,63 +770,17 @@ void GameDLLInit( void )
 
 	// PLAYER WEAPONS
 
-	// Crowbar whack
-	CVAR_REGISTER( &sk_plr_crowbar1 );// {"sk_plr_crowbar1","0"};
-	CVAR_REGISTER( &sk_plr_crowbar2 );// {"sk_plr_crowbar2","0"};
-	CVAR_REGISTER( &sk_plr_crowbar3 );// {"sk_plr_crowbar3","0"};
-
-	// Glock Round
-	CVAR_REGISTER( &sk_plr_9mm_bullet1 );// {"sk_plr_9mm_bullet1","0"};
-	CVAR_REGISTER( &sk_plr_9mm_bullet2 );// {"sk_plr_9mm_bullet2","0"};
-	CVAR_REGISTER( &sk_plr_9mm_bullet3 );// {"sk_plr_9mm_bullet3","0"};
-
-	// 357 Round
-	CVAR_REGISTER( &sk_plr_357_bullet1 );// {"sk_plr_357_bullet1","0"};
-	CVAR_REGISTER( &sk_plr_357_bullet2 );// {"sk_plr_357_bullet2","0"};
-	CVAR_REGISTER( &sk_plr_357_bullet3 );// {"sk_plr_357_bullet3","0"};
-
-	// MP5 Round
-	CVAR_REGISTER( &sk_plr_9mmAR_bullet1 );// {"sk_plr_9mmAR_bullet1","0"};
-	CVAR_REGISTER( &sk_plr_9mmAR_bullet2 );// {"sk_plr_9mmAR_bullet2","0"};
-	CVAR_REGISTER( &sk_plr_9mmAR_bullet3 );// {"sk_plr_9mmAR_bullet3","0"};
-
 	// M203 grenade
 	CVAR_REGISTER( &sk_plr_9mmAR_grenade1 );// {"sk_plr_9mmAR_grenade1","0"};
 	CVAR_REGISTER( &sk_plr_9mmAR_grenade2 );// {"sk_plr_9mmAR_grenade2","0"};
 	CVAR_REGISTER( &sk_plr_9mmAR_grenade3 );// {"sk_plr_9mmAR_grenade3","0"};
 
-	// Shotgun buckshot
-	CVAR_REGISTER( &sk_plr_buckshot1 );// {"sk_plr_buckshot1","0"};
-	CVAR_REGISTER( &sk_plr_buckshot2 );// {"sk_plr_buckshot2","0"};
-	CVAR_REGISTER( &sk_plr_buckshot3 );// {"sk_plr_buckshot3","0"};
-
-	// Crossbow
-	CVAR_REGISTER( &sk_plr_xbow_bolt_monster1 );// {"sk_plr_xbow_bolt1","0"};
-	CVAR_REGISTER( &sk_plr_xbow_bolt_monster2 );// {"sk_plr_xbow_bolt2","0"};
-	CVAR_REGISTER( &sk_plr_xbow_bolt_monster3 );// {"sk_plr_xbow_bolt3","0"};
-
-	CVAR_REGISTER( &sk_plr_xbow_bolt_client1 );// {"sk_plr_xbow_bolt1","0"};
-	CVAR_REGISTER( &sk_plr_xbow_bolt_client2 );// {"sk_plr_xbow_bolt2","0"};
-	CVAR_REGISTER( &sk_plr_xbow_bolt_client3 );// {"sk_plr_xbow_bolt3","0"};
 
 	// RPG
 	CVAR_REGISTER( &sk_plr_rpg1 );// {"sk_plr_rpg1","0"};
 	CVAR_REGISTER( &sk_plr_rpg2 );// {"sk_plr_rpg2","0"};
 	CVAR_REGISTER( &sk_plr_rpg3 );// {"sk_plr_rpg3","0"};
 
-	// Gauss Gun
-	CVAR_REGISTER( &sk_plr_gauss1 );// {"sk_plr_gauss1","0"};
-	CVAR_REGISTER( &sk_plr_gauss2 );// {"sk_plr_gauss2","0"};
-	CVAR_REGISTER( &sk_plr_gauss3 );// {"sk_plr_gauss3","0"};
-
-	// Egon Gun
-	CVAR_REGISTER( &sk_plr_egon_narrow1 );// {"sk_plr_egon_narrow1","0"};
-	CVAR_REGISTER( &sk_plr_egon_narrow2 );// {"sk_plr_egon_narrow2","0"};
-	CVAR_REGISTER( &sk_plr_egon_narrow3 );// {"sk_plr_egon_narrow3","0"};
-
-	CVAR_REGISTER( &sk_plr_egon_wide1 );// {"sk_plr_egon_wide1","0"};
-	CVAR_REGISTER( &sk_plr_egon_wide2 );// {"sk_plr_egon_wide2","0"};
-	CVAR_REGISTER( &sk_plr_egon_wide3 );// {"sk_plr_egon_wide3","0"};
 
 	// Hand Grendade
 	CVAR_REGISTER( &sk_plr_hand_grenade1 );// {"sk_plr_hand_grenade1","0"};
@@ -838,9 +802,35 @@ void GameDLLInit( void )
 	CVAR_REGISTER( &sk_12mm_bullet2 );// {"sk_12mm_bullet2","0"};
 	CVAR_REGISTER( &sk_12mm_bullet3 );// {"sk_12mm_bullet3","0"};
 
-	CVAR_REGISTER( &sk_9mmAR_bullet1 );// {"sk_9mm_bullet1","0"};
-	CVAR_REGISTER( &sk_9mmAR_bullet2 );// {"sk_9mm_bullet1","0"};
-	CVAR_REGISTER( &sk_9mmAR_bullet3 );// {"sk_9mm_bullet1","0"};
+	CVAR_REGISTER( &sk_HgruntAR_bullet1 );// {"sk_9mm_bullet1","0"};
+	CVAR_REGISTER( &sk_HgruntAR_bullet2 );// {"sk_9mm_bullet1","0"};
+	CVAR_REGISTER( &sk_HgruntAR_bullet3 );// {"sk_9mm_bullet1","0"};
+
+	//Haunter
+	CVAR_REGISTER( &sk_HgruntMG_bullet1 );
+	CVAR_REGISTER( &sk_HgruntMG_bullet2 );
+	CVAR_REGISTER( &sk_HgruntMG_bullet3 );
+
+	CVAR_REGISTER( &sk_Hassassin_bullet1 );
+	CVAR_REGISTER( &sk_Hassassin_bullet2 );
+	CVAR_REGISTER( &sk_Hassassin_bullet3 );
+
+	CVAR_REGISTER( &sk_Barney_bullet1 );
+	CVAR_REGISTER( &sk_Barney_bullet2 );
+	CVAR_REGISTER( &sk_Barney_bullet3 );
+
+	CVAR_REGISTER( &sk_SentryMG_bullet1 );
+	CVAR_REGISTER( &sk_SentryMG_bullet2 );
+	CVAR_REGISTER( &sk_SentryMG_bullet3 );
+
+	CVAR_REGISTER( &sk_TurretMG_bullet1 );
+	CVAR_REGISTER( &sk_TurretMG_bullet2 );
+	CVAR_REGISTER( &sk_TurretMG_bullet3 );
+
+	CVAR_REGISTER( &sk_ApacheMG_bullet1 );
+	CVAR_REGISTER( &sk_ApacheMG_bullet2 );
+	CVAR_REGISTER( &sk_ApacheMG_bullet3 );
+	//Haunter
 
 	CVAR_REGISTER( &sk_9mm_bullet1 );// {"sk_9mm_bullet1","0"};
 	CVAR_REGISTER( &sk_9mm_bullet2 );// {"sk_9mm_bullet2","0"};

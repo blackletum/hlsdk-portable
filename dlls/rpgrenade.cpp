@@ -52,7 +52,7 @@ CRpgRocket2 *CRpgRocket2::CreateRpgRocket2( Vector vecOrigin, Vector vecAngles, 
 	UTIL_SetOrigin( pRocket->pev, vecOrigin );
 	pRocket->pev->angles = vecAngles;
 	pRocket->Spawn();
-	pRocket->SetTouch( CRpgRocket2::RocketTouch );
+	pRocket->SetTouch( &CRpgRocket2::RocketTouch );
 	pRocket->m_pLauncher = pLauncher;// remember what RPG fired me. 
 	pRocket->m_pLauncher->m_cActiveRockets++;// register this missile as active for the launcher
 	pRocket->pev->owner = pOwner->edict();
@@ -75,8 +75,8 @@ void CRpgRocket2 :: Spawn( void )
 
 	pev->classname = MAKE_STRING("rpg_rocket2");
 
-	SetThink( IgniteThink );
-	SetTouch( ExplodeTouchRPG );
+	SetThink( &CRpgRocket2::IgniteThink );
+	SetTouch( &CRpgRocket2::ExplodeTouchRPG );
 
 	pev->angles.x -= 0;
 	UTIL_MakeVectors( pev->angles );
@@ -142,7 +142,7 @@ void CRpgRocket2 :: IgniteThink( void  )
 	m_flIgniteTime = gpGlobals->time;
 
 	// set to follow laser spot
-	SetThink( FollowThink );
+	SetThink( &CRpgRocket2::FollowThink );
 	pev->nextthink = gpGlobals->time + 0.1;
 }
 

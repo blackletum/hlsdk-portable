@@ -1273,14 +1273,39 @@ void UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber/*Atomizer*/, b
 	if( pTrace->flFraction == 1.0f )
 		return;
 
-	MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos );
+	//Atomizer
+	if( ClientOnly == FALSE )
+	{
+		MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos );
+			WRITE_BYTE( TE_GUNSHOTDECAL );
+			WRITE_COORD( pTrace->vecEndPos.x );
+			WRITE_COORD( pTrace->vecEndPos.y );
+			WRITE_COORD( pTrace->vecEndPos.z );
+			WRITE_SHORT( (short)ENTINDEX( pTrace->pHit ) );
+			WRITE_BYTE( index );
+		MESSAGE_END();
+	}
+	else
+	{
+		MESSAGE_BEGIN( MSG_ONE, SVC_TEMPENTITY, pTrace->vecEndPos, pShooter );
+			WRITE_BYTE( TE_GUNSHOTDECAL );
+			WRITE_COORD( pTrace->vecEndPos.x );
+			WRITE_COORD( pTrace->vecEndPos.y );
+			WRITE_COORD( pTrace->vecEndPos.z );
+			WRITE_SHORT( (short)ENTINDEX( pTrace->pHit ) );
+			WRITE_BYTE( index );
+		MESSAGE_END();
+	}
+
+	/*MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pTrace->vecEndPos );
 		WRITE_BYTE( TE_GUNSHOTDECAL );
 		WRITE_COORD( pTrace->vecEndPos.x );
 		WRITE_COORD( pTrace->vecEndPos.y );
 		WRITE_COORD( pTrace->vecEndPos.z );
 		WRITE_SHORT( (short)ENTINDEX( pTrace->pHit ) );
 		WRITE_BYTE( index );
-	MESSAGE_END();
+	MESSAGE_END();*/
+	//Atom
 }
 
 void UTIL_Sparks( const Vector &position )

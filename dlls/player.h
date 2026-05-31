@@ -68,7 +68,10 @@ typedef enum
 	PLAYER_JUMP,
 	PLAYER_SUPERJUMP,
 	PLAYER_DIE,
-	PLAYER_ATTACK1
+	PLAYER_ATTACK1,
+	//Haunter
+	PLAYER_ATTACK2,
+	//Haunter
 } PLAYER_ANIM;
 
 #define MAX_ID_RANGE 2048
@@ -99,6 +102,79 @@ public:
 	int		m_iObserverLastMode;// last used observer mode
 	int		IsObserver() { return pev->iuser1; };
 
+	//Haunter
+	BOOL				m_bResumeZoom; //Resuming zoom from sniper scopes
+	short int			m_iLastZoom; //Last zoom's FOV
+	int					m_iScope; //Is it scoped?
+	long int			m_iMoney; //Money matters...
+	int					m_iFire; //For those with firing delay
+	short int			m_iArmor; //determines if it is health or armor we're buying
+	int					m_iNumFlashbangs; //number of flashbangs
+	int					m_iNumHEGrenades; //number of HEs
+	int					m_iNumC4; //number of C4s
+	int					m_iHE; //helps to count the number of FBs
+	int					m_iFB; //helps to count the number of HEs
+	int					m_iC4; //helps to count the number of C4s
+
+	int					m_iSilencing2; //is the silencer being fitted for the M4A1?
+	short int			m_iShotsFired; //count the number of shots fired
+
+	//For USP .45
+	BOOL				m_bIsSilencing; //Is the silencer being attached now?
+	int					m_iSilencing; //Is the silencer being attached now?
+
+	float				m_flAccuracy; //This is to calculate the accuracy of the guns
+
+	long int			m_iTimeSP; //buytime for SinglePlayer
+	long int			m_iTimeMP; //buytime for MultiPlayer
+	short int			m_iBuyable; //disables some buy scripts without activating the stations
+	int					m_iMenu; //The buy menu
+	int					m_iMenu2; //The buy menu 2 - for the rifles
+
+	//For the Glock18
+	float				m_flLastFire;
+
+	//these are for the ammunition buy loop
+	int				m_i9mmAmmo;
+	int				m_i45Ammo;
+	int				m_i50Ammo;
+	int				m_i357Ammo;
+	int				m_i57Ammo;
+	int				m_i12GAmmo;
+	int				m_i556Ammo;
+	int				m_i5562Ammo;
+	int				m_i338Ammo;
+	int				m_i762Ammo;
+	int				m_iM203Ammo;
+	int				m_iRPGAmmo;
+	int				m_iJudAmmo;
+	int				m_iJusAmmo;
+
+	//these are for buying a single clip of ammmo
+	int			m_i9mm;
+	int			m_i45;
+	int			m_i50;
+	int			m_i357;
+	int			m_i57;
+	int			m_i12G;
+	int			m_i556;
+	int			m_i5562;
+	int			m_i338;
+	int			m_i762;
+	int			m_iM203;
+	int			m_iRPG;
+	int			m_iJus;
+	int			m_iJud;
+
+	int 			m_iShroud; //Sniper Shroud
+	int			m_iBank;
+
+	//for testing
+	int    m_iSpeed() {return 900;}  //The max speed the player can move
+	int	m_iTest2;
+	int	m_iTest3;
+
+	//Haunter
 	int					random_seed;    // See that is shared between client & server for shared weapons code
 
 	int					m_iPlayerSound;// the index of the sound list slot reserved for this player

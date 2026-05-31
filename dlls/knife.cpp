@@ -151,7 +151,7 @@ void CKnife::PrimaryAttack()
 {
 	if (! Slash( 1 ))
 	{
-		SetThink( SlashAgain );
+		SetThink( &CKnife::SlashAgain );
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.1;
 	}
 }
@@ -317,7 +317,7 @@ int CKnife::Slash( int fFirst )
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.4;
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.55;
 		
-		SetThink( SlashMark );
+		SetThink( &CKnife::SlashMark );
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.2;
 	}
 	return fDidHit;
@@ -327,7 +327,7 @@ void CKnife::SecondaryAttack()
 {
 	if (! Stab( 1 ))
 	{
-		SetThink( StabAgain );
+		SetThink( &CKnife::StabAgain );
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.1;
 	}
 }
@@ -478,7 +478,7 @@ int CKnife::Stab( int fFirst )
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1.05;
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 1.05;
 		
-		SetThink( StabMark );
+		SetThink( &CKnife::StabMark );
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.2;
 	}
 	return fDidHit;

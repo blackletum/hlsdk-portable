@@ -747,10 +747,10 @@ void CBaseDoor::Blocked( CBaseEntity *pOther )
 	// so let it just squash the object to death real fast
 	if( m_flWait >= 0.0f )
 	{
-		// BMod Start - Door sound fix.
+		//Atomizer - door sound fix
 		if( !FBitSet( pev->spawnflags, SF_DOOR_SILENT ) )
 			STOP_SOUND( ENT( pev ), CHAN_STATIC, STRING( pev->noiseMoving ) );
-		// BMod End
+		//Atom
 
 		if( m_toggle_state == TS_GOING_DOWN )
 		{
@@ -796,8 +796,10 @@ void CBaseDoor::Blocked( CBaseEntity *pOther )
 								pDoor->pev->avelocity = g_vecZero;
 							}
 						}
-						if( !FBitSet( pev->spawnflags, SF_DOOR_SILENT ) )
-							STOP_SOUND( ENT( pev ), CHAN_STATIC, STRING( pev->noiseMoving ) );
+						//Atomizer
+						if( !FBitSet( pDoor->pev->spawnflags, SF_DOOR_SILENT ) )
+							STOP_SOUND( ENT( pDoor->pev ), CHAN_STATIC, STRING( pDoor->pev->noiseMoving ) );
+						//Atom
 
 						if( pDoor->m_toggle_state == TS_GOING_DOWN )
 							pDoor->DoorGoUp();

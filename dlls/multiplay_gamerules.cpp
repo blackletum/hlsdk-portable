@@ -125,6 +125,1137 @@ CHalfLifeMultiplay::CHalfLifeMultiplay()
 
 BOOL CHalfLifeMultiplay::ClientCommand( CBasePlayer *pPlayer, const char *pcmd )
 {
+	long int TimeHSMP;
+
+	pPlayer->m_iTimeMP = (int)CVAR_GET_FLOAT( "mp_buytime" );
+	if ( pPlayer->m_iTimeMP <= 0)
+	{
+		pPlayer->m_iTimeMP = 1;
+	}
+	extern float g_flWeaponCheat;
+
+	if ( FStrEq( pcmd, "zangle" ) )
+	{
+		if ( CMD_ARGC() < 2 )
+			return TRUE;
+
+		int angle = atoi( CMD_ARGV(1) );
+
+		pPlayer->pev->v_angle.z = angle;
+
+		return TRUE;
+	}
+	else if ( FStrEq( pcmd, "xangle" ) )
+	{
+		if ( CMD_ARGC() < 2 )
+			return TRUE;
+
+		int angle = atoi( CMD_ARGV(1) );
+
+		pPlayer->pev->v_angle.x = angle;
+
+		return TRUE;
+	}
+	else if ( FStrEq( pcmd, "yangle" ) )
+	{
+		if ( CMD_ARGC() < 2 )
+			return TRUE;
+
+		int angle = atoi( CMD_ARGV(1) );
+
+		pPlayer->pev->v_angle.y = angle;
+
+		return TRUE;
+	}
+	else if ( FStrEq(pcmd, "buy" ) )
+	{
+		TimeHSMP = (int)CVAR_GET_FLOAT( "mp_buytime" ); //Haunter
+		if ( TimeHSMP <= 0)
+			TimeHSMP = 1;
+
+		ShowMenu(pPlayer, 0x27F, TimeHSMP, 0, "#Buy"); //default 0x3FF
+		pPlayer->m_iMenu = 1;
+		pPlayer->m_iBuyable = 1;
+		return TRUE;
+	}
+	/*else if (FStrEq(pcmd, "bank" ))
+	{
+		ClientPrint(pPlayer->pev, HUD_PRINTTALK, UTIL_VarArgs( "Bank: $%i\n", pPlayer->m_iMoney ) );
+		return TRUE;
+	}*/
+	else if ( FStrEq( pcmd, "menuselect" ) )
+	{
+		if ( CMD_ARGC() < 2 )
+			return TRUE;
+
+		int slot = atoi( CMD_ARGV(1) );
+
+	if (pPlayer->m_iBuyable == 1)
+	{
+		if (pPlayer->m_iMenu == 1)
+		{
+			switch(slot)
+			{
+			case 1:
+				ShowMenu(pPlayer, 0x23F, pPlayer->m_iTimeMP, 0, "#BuyPistol"); //default 0x20F
+				pPlayer->m_iMenu = 2;
+				break;
+			case 2:
+				ShowMenu(pPlayer, 0x203, pPlayer->m_iTimeMP, 0, "#BuyShotgun");
+				pPlayer->m_iMenu = 3;
+				break;
+			case 3:
+				ShowMenu(pPlayer, 0x21F, pPlayer->m_iTimeMP, 0, "#BuySubMachineGun"); //default 0x207
+				pPlayer->m_iMenu = 4;
+				break;
+			case 4:
+				ShowMenu(pPlayer, 0x203, pPlayer->m_iTimeMP, 0, "#ChooseType"); //default 0x277
+				pPlayer->m_iMenu = 5;
+				break;
+			case 5:
+				ShowMenu(pPlayer, 0x207, pPlayer->m_iTimeMP, 0, "#BuyHeavy");
+				pPlayer->m_iMenu = 6;
+				break;
+			case 6:
+				if ( pPlayer->m_iArmor == 1)
+				{
+					ShowMenu(pPlayer, 0x21F, pPlayer->m_iTimeMP, 0, "#BuyEquip1");
+				}
+
+				if ( pPlayer->m_iArmor == 0 )
+				{
+					ShowMenu(pPlayer, 0x21F, pPlayer->m_iTimeMP, 0, "#BuyEquip2");
+				}
+				pPlayer->m_iMenu = 7;
+				break;
+			case 7:
+				ShowMenu(pPlayer, 0x23F, pPlayer->m_iTimeMP, 0, "#BuyAmmo");
+				pPlayer->m_iMenu = 8;
+			    break;
+			}
+		}
+		else if (pPlayer->m_iMenu == 2) //Pistols
+		{
+			switch(slot)
+			{
+			case 1: //Glock18
+				if(pPlayer->m_iMoney < 400)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_usp") | pPlayer->HasNamedPlayerItem("weapon_glock18") | pPlayer->HasNamedPlayerItem("weapon_deagle") | pPlayer->HasNamedPlayerItem("weapon_p228")
+					| pPlayer->HasNamedPlayerItem("weapon_fiveseven") | pPlayer->HasNamedPlayerItem("weapon_elite"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a handgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_glock18" );
+				pPlayer->m_iMoney -= 400;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 2: //USP .45
+				if(pPlayer->m_iMoney < 500)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_usp") | pPlayer->HasNamedPlayerItem("weapon_glock18") | pPlayer->HasNamedPlayerItem("weapon_deagle") | pPlayer->HasNamedPlayerItem("weapon_p228")
+					| pPlayer->HasNamedPlayerItem("weapon_fiveseven") | pPlayer->HasNamedPlayerItem("weapon_elite"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a handgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_usp" );
+				pPlayer->m_iMoney -= 500;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 3: //P228
+				if(pPlayer->m_iMoney < 600)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_usp") | pPlayer->HasNamedPlayerItem("weapon_glock18") | pPlayer->HasNamedPlayerItem("weapon_deagle") | pPlayer->HasNamedPlayerItem("weapon_p228")
+					| pPlayer->HasNamedPlayerItem("weapon_fiveseven") | pPlayer->HasNamedPlayerItem("weapon_elite"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a handgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_p228" );
+				pPlayer->m_iMoney -= 600;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 4:
+				if(pPlayer->m_iMoney < 650) //DEagle
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_usp") | pPlayer->HasNamedPlayerItem("weapon_glock18") | pPlayer->HasNamedPlayerItem("weapon_deagle") | pPlayer->HasNamedPlayerItem("weapon_p228")
+					| pPlayer->HasNamedPlayerItem("weapon_fiveseven") | pPlayer->HasNamedPlayerItem("weapon_elite"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a handgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_deagle" );
+				pPlayer->m_iMoney -= 650;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 5:
+				if(pPlayer->m_iMoney < 750) //FiveseveN
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_usp") | pPlayer->HasNamedPlayerItem("weapon_glock18") | pPlayer->HasNamedPlayerItem("weapon_deagle") | pPlayer->HasNamedPlayerItem("weapon_p228")
+					| pPlayer->HasNamedPlayerItem("weapon_fiveseven") | pPlayer->HasNamedPlayerItem("weapon_elite"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a handgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_fiveseven" );
+				pPlayer->m_iMoney -= 750;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 6:
+				if(pPlayer->m_iMoney < 800) //Elites
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_usp") | pPlayer->HasNamedPlayerItem("weapon_glock18") | pPlayer->HasNamedPlayerItem("weapon_deagle") | pPlayer->HasNamedPlayerItem("weapon_p228")
+					| pPlayer->HasNamedPlayerItem("weapon_fiveseven") | pPlayer->HasNamedPlayerItem("weapon_elite"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a handgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_elite" );
+				pPlayer->m_iMoney -= 800;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+		else if (pPlayer->m_iMenu == 3) //Shotguns
+		{
+			switch(slot)
+			{
+			case 1:
+				if(pPlayer->m_iMoney < 1700) //M3 Super 90
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_m3") | pPlayer->HasNamedPlayerItem("weapon_xm1014"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a shotgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_m3" );
+				pPlayer->m_iMoney -= 1700;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 2:
+				if(pPlayer->m_iMoney < 3000) //M1014
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_m3") | pPlayer->HasNamedPlayerItem("weapon_xm1014"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a shotgun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_xm1014" );
+				pPlayer->m_iMoney -= 3000;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+		else if (pPlayer->m_iMenu == 4) //Sub-Machine guns
+		{
+			switch(slot)
+			{
+			case 1:
+				if(pPlayer->m_iMoney < 1250) //TMP
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") | pPlayer->HasNamedPlayerItem("weapon_tmp") | pPlayer->HasNamedPlayerItem("weapon_p90") | pPlayer->HasNamedPlayerItem("weapon_mac10") | pPlayer->HasNamedPlayerItem("weapon_ump45"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_tmp" );
+				pPlayer->m_iMoney -= 1250;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 2:
+				if(pPlayer->m_iMoney < 1500) //MP5
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") | pPlayer->HasNamedPlayerItem("weapon_tmp") | pPlayer->HasNamedPlayerItem("weapon_p90") | pPlayer->HasNamedPlayerItem("weapon_mac10") | pPlayer->HasNamedPlayerItem("weapon_ump45"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_mp5navy" );
+				pPlayer->m_iMoney -= 1500;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 3:
+				if(pPlayer->m_iMoney < 1700) //UMP .45
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") | pPlayer->HasNamedPlayerItem("weapon_tmp") | pPlayer->HasNamedPlayerItem("weapon_p90") | pPlayer->HasNamedPlayerItem("weapon_mac10") | pPlayer->HasNamedPlayerItem("weapon_ump45"))
+				{
+					//UTIL_ClientPrintAll( HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_ump45" );
+				pPlayer->m_iMoney -= 1700;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 4:
+				if(pPlayer->m_iMoney < 2350) //P90
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") | pPlayer->HasNamedPlayerItem("weapon_tmp") | pPlayer->HasNamedPlayerItem("weapon_p90") | pPlayer->HasNamedPlayerItem("weapon_mac10") | pPlayer->HasNamedPlayerItem("weapon_ump45"))
+				{
+					//UTIL_ClientPrintAll( HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_p90" );
+				pPlayer->m_iMoney -= 2350;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 5:
+				if(pPlayer->m_iMoney < 1400) //Mac10
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") | pPlayer->HasNamedPlayerItem("weapon_tmp") | pPlayer->HasNamedPlayerItem("weapon_p90") | pPlayer->HasNamedPlayerItem("weapon_mac10") | pPlayer->HasNamedPlayerItem("weapon_ump45"))
+				{
+					//UTIL_ClientPrintAll( HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Sub-Machine Gun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_mac10" );
+				pPlayer->m_iMoney -= 1400;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+		else if (pPlayer->m_iMenu == 5) //Rifles
+		{
+			switch(slot)
+			{
+			case 1:
+				ShowMenu(pPlayer, 0x23F, pPlayer->m_iTimeSP, 0, "#BuyAssaultRifle");
+				pPlayer->m_iMenu = 9;
+				break;
+			case 2:
+				ShowMenu(pPlayer, 0x20F, pPlayer->m_iTimeSP, 0, "#BuySniperRifle");
+				pPlayer->m_iMenu = 10;
+				break;
+			}
+		}
+
+		else if ( pPlayer->m_iMenu == 9)
+		{
+			switch(slot)
+			{
+			case 1:
+				if(pPlayer->m_iMoney < 2000 ) //Galil
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_famas") | pPlayer->HasNamedPlayerItem("weapon_galil") |
+					pPlayer->HasNamedPlayerItem("weapon_ak47") | pPlayer->HasNamedPlayerItem("weapon_aug") |
+					pPlayer->HasNamedPlayerItem("weapon_m4a1") | pPlayer->HasNamedPlayerItem("weapon_sg552") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have an assault rifle\n" ) );
+					return TRUE;
+				}
+					pPlayer->GiveNamedItem( "weapon_galil" );
+				pPlayer->m_iMoney -= 2000;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 2:
+				if(pPlayer->m_iMoney < 2250) //FAMAS
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_famas") | pPlayer->HasNamedPlayerItem("weapon_galil") |
+					pPlayer->HasNamedPlayerItem("weapon_ak47") | pPlayer->HasNamedPlayerItem("weapon_aug") |
+					pPlayer->HasNamedPlayerItem("weapon_m4a1") | pPlayer->HasNamedPlayerItem("weapon_sg552") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have an assault rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_famas" );
+				pPlayer->m_iMoney -= 2250;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 3:
+				if(pPlayer->m_iMoney < 2500) //AK47
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_famas") | pPlayer->HasNamedPlayerItem("weapon_galil") |
+					pPlayer->HasNamedPlayerItem("weapon_ak47") | pPlayer->HasNamedPlayerItem("weapon_aug") |
+					pPlayer->HasNamedPlayerItem("weapon_m4a1") | pPlayer->HasNamedPlayerItem("weapon_sg552") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have an assault rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_ak47" );
+				pPlayer->m_iMoney -= 2500;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 4:
+				if(pPlayer->m_iMoney < 3500) //M4A1 w/M203
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_famas") | pPlayer->HasNamedPlayerItem("weapon_galil") |
+					pPlayer->HasNamedPlayerItem("weapon_ak47") | pPlayer->HasNamedPlayerItem("weapon_aug") |
+					pPlayer->HasNamedPlayerItem("weapon_m4a1") | pPlayer->HasNamedPlayerItem("weapon_sg552") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have an assault rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_m4a1" );
+				pPlayer->m_iMoney -= 3500;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 5:
+				if(pPlayer->m_iMoney < 3500) //AUG
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_famas") | pPlayer->HasNamedPlayerItem("weapon_galil") |
+					pPlayer->HasNamedPlayerItem("weapon_ak47") | pPlayer->HasNamedPlayerItem("weapon_aug") |
+					pPlayer->HasNamedPlayerItem("weapon_m4a1") | pPlayer->HasNamedPlayerItem("weapon_sg552") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have an assault rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_aug" );
+				pPlayer->m_iMoney -= 3500;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 6:
+				if(pPlayer->m_iMoney < 3500) //SG552
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_famas") | pPlayer->HasNamedPlayerItem("weapon_galil") |
+					pPlayer->HasNamedPlayerItem("weapon_ak47") | pPlayer->HasNamedPlayerItem("weapon_aug") |
+					pPlayer->HasNamedPlayerItem("weapon_m4a1") | pPlayer->HasNamedPlayerItem("weapon_sg552") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have an assault rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_sg552" );
+				pPlayer->m_iMoney -= 3500;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+
+		else if ( pPlayer->m_iMenu == 10)
+		{
+			switch(slot)
+			{
+			case 1:
+				if(pPlayer->m_iMoney < 2750) //Scout
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_scout") | pPlayer->HasNamedPlayerItem("weapon_awp") |
+					pPlayer->HasNamedPlayerItem("weapon_g3sg1") | pPlayer->HasNamedPlayerItem("weapon_sg550"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a sniper rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_scout" );
+				pPlayer->m_iMoney -= 2750;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 2:
+				if(pPlayer->m_iMoney < 4750) //AW/M
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+
+				if ( pPlayer->HasNamedPlayerItem("weapon_scout") | pPlayer->HasNamedPlayerItem("weapon_awp") |
+					pPlayer->HasNamedPlayerItem("weapon_g3sg1") | pPlayer->HasNamedPlayerItem("weapon_sg550") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a sniper rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_awp" );
+				pPlayer->m_iMoney -= 4750;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 3:
+				if(pPlayer->m_iMoney < 4200) //SG550
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_scout") | pPlayer->HasNamedPlayerItem("weapon_awp") |
+					pPlayer->HasNamedPlayerItem("weapon_g3sg1") | pPlayer->HasNamedPlayerItem("weapon_sg550") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a sniper rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_sg550" );
+				pPlayer->m_iMoney -= 4200;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 4:
+				if(pPlayer->m_iMoney < 5000) //G3SG1
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_scout") | pPlayer->HasNamedPlayerItem("weapon_awp") |
+					pPlayer->HasNamedPlayerItem("weapon_g3sg1") | pPlayer->HasNamedPlayerItem("weapon_sg550"))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a sniper rifle\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_g3sg1" );
+				pPlayer->m_iMoney -= 5000;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+		else if (pPlayer->m_iMenu == 6) //Machine guns
+		{
+			switch(slot)
+			{
+			case 1:
+				if(pPlayer->m_iMoney < 5750) //M249
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_m249") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a Machine Gun\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_m249" );
+				pPlayer->m_iMoney -= 5750;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 2:
+				if(pPlayer->m_iMoney < 4500)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->HasNamedPlayerItem("weapon_rpgrenade") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have a LAW\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_rpgrenade" );
+				pPlayer->m_iMoney -= 4500;
+				pPlayer->m_iBuyable = 0;
+				break;
+
+			case 3:
+				int woot;
+				woot = MP_MAXMONEY;
+				if( pPlayer->m_iMoney < woot )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "Try getting $%i\n", woot ) );
+					return TRUE;
+				}
+
+				if ( pPlayer->HasNamedPlayerItem("weapon_ultimate") )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "ERROR 404!*@#LOLZZ!!\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->GiveNamedItem( "weapon_ultimate" );
+				pPlayer->m_iMoney -= woot;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+		else if (pPlayer->m_iMenu == 7) //Equipment
+		{
+			switch(slot)
+			{
+			case 1:
+				if ( pPlayer->m_iArmor == 1) //Sells Armor
+				{
+					if( pPlayer->m_iMoney < 650 )
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+
+					if( pPlayer->pev->armorvalue >= 100)
+					{
+						return TRUE;
+					}
+
+						pPlayer->m_iMoney -= (((pPlayer->GiveArmor( 100 )) * 0) + 650);
+						//ClientPrint(pPlayer->pev, HUD_PRINTTALK, UTIL_VarArgs( "Bank: $%i\n", pPlayer->m_iMoney ) );
+				}
+
+				if ( pPlayer->m_iArmor == 0) //Sells Health
+				{
+					if( pPlayer->m_iMoney <= 0 )
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+
+					pPlayer->m_iMoney -= ((pPlayer->TakeHealth( 100, DMG_GENERIC )) * 0) + 100;
+				}
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 2:
+				if(pPlayer->m_iMoney < 300)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+
+				if(pPlayer->m_iNumHEGrenades >= HELOOP)
+				{
+					pPlayer->m_iNumHEGrenades = HELOOP; //Just incase
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have 10 HEGrenades\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->m_iNumHEGrenades++;
+				pPlayer->m_iHE++;
+				pPlayer->GiveNamedItem( "weapon_hegrenade" );
+				pPlayer->m_iMoney -= 300;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 3:
+				if(pPlayer->m_iMoney < 300)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+
+				if(	pPlayer->m_iNumHEGrenades >= HELOOP)
+				{
+					pPlayer->m_iNumHEGrenades = HELOOP; //Just incase
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You cannot carry anymore\n" ) );
+					return TRUE;
+				}
+
+				for ( pPlayer->m_iNumHEGrenades = pPlayer->m_iHE; pPlayer->m_iNumHEGrenades <= HELOOP; pPlayer->m_iNumHEGrenades++)
+				{
+					if ( (pPlayer->m_iMoney < 300) || (pPlayer->m_iNumHEGrenades == HELOOP ))
+					{
+						pPlayer->m_iHE = pPlayer->m_iNumHEGrenades;
+						break;
+					}
+					else
+					{
+						pPlayer->GiveNamedItem( "weapon_hegrenade" );
+					}
+					pPlayer->m_iMoney -= 300;
+				}
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 4:
+				if(pPlayer->m_iMoney < 1500)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+
+				if(pPlayer->m_iNumC4 >= C4LOOP)
+				{
+					pPlayer->m_iNumC4 = C4LOOP; //Just incase
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You already have 3 C4s\n" ) );
+					return TRUE;
+				}
+
+				pPlayer->m_iNumC4++;
+				pPlayer->m_iC4++;
+				pPlayer->GiveNamedItem( "weapon_c4" );
+				pPlayer->m_iMoney -= 1500;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 5:
+				if(pPlayer->m_iMoney < 1500)
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+					return TRUE;
+				}
+
+				if(	pPlayer->m_iNumC4 >= C4LOOP)
+				{
+					pPlayer->m_iNumC4 = C4LOOP; //Just incase
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You cannot carry anymore\n" ) );
+					return TRUE;
+				}
+
+				for ( pPlayer->m_iNumC4 = pPlayer->m_iC4; pPlayer->m_iNumC4 <= C4LOOP; pPlayer->m_iNumC4++)
+				{
+					if ( (pPlayer->m_iMoney < 1500) || (pPlayer->m_iNumC4 == C4LOOP ))
+					{
+						pPlayer->m_iC4 = pPlayer->m_iNumC4;
+						break;
+					}
+					else
+					{
+						pPlayer->GiveNamedItem( "weapon_c4" );
+					}
+					pPlayer->m_iMoney -= 1500;
+				}
+
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;// select the item from the current menu
+			}
+		else if (pPlayer->m_iMenu == 8) //ammunition
+		{
+				switch(slot)
+			{
+			case 1:
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_KNIFE || pPlayer->m_pActiveItem->m_iId == WEAPON_FLASHBANG || pPlayer->m_pActiveItem->m_iId == WEAPON_HEGRENADE )
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You do not need ammunition for this\n" ) );
+					return TRUE;
+				}
+
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_P90 || pPlayer->m_pActiveItem->m_iId == WEAPON_FIVESEVEN)
+				{
+					if (pPlayer->m_iMoney < 50)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i57 == _57LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_P90clip");
+						pPlayer->m_iMoney -= 50;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_DEAGLE )
+				{
+					if (pPlayer->m_iMoney < 40)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i50 == _50LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_DEclip");
+						pPlayer->m_iMoney -= 40;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_USP || pPlayer->m_pActiveItem->m_iId == WEAPON_MAC10 || pPlayer->m_pActiveItem->m_iId == WEAPON_UMP45 )
+				{
+					if (pPlayer->m_iMoney < 25)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i45 == _45LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_USPclip");
+						pPlayer->m_iMoney -= 25;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_GLOCK18 || pPlayer->m_pActiveItem->m_iId == WEAPON_MP5N || pPlayer->m_pActiveItem->m_iId == WEAPON_TMP || pPlayer->m_pActiveItem->m_iId == WEAPON_ELITE)
+				{
+					if (pPlayer->m_iMoney < 20)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i9mm == _9MMLOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_MP5clip");
+						pPlayer->m_iMoney -= 20;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_P228)
+				{
+					if (pPlayer->m_iMoney < 50)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i357 == _357LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_P228clip");
+						pPlayer->m_iMoney -= 50;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_AWP )
+				{
+					if (pPlayer->m_iMoney < 125)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i338 == _338LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_AWPclip");
+						pPlayer->m_iMoney -= 125;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_AK47 || pPlayer->m_pActiveItem->m_iId == WEAPON_SCOUT || pPlayer->m_pActiveItem->m_iId == WEAPON_G3SG1 )
+				{
+					if (pPlayer->m_iMoney < 80)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i762 == _762LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_AK47clip");
+					    pPlayer->m_iMoney -= 80;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_M4A1 || pPlayer->m_pActiveItem->m_iId == WEAPON_SG552 || pPlayer->m_pActiveItem->m_iId == WEAPON_AUG || pPlayer->m_pActiveItem->m_iId == WEAPON_SG550 || pPlayer->m_pActiveItem->m_iId == WEAPON_GALIL || pPlayer->m_pActiveItem->m_iId == WEAPON_FAMAS )
+				{
+					if (pPlayer->m_iMoney < 60)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i556 == _556LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_M4A1clip");
+						pPlayer->m_iMoney -= 60;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_M249 )
+				{
+					if (pPlayer->m_iMoney < 60)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i5562 == _5562LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_M249clip");
+					    pPlayer->m_iMoney -= 60;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_XM1014 || pPlayer->m_pActiveItem->m_iId == WEAPON_M3)
+				{
+					if (pPlayer->m_iMoney < 65)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_i12G == _12GLOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_XM4clip");
+						pPlayer->m_iMoney -= 65;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_RPGRENADE)
+				{
+					if (pPlayer->m_iMoney < 250)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_iRPG == RPGLOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_RPclip");
+						pPlayer->m_iMoney -= 250;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_ULTIMATE)
+				{
+					if (pPlayer->m_iMoney < 300)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_iJud == JudgmentLOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_judclip");
+						EMIT_SOUND(ENT(pPlayer->pev), CHAN_VOICE, "weapons/ultimate_judgment.wav", 1, ATTN_NORM);
+						pPlayer->m_iMoney -= 300;
+					}
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_NONE)
+					return TRUE;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 2:
+				// (full ammo bulk buy variants - mirrors case 1 above)
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 3:
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_M4A1)
+				{
+					if (pPlayer->m_iMoney < 30)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_iM203 == M203LOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo2(), pPlayer->m_pActiveItem->iMaxAmmo2() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_M203Gren");
+						pPlayer->m_iMoney -= 30;
+					}
+				}
+				else if (!(pPlayer->m_pActiveItem->m_iId == WEAPON_M4A1))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "It's for the M4A1!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_NONE )
+					return TRUE;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 4:
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_M4A1 )
+				{
+					if (pPlayer->m_iMoney < 30)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_iM203 == M203LOOP )
+						return TRUE;
+					for ( pPlayer->m_iM203Ammo = pPlayer->m_iM203; pPlayer->m_iM203Ammo <= M203LOOP; pPlayer->m_iM203Ammo ++)
+					{
+						if ( (pPlayer->m_iMoney < 30) || (pPlayer->m_iM203Ammo == M203LOOP ) )
+						{
+							pPlayer->m_iM203 = pPlayer->m_iM203Ammo;
+							break;
+						}
+						else
+						{
+							if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo2(), pPlayer->m_pActiveItem->iMaxAmmo2() ) > 0)
+							{
+								pPlayer->GiveNamedItem("ammo_M203Gren");
+								pPlayer->m_iMoney -= 30;
+							}
+						}
+					}
+				}
+				else if (!(pPlayer->m_pActiveItem->m_iId == WEAPON_M4A1))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "It's for the M4A1!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_NONE )
+					return TRUE;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 5:
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_ULTIMATE)
+				{
+					if (pPlayer->m_iMoney < 400)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_iJus == JusticeLOOP )
+						return TRUE;
+					if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo2(), pPlayer->m_pActiveItem->iMaxAmmo2() ) > 0)
+					{
+						pPlayer->GiveNamedItem("ammo_jusrock");
+						pPlayer->m_iMoney -= 400;
+						EMIT_SOUND(ENT(pPlayer->pev), CHAN_VOICE, "weapons/ultimate_justice.wav", 1, ATTN_NORM);
+					}
+				}
+				else if (!(pPlayer->m_pActiveItem->m_iId == WEAPON_ULTIMATE))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "ERROR 404!*@#LOLZZ!!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_NONE )
+					return TRUE;
+				pPlayer->m_iBuyable = 0;
+				break;
+			case 6:
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_ULTIMATE )
+				{
+					if (pPlayer->m_iMoney < 400)
+					{
+						ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "You have insufficient funds!\n" ) );
+						return TRUE;
+					}
+					if ( pPlayer->m_iJus == JusticeLOOP )
+						return TRUE;
+					for ( pPlayer->m_iJusAmmo = pPlayer->m_iJus; pPlayer->m_iJusAmmo <= JusticeLOOP; pPlayer->m_iJusAmmo ++)
+					{
+						if ( (pPlayer->m_iMoney < 400) || (pPlayer->m_iJusAmmo == JusticeLOOP ) )
+						{
+							pPlayer->m_iJus = pPlayer->m_iJusAmmo;
+							break;
+						}
+						else
+						{
+							if (pPlayer->GiveAmmo( 0, (char *)pPlayer->m_pActiveItem->pszAmmo2(), pPlayer->m_pActiveItem->iMaxAmmo2() ) > 0)
+							{
+								pPlayer->GiveNamedItem("ammo_jusrock");
+								pPlayer->m_iMoney -= 400;
+								EMIT_SOUND(ENT(pPlayer->pev), CHAN_VOICE, "weapons/ultimate_justice.wav", 1, ATTN_NORM);
+							}
+						}
+					}
+				}
+				else if (!(pPlayer->m_pActiveItem->m_iId == WEAPON_ULTIMATE))
+				{
+					ClientPrint(pPlayer->pev, HUD_PRINTCENTER, UTIL_VarArgs( "ERROR 404!*@#LOLZZ!!\n" ) );
+					return TRUE;
+				}
+				if ( pPlayer->m_pActiveItem->m_iId == WEAPON_NONE )
+					return TRUE;
+				pPlayer->m_iBuyable = 0;
+				break;
+			}
+			pPlayer->m_iMenu = 0;
+		}
+		return TRUE;
+	}
+	}
+	else if (pPlayer->m_iBuyable == 0)
+	{
+		if ( FStrEq( pcmd, "menuselect" ) )
+		{
+			if ( CMD_ARGC() < 2 )
+			return TRUE;
+
+		int slot = atoi( CMD_ARGV(1) );
+		if (pPlayer->m_iMenu == 0)
+		{
+			switch(slot)
+			{
+			case 1:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 2:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 3:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 4:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 5:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 6:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 7:
+				pPlayer->m_iMenu = 0;
+				break;
+			case 8:
+				pPlayer->m_iMenu = 0;
+				break;
+			}
+		}
+		}
+		return TRUE;
+	}
+	return FALSE;
+
 #if !NO_VOICEGAMEMGR
 	if( g_VoiceGameMgr.ClientCommand( pPlayer, pcmd ) )
 		return TRUE;
@@ -144,45 +1275,15 @@ void CHalfLifeMultiplay::RefreshSkillData( void )
 	// suitcharger
 	gSkillData.suitchargerCapacity = 30;
 
-	// Crowbar whack
-	gSkillData.plrDmgCrowbar = 25;
-
-	// Glock Round
-	gSkillData.plrDmg9MM = 12;
-
-	// 357 Round
-	gSkillData.plrDmg357 = 50;
-
-	// MP5 Round
-	gSkillData.plrDmgMP5 = 12;
-
-	// M203 grenade
-	gSkillData.plrDmgM203Grenade = 100;
-
-	// Shotgun buckshot
-	gSkillData.plrDmgBuckshot = 20;// fewer pellets in deathmatch
-
-	// Crossbow
-	gSkillData.plrDmgCrossbowClient = 20;
-
-	// RPG
-	gSkillData.plrDmgRPG = 120;
-
-	// Egon
-	gSkillData.plrDmgEgonWide = 20;
-	gSkillData.plrDmgEgonNarrow = 10;
-
-	// Hand Grendade
-	gSkillData.plrDmgHandGrenade = 100;
-
-	// Satchel Charge
-	gSkillData.plrDmgSatchel = 120;
+	//Kept these few, just in case
+	//Haunter
 
 	// Tripmine
 	gSkillData.plrDmgTripmine = 150;
 
 	// hornet
 	gSkillData.plrDmgHornet = 10;
+	//Haunter
 }
 
 // longest the intermission can last, in seconds
@@ -662,10 +1763,18 @@ void CHalfLifeMultiplay::PlayerKilled( CBasePlayer *pVictim, entvars_t *pKiller,
 		// let the killer paint another decal as soon as he'd like.
 		PK->m_flNextDecalTime = gpGlobals->time;
 	}
+#ifndef HLDEMO_BUILD
+	//Haunter
+	if( pVictim->HasNamedPlayerItem( "weapon_c4" ) )
+	{
+		DeactivateC4( pVictim );
+	}
+	//Haunter
+#endif
 }
 
 //=========================================================
-// Deathnotice. 
+// Deathnotice.
 //=========================================================
 void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pevInflictor )
 {
@@ -720,13 +1829,7 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 		WRITE_STRING( killer_weapon_name );		// what they were killed by (should this be a string?)
 	MESSAGE_END();
 
-	// replace the code names with the 'real' names
-	if( !strcmp( killer_weapon_name, "egon" ) )
-		killer_weapon_name = gluon;
-	else if( !strcmp( killer_weapon_name, "gauss" ) )
-		killer_weapon_name = tau;
-
-	if( pVictim->pev == pKiller )  
+	if( pVictim->pev == pKiller )
 	{
 		// killed self
 
@@ -1673,218 +2776,3 @@ void CHalfLifeMultiplay::SendMOTDToClient( edict_t *client )
 	FREE_FILE( (void*)aFileList );
 }
 
-int CMultiplayBusters::WeaponShouldRespawn( CBasePlayerItem *pWeapon )
-{
-	if( pWeapon->m_iId == WEAPON_EGON )
-		return GR_WEAPON_RESPAWN_NO;
-
-	return CHalfLifeMultiplay::WeaponShouldRespawn( pWeapon );
-}
-
-BOOL CMultiplayBusters::CanHaveItem( CBasePlayer *pPlayer, CItem *pItem )
-{
-	return BustingCanHaveItem( pPlayer, pItem );
-}
-
-BOOL CMultiplayBusters::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pItem )
-{
-	if( !BustingCanHaveItem( pPlayer, pItem ))
-		return FALSE;
-
-	return CHalfLifeMultiplay::CanHavePlayerItem( pPlayer, pItem );
-}
-
-int CMultiplayBusters::IPointsForKill( CBasePlayer *pAttacker, CBasePlayer *pKilled )
-{
-	if( IsPlayerBusting( pAttacker ))
-		return 1;
-
-	if( IsPlayerBusting( pKilled ))
-		return 2;
-
-	return 0;
-}
-void CMultiplayBusters::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pevInflictor )
-{
-	if( IsPlayerBusting( pVictim )
-	    || IsPlayerBusting( CBaseEntity::Instance( pKiller )))
-		CHalfLifeMultiplay::DeathNotice( pVictim, pKiller, pevInflictor );
-}
-
-void CMultiplayBusters::PlayerKilled( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor )
-{
-	if( IsPlayerBusting( pVictim ))
-	{
-		UTIL_ClientPrintAll( HUD_PRINTCENTER, "The Buster is dead!!" );
-
-		m_flEgonBustingCheckTime = -1.0f;
-
-		CBasePlayer *peKiller = NULL;
-		CBaseEntity *ktmp = CBaseEntity::Instance( pKiller );
-		if( ktmp && ( ktmp->Classify() == CLASS_PLAYER ) )
-			peKiller = (CBasePlayer*)ktmp;
-		else if( ktmp && ktmp->Classify() == CLASS_VEHICLE )
-		{
-			CBasePlayer *pDriver = (CBasePlayer *)( (CFuncVehicle *)ktmp )->m_pDriver;
-
-			if( pDriver != NULL )
-			{
-				pKiller = pDriver->pev;
-				peKiller = (CBasePlayer *)pDriver;
-			}
-		}
-
-		if( peKiller && peKiller->IsPlayer() )
-		{
-			UTIL_ClientPrintAll( HUD_PRINTTALK, UTIL_VarArgs( "%s has killed the Buster!", STRING( peKiller->pev->netname )));
-		}
-
-		pVictim->pev->renderfx = 0;
-		pVictim->pev->rendercolor = g_vecZero;
-	}
-
-	CHalfLifeMultiplay::PlayerKilled( pVictim, pKiller, pInflictor );
-}
-
-void CMultiplayBusters::ClientUserInfoChanged( CBasePlayer *pPlayer, char *infobuffer )
-{
-	SetPlayerModel( pPlayer, FALSE );
-	CHalfLifeMultiplay::ClientUserInfoChanged( pPlayer, infobuffer );
-}
-
-void CMultiplayBusters::PlayerSpawn( CBasePlayer *pPlayer )
-{
-	CHalfLifeMultiplay::PlayerSpawn( pPlayer );
-	SetPlayerModel( pPlayer, FALSE );
-}
-
-bool IsPlayerBusting( CBaseEntity *pPlayer )
-{
-	if( g_pGameRules->IsBustingGame()
-	    && pPlayer && pPlayer->IsPlayer()
-	    && ((CBasePlayer*)pPlayer)->HasPlayerItemFromID( WEAPON_EGON ))
-		return true;
-
-	return false;
-}
-
-BOOL BustingCanHaveItem( CBasePlayer *pPlayer, CBaseEntity *pItem )
-{
-	if( IsPlayerBusting( pPlayer )
-	    && !( strncmp( STRING( pItem->pev->classname ), "weapon_", 7 )
-	    && strncmp( STRING( pItem->pev->classname ), "ammo_", 5 )))
-		return FALSE;
-
-	return TRUE;
-}
-
-CMultiplayBusters::CMultiplayBusters()
-{
-	CHalfLifeMultiplay();
-
-	m_flEgonBustingCheckTime = -1.0;
-}
-
-void CMultiplayBusters::CheckForEgons( void )
-{
-	CBaseEntity *pPlayer;
-	CWeaponBox *pWeaponBox = NULL;
-	CBasePlayerItem *pWeapon;
-	CBasePlayer *pNewBuster = NULL;
-	int i, bestfrags = 9999;
-
-	if( m_flEgonBustingCheckTime <= 0.0f )
-	{
-		m_flEgonBustingCheckTime = gpGlobals->time + 10.0f;
-		return;
-	}
-
-	if( gpGlobals->time < m_flEgonBustingCheckTime )
-		return;
-
-	m_flEgonBustingCheckTime = -1.0f;
-
-	for( i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		pPlayer = UTIL_PlayerByIndex( i );
-		if( IsPlayerBusting( pPlayer ))
-			return;
-	}
-
-	for( i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		pPlayer = UTIL_PlayerByIndex( i );
-
-		if( pPlayer && pPlayer->pev->frags < bestfrags )
-		{
-			pNewBuster = (CBasePlayer*)pPlayer;
-			bestfrags = pPlayer->pev->frags;
-		}
-	}
-
-	if( !pNewBuster )
-		return;
-
-	pNewBuster->GiveNamedItem( "weapon_egon" );
-
-	while( ( pWeaponBox = (CWeaponBox*)UTIL_FindEntityByClassname( pWeaponBox, "weaponbox" )))
-	{
-		// destroy weaponboxes with egons
-		for( i = 0; i < MAX_ITEM_TYPES; i++ )
-		{
-			pWeapon = pWeaponBox->m_rgpPlayerItems[i];
-
-			while( pWeapon )
-			{
-				if( pWeapon->m_iId != WEAPON_EGON )
-				{
-					pWeapon = pWeapon->m_pNext;
-					continue;
-				}
-
-				pWeaponBox->Kill();
-				pWeapon = 0;
-				i = MAX_ITEM_TYPES;
-			}
-		}
-	}
-}
-
-void CMultiplayBusters::Think( void )
-{
-	CheckForEgons();
-	CHalfLifeMultiplay::Think();
-}
-
-void CMultiplayBusters::SetPlayerModel( CBasePlayer *pPlayer, BOOL bKnownBuster )
-{
-	const char *pszModel = NULL;
-
-	if( bKnownBuster || IsPlayerBusting( pPlayer ))
-	{
-		pszModel = "ivan";
-	}
-	else
-	{
-		pszModel = "skeleton";
-	}
-
-	g_engfuncs.pfnSetClientKeyValue( ENTINDEX( pPlayer->edict()), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict()), "model", pszModel );
-}
-
-void CMultiplayBusters::PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon )
-{
-	if( pWeapon->m_iId != WEAPON_EGON )
-		return;
-
-	pPlayer->RemoveAllItems( FALSE );
-	UTIL_ClientPrintAll( HUD_PRINTCENTER, "Long live the new Buster!" );
-	UTIL_ClientPrintAll( HUD_PRINTTALK, UTIL_VarArgs( "%s is busting!\n", STRING( pPlayer->pev->netname )));
-	SetPlayerModel( pPlayer, TRUE );
-	pPlayer->pev->health = pPlayer->pev->max_health;
-	pPlayer->pev->armorvalue = MAX_NORMAL_BATTERY;
-	pPlayer->pev->renderfx = kRenderFxGlowShell;
-	pPlayer->pev->renderamt = 25;
-	pPlayer->pev->rendercolor = Vector( 0, 75, 250 );
-	pPlayer->m_rgAmmo[pWeapon->PrimaryAmmoIndex()] = pPlayer->ammo_uranium = 100;
-}

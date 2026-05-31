@@ -1703,7 +1703,7 @@ void CHudSpectator::DrawOverviewEntities()
 	AngleMatrix( offset, rmatrix );
 	VectorTransform( forward, rmatrix , left );
 
-	gEngfuncs.pTriAPI->Begin( TRI_TRIANGLES );
+	/*gEngfuncs.pTriAPI->Begin( TRI_TRIANGLES );
 		gEngfuncs.pTriAPI->TexCoord2f( 0.0f, 0.0f );
 		gEngfuncs.pTriAPI->Vertex3f( x + right[0], y + right[1], ( z + right[2] ) * zScale);
 
@@ -1712,7 +1712,7 @@ void CHudSpectator::DrawOverviewEntities()
 
 		gEngfuncs.pTriAPI->TexCoord2f( 1.0f, 1.0f );
 		gEngfuncs.pTriAPI->Vertex3f( x + left[0], y + left[1], ( z + left[2] ) * zScale );
-	gEngfuncs.pTriAPI->End ();
+	gEngfuncs.pTriAPI->End ();*/
 	gEngfuncs.pTriAPI->RenderMode( kRenderNormal );
 }
 

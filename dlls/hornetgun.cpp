@@ -40,7 +40,7 @@ enum firemode_e
 	FIREMODE_FAST
 };
 
-LINK_ENTITY_TO_CLASS( weapon_hornetgun, CHgun )
+//LINK_ENTITY_TO_CLASS( weapon_hornetgun, CHgun )
 
 BOOL CHgun::IsUseable( void )
 {

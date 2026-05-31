@@ -65,9 +65,9 @@ void CC4Charge :: Spawn( void )
 	UTIL_SetSize(pev, Vector( -4, -4, -4), Vector(4, 4, 4));	// Uses point-sized, and can be stepped over
 	UTIL_SetOrigin( pev, pev->origin );
 
-	SetTouch( C4Slide );
-	SetUse( DetonateUse );
-	SetThink( C4Think );
+	SetTouch( &CC4Charge::C4Slide );
+	SetUse( &CC4Charge::DetonateUse );
+	SetThink( &CC4Charge::C4Think );
 	pev->nextthink = gpGlobals->time + 0.1;
 
 	pev->gravity = 0.5;
@@ -318,7 +318,7 @@ void CC4::Holster( int skiplocal /* = 0 */ )
 	else if ( !m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] && !m_chargeReady )
 	{
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_C4);
-		SetThink( DestroyItem );
+		SetThink( &CC4::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumC4 = 0;

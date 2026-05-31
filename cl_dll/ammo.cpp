@@ -30,6 +30,11 @@
 #if USE_VGUI
 #include "vgui_TeamFortressViewport.h"
 #endif
+//Haunter
+//#include "tri_scope.h"
+
+//extern CTriScope *pTriScope;
+//Haunter
 
 WEAPON *gpActiveSel;	// NULL means off, 1 means just the menu bar, otherwise
 						// this points to the active weapon menu item
@@ -60,15 +65,18 @@ int WeaponsResource::CountAmmo( int iId )
 
 int WeaponsResource::HasAmmo( WEAPON *p )
 {
+	//Atomizer - We want the weapons always avaliable, so return TRUE
 	if( !p )
 		return FALSE;
 
-	// weapons with no max ammo can always be selected
+	/*// weapons with no max ammo can always be selected
 	if( p->iMax1 == -1 )
 		return TRUE;
 
-	return ( p->iAmmoType == -1 ) || p->iClip > 0 || CountAmmo( p->iAmmoType ) 
-		|| CountAmmo( p->iAmmo2Type ) || ( p->iFlags & WEAPON_FLAGS_SELECTONEMPTY );
+	return ( p->iAmmoType == -1 ) || p->iClip > 0 || CountAmmo( p->iAmmoType )
+		|| CountAmmo( p->iAmmo2Type ) || ( p->iFlags & WEAPON_FLAGS_SELECTONEMPTY );*/
+	return TRUE;
+	//Atom
 }
 
 void WeaponsResource::LoadWeaponSprites( WEAPON *pWeapon )
@@ -415,14 +423,18 @@ HSPRITE* WeaponsResource::GetAmmoPicFromWeapon( int iAmmoId, wrect_t& rect )
 // Menu Selection Code
 void WeaponsResource::SelectSlot( int iSlot, int fAdvance, int iDirection )
 {
-	if( gHUD.m_Menu.m_fMenuDisplayed && ( fAdvance  == FALSE ) && ( iDirection == 1 ) )	
+	int empty;//Haunter
+
+	if( gHUD.m_Menu.m_fMenuDisplayed && ( fAdvance  == FALSE ) && ( iDirection == 1 ) )
 	{
 		// menu is overriding slot use commands
 		gHUD.m_Menu.SelectMenuItem( iSlot + 1 );  // slots are one off the key numbers
 		return;
 	}
 
-	if( iSlot > MAX_WEAPON_SLOTS )
+	empty = 4;//Haunter Array starts from 0. Then 1, 2, 3...
+
+	if( iSlot > empty )//Haunter If iSlot is bigger than 4, return.
 		return;
 
 	if( gHUD.m_fPlayerDead || gHUD.m_iHideHUDDisplay & ( HIDEHUD_WEAPONS | HIDEHUD_ALL ) )
@@ -616,6 +628,7 @@ int CHudAmmo::MsgFunc_CurWeapon( const char *pszName, int iSize, void *pbuf )
 	{
 		if( gHUD.m_iFOV >= 90 )
 		{
+//			pTriScope->SetStatus(false);
 			// normal crosshairs
 			if( fOnTarget && m_pWeapon->hAutoaim )
 				SetCrosshair( m_pWeapon->hAutoaim, m_pWeapon->rcAutoaim, 255, 255, 255 );
@@ -624,6 +637,7 @@ int CHudAmmo::MsgFunc_CurWeapon( const char *pszName, int iSize, void *pbuf )
 		}
 		else
 		{
+//			pTriScope->SetStatus(true);
 			// zoomed crosshairs
 			if( fOnTarget && m_pWeapon->hZoomedAutoaim )
 				SetCrosshair( m_pWeapon->hZoomedAutoaim, m_pWeapon->rcZoomedAutoaim, 255, 255, 255 );
@@ -985,7 +999,16 @@ int DrawBar( int x, int y, int width, int height, float f )
 		width -= w;
 	}
 
-	UnpackRGB( r, g, b, RGB_YELLOWISH );
+	//Haunter
+	if( CVAR_GET_FLOAT( "cl_white" ) == 1 )
+	{
+		UnpackRGB( r, g, b, RGB_WHITE );
+	}
+	else
+	{
+		UnpackRGB( r, g, b, RGB_YELLOWISH );
+	}
+	//Haunter
 
 	FillRGBA( x, y, width, height, r, g, b, 128 );
 
@@ -1049,11 +1072,19 @@ int CHudAmmo::DrawWList( float flTime )
 	}
 
 	// Draw top line
-	for( i = 0; i < MAX_WEAPON_SLOTS; i++ )
+	for( i = 0; i < 5/*Haunter*/; i++ ) //this is to get rid of those extra 'boxes'
 	{
 		int iWidth;
-
-		UnpackRGB( r, g, b, RGB_YELLOWISH );
+		//Haunter
+		if( CVAR_GET_FLOAT( "cl_white" ) == 1 )
+		{
+			UnpackRGB( r, g, b, RGB_WHITE );
+		}
+		else
+		{
+			UnpackRGB( r, g, b, RGB_YELLOWISH );
+		}
+		//Haunter
 
 		if( iActiveSlot == i )
 			a = 255;
@@ -1104,7 +1135,16 @@ int CHudAmmo::DrawWList( float flTime )
 				if( !p || !p->iId )
 					continue;
 
-				UnpackRGB( r, g, b, RGB_YELLOWISH );
+				//Haunter
+				if( CVAR_GET_FLOAT( "cl_white" ) == 1 )
+				{
+					UnpackRGB( r, g, b, RGB_WHITE );
+				}
+				else
+				{
+					UnpackRGB( r, g, b, RGB_YELLOWISH );
+				}
+				//Haunter
 
 				// if active, then we must have ammo.
 				if( gpActiveSel == p )
@@ -1141,7 +1181,16 @@ int CHudAmmo::DrawWList( float flTime )
 		else
 		{
 			// Draw Row of weapons.
-			UnpackRGB( r, g, b, RGB_YELLOWISH );
+			//Haunter
+			if( CVAR_GET_FLOAT( "cl_white" ) == 1 )
+			{
+				UnpackRGB( r, g, b, RGB_WHITE );
+			}
+			else
+			{
+				UnpackRGB( r, g, b, RGB_YELLOWISH );
+			}
+			//Haunter
 
 			for( int iPos = 0; iPos < MAX_WEAPON_POSITIONS; iPos++ )
 			{
@@ -1152,7 +1201,16 @@ int CHudAmmo::DrawWList( float flTime )
 
 				if( gWR.HasAmmo( p ) )
 				{
-					UnpackRGB( r, g, b, RGB_YELLOWISH );
+					//Haunter
+					if( CVAR_GET_FLOAT( "cl_white" ) == 1 )
+					{
+						UnpackRGB( r, g, b, RGB_WHITE );
+					}
+					else
+					{
+						UnpackRGB( r, g, b, RGB_YELLOWISH );
+					}
+					//Haunter
 					a = 128;
 				}
 				else

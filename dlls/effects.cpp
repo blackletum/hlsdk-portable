@@ -1652,7 +1652,7 @@ public:
 
 	inline float BloodAmount( void )
 	{
-		return pev->dmg;
+		return 100; //Haunter default: return pev->dmg
 	}
 
 	inline void SetColor( int color )

@@ -37,7 +37,7 @@ enum rpg_e
 	RPG_FIDGET_UL	// unloaded fidget
 };
 
-LINK_ENTITY_TO_CLASS( weapon_rpg, CRpg )
+//LINK_ENTITY_TO_CLASS( weapon_rpg, CRpg )
 
 #if !CLIENT_DLL
 
@@ -350,7 +350,7 @@ void CRpg::Reload( void )
 void CRpg::Spawn()
 {
 	Precache();
-	m_iId = WEAPON_RPG;
+//	m_iId = WEAPON_RPG;
 
 	SET_MODEL( ENT( pev ), "models/w_rpg.mdl" );
 	m_fSpotActive = 1;
@@ -389,22 +389,6 @@ void CRpg::Precache( void )
 	m_usRpg = PRECACHE_EVENT( 1, "events/rpg.sc" );
 }
 
-int CRpg::GetItemInfo( ItemInfo *p )
-{
-	p->pszName = STRING( pev->classname );
-	p->pszAmmo1 = "rockets";
-	p->iMaxAmmo1 = ROCKET_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
-	p->iMaxClip = RPG_MAX_CLIP;
-	p->iSlot = 3;
-	p->iPosition = 0;
-	p->iId = m_iId = WEAPON_RPG;
-	p->iFlags = ITEM_FLAG_NOAUTOSWITCHTO;
-	p->iWeight = RPG_WEIGHT;
-
-	return 1;
-}*/
 
 int CRpg::AddToPlayer( CBasePlayer *pPlayer )
 {
@@ -623,5 +607,5 @@ class CRpgAmmo : public CBasePlayerAmmo
 	}
 };
 
-LINK_ENTITY_TO_CLASS( ammo_rpgclip, CRpgAmmo )
+//LINK_ENTITY_TO_CLASS( ammo_rpgclip, CRpgAmmo )
 #endif

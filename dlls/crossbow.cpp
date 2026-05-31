@@ -47,7 +47,7 @@ public:
 	static CCrossbowBolt *BoltCreate( void );
 };
 
-LINK_ENTITY_TO_CLASS( crossbow_bolt, CCrossbowBolt )
+//LINK_ENTITY_TO_CLASS( crossbow_bolt, CCrossbowBolt )
 
 CCrossbowBolt *CCrossbowBolt::BoltCreate( void )
 {
@@ -252,7 +252,7 @@ enum crossbow_e
 	CROSSBOW_HOLSTER2	// empty
 };
 
-LINK_ENTITY_TO_CLASS( weapon_crossbow, CCrossbow )
+//LINK_ENTITY_TO_CLASS( weapon_crossbow, CCrossbow )
 
 void CCrossbow::Spawn()
 {
@@ -553,5 +553,5 @@ class CCrossbowAmmo : public CBasePlayerAmmo
 	}
 };
 
-LINK_ENTITY_TO_CLASS( ammo_crossbow, CCrossbowAmmo )
+//LINK_ENTITY_TO_CLASS( ammo_crossbow, CCrossbowAmmo )
 #endif

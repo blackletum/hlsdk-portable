@@ -827,8 +827,8 @@ BOOL CApache::FireGun()
 	if( DotProduct( vecGun, vecTarget ) > 0.98f )
 	{
 #if 1
-		FireBullets( 1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_12MM, 1 );
-		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "turret/tu_fire1.wav", 1, 0.3f );
+		FireBullets( 1, posGun, vecGun, VECTOR_CONE_4DEGREES, 8192, BULLET_MONSTER_APACHE, 1 );
+		EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "apache/apache_fire.wav", 1, 0.02f );
 #else
 		static float flNext;
 		TraceResult tr;
@@ -978,6 +978,7 @@ void CApacheHVR::Precache( void )
 	PRECACHE_MODEL( "models/HVR.mdl" );
 	m_iTrail = PRECACHE_MODEL( "sprites/smoke.spr" );
 	PRECACHE_SOUND( "weapons/rocket1.wav" );
+	PRECACHE_SOUND( "apache/apache_fire.wav" );
 }
 
 void CApacheHVR::IgniteThink( void )

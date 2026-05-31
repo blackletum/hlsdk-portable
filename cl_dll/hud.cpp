@@ -605,6 +605,10 @@ void CHud::VidInit( void )
 
 	m_iFontHeight = m_rgrcRects[m_HUD_number_0].bottom - m_rgrcRects[m_HUD_number_0].top;
 
+	//Haunter
+	m_Shroud.VidInit();
+	m_Bank.VidInit();
+	//Haunter
 	m_Ammo.VidInit();
 	m_Health.VidInit();
 	m_Spectator.VidInit();

@@ -35,6 +35,15 @@
 
 #include "r_studioint.h"
 #include "com_model.h"
+
+#ifndef SND_CHANGE_PITCH
+#define SND_CHANGE_PITCH	(1<<7)
+#endif
+
+BEAM *pBeam;
+BEAM *pBeam2;
+TEMPENTITY *pFlare;
+
 //Haunter
 //#include "tri_scope.h"
 
@@ -72,6 +81,45 @@ void EV_EgonStop( struct event_args_s *args );
 void EV_HornetGunFire( struct event_args_s *args );
 void EV_TripmineFire( struct event_args_s *args );
 void EV_SnarkFire( struct event_args_s *args );
+
+//Haunter
+void EV_Knife( struct event_args_s *args );
+
+void EV_USP( struct event_args_s *args );
+void EV_Glock18( struct event_args_s *args );
+void EV_Deagle( struct event_args_s *args );
+void EV_P228( struct event_args_s *args );
+void EV_ELEFT( struct event_args_s *args );
+void EV_ERIGHT( struct event_args_s *args );
+void EV_FiveseveN( struct event_args_s *args );
+
+void EV_M3( struct event_args_s *args );
+void EV_XM1014( struct event_args_s *args );
+
+void EV_MP5N( struct event_args_s *args );
+void EV_TMP( struct event_args_s *args );
+void EV_P90( struct event_args_s *args );
+void EV_MAC10( struct event_args_s *args );
+void EV_UMP45( struct event_args_s *args );
+
+void EV_AK47( struct event_args_s *args );
+void EV_M4A1( struct event_args_s *args );
+void EV_M4A12( struct event_args_s *args );
+void EV_SG552( struct event_args_s *args );
+void EV_AUG( struct event_args_s *args );
+void EV_FAMAS( struct event_args_s *args );
+void EV_GALIL( struct event_args_s *args );
+
+void EV_AWP( struct event_args_s *args );
+void EV_SCOUT( struct event_args_s *args );
+void EV_G3SG1( struct event_args_s *args );
+void EV_SG550( struct event_args_s *args );
+
+void EV_M249( struct event_args_s *args );
+void EV_RPGRENADE( struct event_args_s *args );
+void EV_ULTIMATE( struct event_args_s *args );
+void EV_ULTIMATE2( struct event_args_s *args );
+//Haunter
 
 void EV_TrainPitchAdjust( struct event_args_s *args );
 void EV_VehiclePitchAdjust( event_args_t *args );
@@ -226,7 +274,7 @@ float EV_HLDM_PlayTextureSound( int idx, pmtrace_t *ptr, float *vecSrc, float *v
 		cnt = 3;
 		break;
 	case CHAR_TEX_FLESH:
-		if( iBulletType == BULLET_PLAYER_CROWBAR )
+		if( iBulletType == BULLET_PLAYER_KNIFE )
 			return 0.0; // crowbar already makes this sound
 		fvol = 1.0;
 		fvolbar = 0.2;
@@ -424,17 +472,149 @@ int EV_HLDM_CheckTracer( int idx, float *vecSrc, float *end, float *forward, flo
 
 		switch( iBulletType )
 		{
-		case BULLET_PLAYER_MP5:
 		case BULLET_MONSTER_MP5:
+		//Haunter
+		case BULLET_MONSTER_TURRET:
+		case BULLET_MONSTER_APACHE:
+		case BULLET_MONSTER_M249:
+		case BULLET_MONSTER_SENTRY:
+		//Haunter
 		case BULLET_MONSTER_9MM:
 		case BULLET_MONSTER_12MM:
 		default:
 			EV_CreateTracer( vecTracerSrc, end );
 			break;
+		case BULLET_MONSTER_USP: //Haunter - No tracers for hassassins
+		case BULLET_MONSTER_BUCKSHOT:
+			break;
 		}
 	}
 
 	return tracer;
+}
+
+/*
+TTT: Event which spawns a smokepuff and/or sparks at a given origin
+Note that you have to precache the sprites in the game dll
+*/
+void EV_HLDM_SmokePuff( pmtrace_t *pTrace, float *vecSrc, float *vecEnd )
+{
+	physent_t *pe;
+
+	// get entity at endpoint
+	pe = gEngfuncs.pEventAPI->EV_GetPhysent( pTrace->ent );
+
+	if( pe && pe->solid == SOLID_BSP )
+	{	// if it's a solid wall / entity
+		char chTextureType = CHAR_TEX_CONCRETE;
+		char *pTextureName;
+		char texname[64];
+		char szbuffer[64];
+
+		// get texture name
+		pTextureName = (char *)gEngfuncs.pEventAPI->EV_TraceTexture( pTrace->ent, vecSrc, vecEnd );
+
+		if( pTextureName )
+		{
+			strcpy( texname, pTextureName );
+			pTextureName = texname;
+
+			// strip leading '-0' or '+0~' or '{' or '!'
+			if( *pTextureName == '-' || *pTextureName == '+' )
+			{
+				pTextureName += 2;
+			}
+
+			if( *pTextureName == '{' || *pTextureName == '!' || *pTextureName == '~' || *pTextureName == ' ' )
+			{
+				pTextureName++;
+			}
+
+			// '}}'
+			strcpy( szbuffer, pTextureName );
+			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
+
+			// get texture type
+			chTextureType = PM_FindTextureType( szbuffer );
+		}
+
+		bool fDoPuffs = false;
+		bool fDoSparks = false;
+		int a = 0, r = 0, g = 0, b = 0;
+
+		switch( chTextureType )
+		{
+			// do smoke puff and eventually add sparks
+			case CHAR_TEX_TILE:
+			case CHAR_TEX_CONCRETE:
+				fDoSparks = ( gEngfuncs.pfnRandomLong( 1, 4 ) == 1 );
+				fDoPuffs = true;
+				a = 128;
+				r = 200;
+				g = 200;
+				b = 200;
+				break;
+
+			// don't draw puff, but add sparks often
+			case CHAR_TEX_VENT:
+			case CHAR_TEX_GRATE:
+			case CHAR_TEX_METAL:
+				fDoSparks = ( gEngfuncs.pfnRandomLong( 1, 2 ) == 1 );
+				break;
+
+			// draw brown puff, but don't do sparks
+			case CHAR_TEX_DIRT:
+			case CHAR_TEX_WOOD:
+				fDoPuffs = true;
+				a = 250;
+				r = 97;
+				g = 86;
+				b = 53;
+				break;
+
+			// don't do anything if those textures (perhaps add something later...)
+			default:
+			case CHAR_TEX_GLASS:
+			case CHAR_TEX_COMPUTER:
+			case CHAR_TEX_SLOSH:
+				break;
+		}
+
+		if( fDoPuffs )
+		{
+			vec3_t angles, forward, right, up;
+
+			VectorAngles( pTrace->plane.normal, angles );
+
+			AngleVectors( angles, forward, up, right );
+			forward.z = -forward.z;
+
+			// get sprite index
+			int iWallsmoke = gEngfuncs.pEventAPI->EV_FindModelIndex( "sprites/wall_puff1.spr" );
+
+			// create sprite
+			TEMPENTITY *pTemp = gEngfuncs.pEfxAPI->R_TempSprite( pTrace->endpos,
+				forward * gEngfuncs.pfnRandomFloat( 10, 30 ) + right * gEngfuncs.pfnRandomFloat( -6, 6 ) + up * gEngfuncs.pfnRandomFloat( 0, 6 ),
+				0.4, iWallsmoke, kRenderTransAdd, kRenderFxNone, 1.0, 0.5,
+				FTENT_SPRANIMATE | FTENT_FADEOUT );
+
+			if( pTemp )
+			{	// sprite created successfully, adjust some things
+				pTemp->fadeSpeed = 2.0;
+				pTemp->entity.curstate.framerate = 20.0;
+				pTemp->entity.curstate.renderamt = a;
+				pTemp->entity.curstate.rendercolor.r = r;
+				pTemp->entity.curstate.rendercolor.g = g;
+				pTemp->entity.curstate.rendercolor.b = b;
+			}
+		}
+
+		if( fDoSparks )
+		{
+			// spawn some sparks
+			gEngfuncs.pEfxAPI->R_SparkShower( pTrace->endpos );
+		}
+	}
 }
 
 /*
@@ -457,12 +637,12 @@ void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int 
 		float x, y, z;
 
 		//We randomize for the Shotgun.
-		if( iBulletType == BULLET_PLAYER_BUCKSHOT )
+		if( iBulletType == BULLET_PLAYER_XM1014 || iBulletType == BULLET_PLAYER_ULTIMATE )
 		{
 			do{
 				x = gEngfuncs.pfnRandomFloat( -0.5, 0.5 ) + gEngfuncs.pfnRandomFloat( -0.5, 0.5 );
 				y = gEngfuncs.pfnRandomFloat( -0.5, 0.5 ) + gEngfuncs.pfnRandomFloat( -0.5, 0.5 );
-				z = x * x + y * y;
+				z = ( ( x * x ) / 0.5 ) + ( ( y * y ) / 0.5 );
 			}while( z > 1 );
 
 			for( i = 0 ; i < 3; i++ )
@@ -499,19 +679,79 @@ void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int 
 			switch( iBulletType )
 			{
 			default:
-			case BULLET_PLAYER_9MM:
+			case BULLET_PLAYER_AK47:
 				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
 				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
 				break;
-			case BULLET_PLAYER_MP5:
-				if( !tracer )
-				{
-					EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
-					EV_HLDM_DecalGunshot( &tr, iBulletType );
-				}
+			case BULLET_PLAYER_SG552:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_P90:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_AWP:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_SCOUT:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_G3SG1:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_GLOCK:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_MP5N:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_USP:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_SG550:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_P228:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_XM1014:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_DE:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
+				break;
+			case BULLET_PLAYER_ULTIMATE:
+				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
+				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
 				break;
 			case BULLET_PLAYER_BUCKSHOT:
 				EV_HLDM_DecalGunshot( &tr, iBulletType );
+				EV_HLDM_SmokePuff( &tr, vecSrc, vecEnd );
 				break;
 			case BULLET_PLAYER_357:
 				EV_HLDM_PlayTextureSound( idx, &tr, vecSrc, vecEnd, iBulletType );
@@ -524,6 +764,1968 @@ void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int 
 	}
 }
 
+//Haunter
+//======================
+//	   Knife START
+//======================
+
+enum knife_e
+{
+	KNIFE_IDLE = 0,
+	KNIFE_SLASH1,
+	KNIFE_SLASH2,
+	KNIFE_DRAW,
+	KNIFE_STAB,
+	KNIFE_STAB_MISS,
+	KNIFE_MIDSLASH1,
+	KNIFE_MIDSLASH2
+};
+
+int g_iSlash;
+
+//Only predict the miss sounds, hit sounds are still played
+//server side, so players don't get the wrong idea.
+void EV_Knife( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+
+	int Stab = args->iparam1;
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+		case 0: gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/knife_slash1.wav", 1, ATTN_NORM, 0, PITCH_NORM ); break;
+		case 1: gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/knife_slash2.wav", 1, ATTN_NORM, 0, PITCH_NORM ); break;
+	}
+
+	if( EV_IsLocal( idx ) )
+	{
+		if( Stab )
+		{
+			gEngfuncs.pEventAPI->EV_WeaponAnimation( KNIFE_STAB_MISS, 1 );
+		}
+		else
+		{
+			gEngfuncs.pEventAPI->EV_WeaponAnimation( KNIFE_MIDSLASH1, 1 );
+
+			switch( ( g_iSlash++ ) % 2 )
+			{
+				case 0:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( KNIFE_MIDSLASH1, 1 ); break;
+				case 1:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( KNIFE_MIDSLASH2, 1 ); break;
+			}
+		}
+	}
+}
+//======================
+//	   KNIFE END
+//======================
+
+//======================
+//	   USP.45 START
+//======================
+void EV_USP( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+	int Silenced = args->iparam1;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/45calshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		if( Silenced )
+		{
+			// Add muzzle flash to current weapon model
+			EV_MuzzleFlash();
+			switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+			{
+				case 0:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? USP_SSHOOTLAST : USP_SSHOOT, 2 );
+					break;
+				case 1:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? USP_SSHOOTLAST : USP_SSHOOT2, 2 );
+					break;
+				case 2:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? USP_SSHOOTLAST : USP_SSHOOT3, 2 );
+					break;
+			}
+		}
+		else
+		{
+			// Add muzzle flash to current weapon model
+			EV_MuzzleFlash();
+			switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+			{
+				case 0:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? USP_SHOOTLAST : USP_SHOOT, 2 );
+					break;
+				case 1:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? USP_SHOOTLAST : USP_SHOOT2, 2 );
+					break;
+				case 2:
+					gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? USP_SHOOTLAST : USP_SHOOT3, 2 );
+					break;
+			}
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -6 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 6 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	if( Silenced )
+	{
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/usp1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/usp2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+				break;
+		}
+	}
+	else
+	{
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/usp_unsil-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+
+	VectorCopy( forward, vecAiming );
+
+	if( Silenced )
+	{
+		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 4096, BULLET_PLAYER_USP, 0, 0, args->fparam1, args->fparam2 );
+		EV_HLDM_MuzzleFlash( vecSrc, 0.5 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	}
+	else
+	{
+		EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 4096, BULLET_PLAYER_USP, 0, 0, args->fparam1, args->fparam2 );
+		EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	}
+}
+//======================
+//	   USP.45 END
+//======================
+
+//======================
+//	   Glock18 START
+//======================
+void EV_Glock18( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/9mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? GLOCK18_SHOOT_EMPTY : GLOCK18_SHOOT3, 1 );
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/glock18-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 4096, BULLET_PLAYER_GLOCK, 0, 0, args->fparam1, args->fparam2 );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+}
+//======================
+//	   Glock18 END
+//======================
+
+//======================
+//	   DEAGLE START
+//======================
+void EV_Deagle( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/50calshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? DEAGLE_SHOOT_EMPTY : DEAGLE_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? DEAGLE_SHOOT_EMPTY : DEAGLE_SHOOT2, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/deagle-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/deagle-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 4096, BULLET_PLAYER_DE, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   DEAGLE END
+//======================
+
+//======================
+//	   P228 START
+//======================
+void EV_P228( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/9mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? P228_SHOOT_EMPTY : P228_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? P228_SHOOT_EMPTY : P228_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? P228_SHOOT_EMPTY : P228_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/p228-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 4096, BULLET_PLAYER_P228, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   P228 END
+//======================
+
+//======================
+//	   FIVESEVEN START
+//======================
+void EV_FiveseveN( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/57mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? FIVESEVEN_SHOOT_EMPTY : FIVESEVEN_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? FIVESEVEN_SHOOT_EMPTY : FIVESEVEN_SHOOT2, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/fiveseven-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 4096, BULLET_PLAYER_P90, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   FIVESEVEN END
+//======================
+
+//======================
+//	   ELITES START
+//======================
+void EV_ELEFT( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/40calshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 4 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_LEFTLAST : ELITE_SHOOT_LEFT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_LEFTLAST : ELITE_SHOOT_LEFT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_LEFTLAST : ELITE_SHOOT_LEFT3, 2 );
+				break;
+			case 3:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_LEFTLAST : ELITE_SHOOT_LEFT4, 2 );
+				break;
+			case 4:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_LEFTLAST : ELITE_SHOOT_LEFT5, 2 );
+				break;
+		}
+	}
+
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 14, -3, -6 );
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/elite_fire.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 2048, BULLET_PLAYER_MP5N, 0, 0, args->fparam1, args->fparam2 );
+}
+
+void EV_ERIGHT( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+	int empty;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	empty = args->bparam1;
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/9mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 4 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_RIGHTLAST : ELITE_SHOOT_RIGHT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_RIGHTLAST : ELITE_SHOOT_RIGHT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_RIGHTLAST : ELITE_SHOOT_RIGHT3, 2 );
+				break;
+			case 3:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_RIGHTLAST : ELITE_SHOOT_RIGHT4, 2 );
+				break;
+			case 4:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( empty ? ELITE_SHOOT_RIGHTLAST : ELITE_SHOOT_RIGHT5, 2 );
+				break;
+		}
+	}
+
+	EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 14, -3, 6 );
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/elite_fire.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 2048, BULLET_PLAYER_MP5N, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   ELITES END
+//======================
+
+//======================
+//     M3 Super90 START
+//======================
+void EV_M3( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/shotgunshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M3_SHOOT1, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M3_SHOOT2, 1 );
+				break;
+		}
+		V_PunchAxis( 0, -5.0 );
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/m3-1.wav", gEngfuncs.pfnRandomFloat( 0.95, 1.0 ), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong( 0, 0x1f ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.5 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 8, vecSrc, vecAiming, 2048, BULLET_PLAYER_XM1014, 0, &g_tracerCount[idx - 1], 0.08716, 0.08716 );
+}
+//======================
+//	   M3 Super90 END
+//======================
+
+//======================
+//     XM1014 START
+//======================
+void EV_XM1014( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/shotgunshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( XM1014_FIRE1, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( XM1014_FIRE2, 1 );
+				break;
+		}
+		V_PunchAxis( 0, -5.0 );
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHOTSHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/xm1014-1.wav", gEngfuncs.pfnRandomFloat( 0.95, 1.0 ), ATTN_NORM, 0, 93 + gEngfuncs.pfnRandomLong( 0, 0x1f ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.5 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 8, vecSrc, vecAiming, 2048, BULLET_PLAYER_XM1014, 0, &g_tracerCount[idx - 1], 0.08716, 0.04362 );
+}
+//======================
+//	   XM1014 END
+//======================
+
+//======================
+//	   MP5 Navy START
+//======================
+void EV_MP5N( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/9mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( MP5N_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( MP5N_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( MP5N_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/mp5-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/mp5-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 3.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5N, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   MP5 Navy END
+//======================
+
+//======================
+//	   TMP START
+//======================
+void EV_TMP( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/9mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( TMP_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( TMP_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( TMP_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/tmp-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/tmp-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_GLOCK, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   TMP END
+//======================
+
+//======================
+//	   P90 START
+//======================
+void EV_P90( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/57mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( P90_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( P90_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( P90_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 9, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 9, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/p90-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 3.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_P90, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   P90 END
+//======================
+
+//======================
+//	   Mac10 START
+//======================
+void EV_MAC10( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/45calshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( MAC10_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( MAC10_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( MAC10_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/mac10-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 3.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_USP, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   Mac10 END
+//======================
+
+//======================
+//	   UMP45 START
+//======================
+void EV_UMP45( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/45calshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( UMP45_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( UMP45_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( UMP45_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ump45-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 3.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_USP, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   UMP45 END
+//======================
+
+//======================
+//	   AK47 START
+//======================
+void EV_AK47( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/762mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AK47_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AK47_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AK47_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 11, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ak47-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ak47-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_AK47, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   AK47 END
+//======================
+
+//======================
+//	   M4A1 START
+//======================
+void EV_M4A1( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M4A1_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M4A1_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M4A1_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/m4a1_unsil-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/m4a1_unsil-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_AUG, 0, 0, args->fparam1, args->fparam2 );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+}
+
+void EV_M4A12( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+
+	if( EV_IsLocal( idx ) )
+	{
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( M4A1_SHOOT1, 2 );
+		V_PunchAxis( 0, -10 );
+	}
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/glauncher.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/glauncher2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+}
+//======================
+//	   M4A1 END
+//======================
+
+//======================
+//	   SG552 START
+//======================
+void EV_SG552( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SG552_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SG552_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SG552_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/sg552-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/sg552-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SG552, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   SG552 END
+//======================
+
+//======================
+//	   STEYR AUG START
+//======================
+void EV_AUG( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AUG_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AUG_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AUG_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 7, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 7, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/aug-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_AUG, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   STEYR AUG END
+//======================
+
+//======================
+//	   FAMAS START
+//======================
+void EV_FAMAS( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( FAMAS_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( FAMAS_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( FAMAS_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 7, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 7, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/famas-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/famas-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_AUG, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   FAMAS END
+//======================
+
+//======================
+//	   GALIL START
+//======================
+void EV_GALIL( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( GALIL_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( GALIL_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( GALIL_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 16, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 16, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/galil-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/galil-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_AUG, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   GALIL END
+//======================
+
+//======================
+//	   AWP START
+//======================
+void EV_AWP( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	float delay;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/762mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 2 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AWP_SHOOT1, 2 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AWP_SHOOT2, 2 );
+				break;
+			case 2:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( AWP_SHOOT3, 2 );
+				break;
+		}
+	}
+
+	delay = 1.0;
+
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
+
+	if( ( delay == 1.0 ) && ( delay != 0.0 ) )
+	{
+		delay = 0.0;
+		EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+	}
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/awp1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_AWP, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   AWP END
+//======================
+
+//======================
+//	   Scout START
+//======================
+void EV_SCOUT( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/762mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SCOUT_SHOOT, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SCOUT_SHOOT2, 1 );
+				break;
+		}
+	}
+
+	EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4 );
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/scout_fire-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 2.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SCOUT, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   Scout END
+//======================
+
+//======================
+//	   G3SG1 START
+//======================
+void EV_G3SG1( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/762mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( G3SG1_SHOOT, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( G3SG1_SHOOT2, 1 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/g3sg1-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_G3SG1, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   G3SG1 END
+//======================
+
+//======================
+//	   SG550 START
+//======================
+void EV_SG550( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SG550_SHOOT, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( SG550_SHOOT2, 1 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, -7 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 12, -3, 7 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/sg550-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SG550, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   SG550 END
+//======================
+
+//======================
+//	   M249 START
+//======================
+void EV_M249( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t ShellVelocity;
+	vec3_t ShellOrigin;
+	int shell;
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex( "models/556mmshell.mdl" );// brass shell
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M249_SHOOT1, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( M249_SHOOT2, 1 );
+				break;
+		}
+	}
+
+	if( CVAR_GET_FLOAT( "cl_left" ) == 1 )
+	{
+		EV_GetDefaultShellInfo_Left( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, -8 );
+	}
+	else
+	{
+		EV_GetDefaultShellInfo( args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 13, -3, 8 );
+	}
+
+	EV_EjectBrass( ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL );
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/m249-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/m249-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_SG552, 0, 0, args->fparam1, args->fparam2 );
+}
+//======================
+//	   M249 END
+//======================
+
+//======================
+//	    RPGRENADE START
+//======================
+enum rpgrenade_e
+{
+	RPGRENADE_IDLE = 0,
+	RPGRENADE_FIDGET,
+	RPGRENADE_RELOAD,		// to reload
+	RPGRENADE_FIRE2,		// to empty
+	RPGRENADE_HOLSTER1,	// loaded
+	RPGRENADE_DRAW1,	// loaded
+	RPGRENADE_HOLSTER2,	// unloaded
+	RPGRENADE_DRAW_UL,	// unloaded
+	RPGRENADE_IDLE_UL,	// unloaded idle
+	RPGRENADE_FIDGET_UL,	// unloaded fidget
+};
+
+void EV_RPGRENADE( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/rocketfire1.wav", 0.9, ATTN_NORM, 0, PITCH_NORM );
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_ITEM, "weapons/glauncher.wav", 0.7, ATTN_NORM, 0, PITCH_NORM );
+
+	//Only play the weapon anims if I shot it.
+	if( EV_IsLocal( idx ) )
+	{
+		gEngfuncs.pEventAPI->EV_WeaponAnimation( RPGRENADE_FIRE2, 1 );
+
+		V_PunchAxis( 0, -5.0 );
+	}
+
+	vec3_t vecSrc;
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 40.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+}
+//======================
+//	     RPGRENADE END
+//======================
+
+//======================
+//	   ULTIMATE START
+//======================
+void EV_ULTIMATE( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t velocity;
+
+	vec3_t vecSrc, vecAiming;
+	vec3_t up, right, forward;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+	VectorCopy( args->angles, angles );
+	VectorCopy( args->velocity, velocity );
+
+	AngleVectors( angles, forward, right, up );
+
+	if( EV_IsLocal( idx ) )
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( ULTI_JUDSHOOT1, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( ULTI_JUDSHOOT2, 1 );
+				break;
+		}
+	}
+
+	switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ultimate-1.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/ultimate-2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong( 0, 0xf ) );
+		break;
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 4.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+	VectorCopy( forward, vecAiming );
+
+	EV_HLDM_FireBullets( idx, forward, right, up, 10, vecSrc, vecAiming, 2048, BULLET_PLAYER_XM1014, 0, &g_tracerCount[idx - 1], 0.08716, 0.08716 );
+}
+//======================
+//	  ULTIMATE END
+//======================
+
+//======================
+//	  ULTIMATE2 START
+//======================
+void EV_ULTIMATE2( event_args_t *args )
+{
+	int idx;
+	vec3_t origin;
+	vec3_t vecSrc;
+
+	idx = args->entindex;
+	VectorCopy( args->origin, origin );
+
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/rocketfire1.wav", 0.9, ATTN_NORM, 0, PITCH_NORM );
+	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_ITEM, "weapons/glauncher.wav", 0.7, ATTN_NORM, 0, PITCH_NORM );
+
+	//Only play the weapon anims if I shot it.
+	if( EV_IsLocal( idx ) )
+	{
+		switch( gEngfuncs.pfnRandomLong( 0, 1 ) )
+		{
+			case 0:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( ULTI_JUDSHOOT1, 1 );
+				break;
+			case 1:
+				gEngfuncs.pEventAPI->EV_WeaponAnimation( ULTI_JUDSHOOT2, 1 );
+				break;
+		}
+
+		V_PunchAxis( 0, -5.0 );
+	}
+
+	EV_GetGunPosition( args, vecSrc, origin );
+	EV_HLDM_MuzzleFlash( vecSrc, 40.0 + gEngfuncs.pfnRandomFloat( -0.2, 0.2 ) );
+}
+//======================
+//	   ULTIMATE2 END
+//======================
+//Haunter
+
+#if 0
 //======================
 //	    GLOCK START
 //======================
@@ -1761,6 +3963,7 @@ void EV_SnarkFire( event_args_t *args )
 //======================
 //	   SQUEAK END
 //======================
+#endif
 
 void EV_TrainPitchAdjust( event_args_t *args )
 {

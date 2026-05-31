@@ -25,7 +25,7 @@ class CBasePlayer;
 class CItem;
 class CBasePlayerAmmo;
 //Atomizer
-void ShowMenu(CBasePlayer *pPlayer, int bitsValidSlots, int nDisplayTime, BOOL fNeedMore, char pszText[1500]);
+void ShowMenu(CBasePlayer *pPlayer, int bitsValidSlots, int nDisplayTime, BOOL fNeedMore, const char *pszText);
 //Atom
 
 // weapon respawning return codes
@@ -198,6 +198,10 @@ public:
 	virtual void InitHUD( CBasePlayer *pl );		// the client dll is ready for updating
 	virtual void ClientDisconnected( edict_t *pClient );
 
+	//Haunter
+	virtual BOOL ClientCommand( CBasePlayer *pPlayer, const char *pcmd );  // handles the user commands;  returns TRUE if command handled properly
+	//Haunter
+
 	// Client damage rules
 	virtual float FlPlayerFallDamage( CBasePlayer *pPlayer );
 
@@ -364,31 +368,6 @@ protected:
 	float m_flIntermissionEndTime;
 	BOOL m_iEndIntermissionButtonHit;
 	void SendMOTDToClient( edict_t *client );
-};
-
-bool IsPlayerBusting( CBaseEntity *pPlayer );
-BOOL BustingCanHaveItem( CBasePlayer *pPlayer, CBaseEntity *pItem );
-
-class CMultiplayBusters : public CHalfLifeMultiplay
-{
-public:
-	CMultiplayBusters();
-	void Think();
-	void PlayerSpawn( CBasePlayer *pPlayer );
-	void ClientUserInfoChanged( CBasePlayer *pPlayer, char *infobuffer );
-	int IPointsForKill( CBasePlayer *pAttacker, CBasePlayer *pKilled );
-	void PlayerKilled( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor );
-	void DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pevInflictor );
-	BOOL CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pItem );
-	void PlayerGotWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pWeapon );
-	int WeaponShouldRespawn( CBasePlayerItem *pWeapon );
-	BOOL CanHaveItem( CBasePlayer *pPlayer, CItem *pItem );
-	void CheckForEgons();
-	void SetPlayerModel( CBasePlayer *pPlayer, BOOL bKnownBuster );
-	BOOL IsBustingGame( void ){ return TRUE; };
-
-protected:
-	float m_flEgonBustingCheckTime;
 };
 
 extern DLL_GLOBAL CGameRules *g_pGameRules;

@@ -97,6 +97,9 @@ void CHud::Think( void )
 // Redraw
 // step through the local data,  placing the appropriate graphics & text as appropriate
 // returns 1 if they've changed, 0 otherwise
+//Haunter
+//void HUD_DrawOrthoTriangles( void );
+//Haunter
 int CHud::Redraw( float flTime, int intermission )
 {
 	m_fOldTime = m_flTime;	// save time of previous redraw

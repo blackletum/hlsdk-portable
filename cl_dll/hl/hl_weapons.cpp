@@ -274,7 +274,7 @@ BOOL CBasePlayerWeapon::DefaultDeploy( const char *szViewModel, const char *szWe
 
 	g_irunninggausspred = false;
 	m_pPlayer->m_flNextAttack = 0.5f;
-	m_flTimeWeaponIdle = 1.0f;
+	m_flTimeWeaponIdle = 1.55f; //Haunter default:1.0;
 	return TRUE;
 }
 
@@ -288,8 +288,9 @@ BOOL CBasePlayerWeapon::PlayEmptySound( void )
 {
 	if( m_iPlayEmptySound )
 	{
-		HUD_PlaySound( "weapons/357_cock1.wav", 0.8f );
-		m_iPlayEmptySound = 0;
+		HUD_PlaySound( "weapons/dryfire_rifle.wav", 0.8f );
+		m_iPlayEmptySound = 1;//Haunter
+		//m_iPlayEmptySound = 0;
 		return 0;
 	}
 	return 0;
@@ -410,15 +411,163 @@ Vector CBaseEntity::FireBulletsPlayer ( ULONG cShots, Vector vecSrc, Vector vecD
 	return Vector( x * vecSpread.x, y * vecSpread.y, 0.0f );
 }
 
+/* Haunter
+=====================
+CBaseEntity::FireBulletsPlayer2
+
+Only produces random numbers to match the server ones.
+=====================
+*/
+Vector CBaseEntity::FireBulletsPlayer2( ULONG cShots, Vector vecSrc, Vector vecDirShooting, Vector vecSpread, float flDistance, int iPenetration, int iBulletType, int iDamage, float flRangeModifier, entvars_t *pevAttacker, int shared_rand, bool bPistol )
+{
+	float x = 0.0f, y = 0.0f, z;
+
+	for( ULONG iShot = 1; iShot <= cShots; iShot++ )
+	{
+		if( pevAttacker == NULL )
+		{
+			// get circular gaussian spread
+			do {
+					x = RANDOM_FLOAT( -0.5f, 0.5f ) + RANDOM_FLOAT( -0.5f, 0.5f );
+					y = RANDOM_FLOAT( -0.5f, 0.5f ) + RANDOM_FLOAT( -0.5f, 0.5f );
+					z = x * x + y * y;
+			} while( z > 1 );
+		}
+		else
+		{
+			//Use player's random seed.
+			// get circular gaussian spread
+			x = UTIL_SharedRandomFloat( shared_rand + iShot, -0.5f, 0.5f ) + UTIL_SharedRandomFloat( shared_rand + ( 1 + iShot ) , -0.5f, 0.5f );
+			y = UTIL_SharedRandomFloat( shared_rand + ( 2 + iShot ), -0.5f, 0.5f ) + UTIL_SharedRandomFloat( shared_rand + ( 3 + iShot ), -0.5f, 0.5f );
+			z = x * x + y * y;
+		}
+	}
+
+	return Vector( x * vecSpread.x, y * vecSpread.y, 0.0f );
+}
+
+/*
+=====================
+CBasePlayerWeapon::Kickback
+
+This is for the recoil
+=====================
+*/
+//Kick the view..
+void CBasePlayerWeapon::KickBack( float up_base, float lateral_base, float up_modifier, float lateral_modifier, float up_max, float lateral_max, int direction_change )
+{
+	float flKickUp;
+	float flKickLateral;
+
+	if( m_pPlayer->m_iShotsFired == 1 ) // This is the first round fired
+	{
+		flKickUp = up_base;
+		flKickLateral = lateral_base;
+	}
+	else
+	{
+		flKickUp = up_base + m_pPlayer->m_iShotsFired * up_modifier;
+		flKickLateral = lateral_base + m_pPlayer->m_iShotsFired * lateral_modifier;
+	}
+
+//	ALERT (at_console, "Max UP KICK : %fl\n", up_max);
+//	ALERT (at_console, "Current UP KICK : %fl\n\n", flKickUp);
+
+	m_pPlayer->pev->punchangle.x -= flKickUp;
+	if( m_pPlayer->pev->punchangle.x < -1 * up_max )
+		m_pPlayer->pev->punchangle.x = -1 * up_max;
+
+	if( !RANDOM_LONG( 0, direction_change ) )
+	{
+		flKickLateral /= 2;
+		m_iDirection = 1 - m_iDirection;
+	}
+
+	if( m_iDirection == 1 )
+	{
+		m_pPlayer->pev->punchangle.y += flKickLateral;
+		if( m_pPlayer->pev->punchangle.y > lateral_max )
+			m_pPlayer->pev->punchangle.y = lateral_max;
+	}
+	else
+	{
+		m_pPlayer->pev->punchangle.y -= flKickLateral;
+		if( m_pPlayer->pev->punchangle.y < -1 * lateral_max )
+			m_pPlayer->pev->punchangle.y = -1 * lateral_max;
+	}
+}
+//Haunter
+
 /*
 =====================
 CBasePlayerWeapon::ItemPostFrame
 
 Handles weapon firing, reloading, etc.
+Note: By putting some things from the server to the client, it works!
 =====================
 */
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
+	//Haunter
+
+	//Return zoom level back to previous zoom level before we fired a shot. This is used only for the AWP and the Scout.
+	if( ( m_flNextPrimaryAttack <= UTIL_WeaponTimeBase() ) && ( m_pPlayer->m_bResumeZoom == TRUE ) )
+	{
+		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = m_pPlayer->m_iLastZoom;
+
+		if( m_pPlayer->pev->fov == m_pPlayer->m_iLastZoom )
+		{
+			// get rid of the model and return the fade level in zoom.
+
+//			if( this->m_iId == 24 )
+//				UTIL_ScreenFade( m_pPlayer, Vector(10,180,10), 1.5, 9999, 80, FFADE_OUT );
+		//	m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_awp.mdl");
+			m_pPlayer->m_bResumeZoom = FALSE;
+		}
+	}
+
+	//Haunter XYZ
+	/*if( ( m_pPlayer->m_bIsSilencing == TRUE ) && ( m_pPlayer->m_iSilencing == 1 ) )
+	{
+		//m_iSilenced = m_pPlayer->m_iSilencing; // Is this correct?
+
+		if( m_iSilenced == 1 )
+		{
+			m_iSilenced = 1;
+		}
+		else if( m_iSilenced == 0 )
+		{
+			m_iSilenced = 0;
+		}
+
+		//m_pPlayer->m_iSilencing = 0;
+		//m_fInSilencing = FALSE;
+	}
+
+	if( ( m_pPlayer->m_bIsSilencing == FALSE ) && ( m_pPlayer->m_iSilencing == 1 ) )
+	{
+		if( m_iSilenced == 1 )
+		{
+			m_iSilenced = 0;
+		}
+		else if( m_iSilenced == 0 )
+		{
+			m_iSilenced = 1;
+		}
+
+		m_pPlayer->m_bIsSilencing = TRUE;
+		m_pPlayer->m_iSilencing = 0;
+	}
+
+	if( m_pPlayer->m_pActiveItem->m_iId == WEAPON_USP )
+	{
+		if( ( m_pPlayer->m_bIsSilencing == TRUE ) && ( m_flTimeWeaponIdle <= 0.0 ) )
+		{
+			m_pPlayer->m_bIsSilencing = FALSE;
+		}
+	}*/
+	//Haunter
+
 	if( ( m_fInReload ) && ( m_pPlayer->m_flNextAttack <= 0.0f ) )
 	{
 #if 1
@@ -465,6 +614,22 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 	else if( !( m_pPlayer->pev->button & ( IN_ATTACK | IN_ATTACK2 ) ) )
 	{
 		// no fire buttons down
+
+		//Atomizer
+		// The following code prevents the player from tapping the firebutton repeatedly
+		// to simulate full auto and retaining the single shot accuracy of single fire
+		if( m_bDelayFire == TRUE )
+		{
+			m_bDelayFire = FALSE;
+			m_pPlayer->m_iShotsFired = 20;
+		}
+
+		if( m_pPlayer->m_iShotsFired > 0 )
+		{
+			m_pPlayer->m_iShotsFired--;
+		}
+		//Atom
+
 		m_fFireOnEmpty = FALSE;
 
 		// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
@@ -739,20 +904,44 @@ void HUD_InitClientWeapons( void )
 	HUD_PrepEntity( &player, NULL );
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
-	HUD_PrepEntity( &g_Glock, &player );
-	HUD_PrepEntity( &g_Crowbar, &player );
-	HUD_PrepEntity( &g_Python, &player );
-	HUD_PrepEntity( &g_Mp5, &player );
-	HUD_PrepEntity( &g_Crossbow, &player );
-	HUD_PrepEntity( &g_Shotgun, &player );
-	HUD_PrepEntity( &g_Rpg, &player );
-	HUD_PrepEntity( &g_Gauss, &player );
-	HUD_PrepEntity( &g_Egon, &player );
-	HUD_PrepEntity( &g_HGun, &player );
-	HUD_PrepEntity( &g_HandGren, &player );
-	HUD_PrepEntity( &g_Satchel, &player );
-	HUD_PrepEntity( &g_Tripmine, &player );
-	HUD_PrepEntity( &g_Snark, &player );
+	//Haunter
+	HUD_PrepEntity( &g_Knife, &player );
+	HUD_PrepEntity( &g_HE, &player );
+	HUD_PrepEntity( &g_FB, &player );
+
+	HUD_PrepEntity( &g_USP, &player );
+	HUD_PrepEntity( &g_Glock18, &player );
+	HUD_PrepEntity( &g_Deagle, &player );
+	HUD_PrepEntity( &g_P228, &player );
+	HUD_PrepEntity( &g_FiveseveN, &player );
+	HUD_PrepEntity( &g_Elite, &player );
+
+	HUD_PrepEntity( &g_M3, &player );
+	HUD_PrepEntity( &g_XM1014, &player );
+
+	HUD_PrepEntity( &g_MP5N, &player );
+	HUD_PrepEntity( &g_TMP, &player );
+	HUD_PrepEntity( &g_P90, &player );
+	HUD_PrepEntity( &g_MAC10, &player );
+	HUD_PrepEntity( &g_UMP45, &player );
+
+	HUD_PrepEntity( &g_AK47, &player );
+	HUD_PrepEntity( &g_M4A1, &player );
+	HUD_PrepEntity( &g_SG552, &player );
+	HUD_PrepEntity( &g_AUG, &player );
+	HUD_PrepEntity( &g_FAMAS, &player );
+	HUD_PrepEntity( &g_GALIL, &player );
+
+	HUD_PrepEntity( &g_AWP, &player );
+	HUD_PrepEntity( &g_Scout, &player );
+	HUD_PrepEntity( &g_G3SG1, &player );
+	HUD_PrepEntity( &g_SG550, &player );
+
+	HUD_PrepEntity( &g_M249, &player );
+	HUD_PrepEntity( &g_RPGRENADE, &player );
+	HUD_PrepEntity( &g_C4, &player );
+	HUD_PrepEntity( &g_ULTIMATE, &player );
+	//Haunter
 }
 
 /*
@@ -816,48 +1005,104 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	// FIXME, make this a method in each weapon?  where you pass in an entity_state_t *?
 	switch( from->client.m_iId )
 	{
-		case WEAPON_CROWBAR:
-			pWeapon = &g_Crowbar;
+		//Haunter
+		case WEAPON_KNIFE:
+			pWeapon = &g_Knife;
 			break;
-		case WEAPON_GLOCK:
-			pWeapon = &g_Glock;
+		case WEAPON_HEGRENADE:
+			pWeapon = &g_HE;
 			break;
-		case WEAPON_PYTHON:
-			pWeapon = &g_Python;
+		case WEAPON_FLASHBANG:
+			pWeapon = &g_FB;
 			break;
-		case WEAPON_MP5:
-			pWeapon = &g_Mp5;
+
+		case WEAPON_USP:
+			pWeapon = &g_USP;
 			break;
-		case WEAPON_CROSSBOW:
-			pWeapon = &g_Crossbow;
+		case WEAPON_GLOCK18:
+			pWeapon = &g_Glock18;
 			break;
-		case WEAPON_SHOTGUN:
-			pWeapon = &g_Shotgun;
+		case WEAPON_DEAGLE:
+			pWeapon = &g_Deagle;
 			break;
-		case WEAPON_RPG:
-			pWeapon = &g_Rpg;
+		case WEAPON_P228:
+			pWeapon = &g_P228;
 			break;
-		case WEAPON_GAUSS:
-			pWeapon = &g_Gauss;
+		case WEAPON_FIVESEVEN:
+			pWeapon = &g_FiveseveN;
 			break;
-		case WEAPON_EGON:
-			pWeapon = &g_Egon;
+		case WEAPON_ELITE:
+			pWeapon = &g_Elite;
 			break;
-		case WEAPON_HORNETGUN:
-			pWeapon = &g_HGun;
+
+		case WEAPON_M3:
+			pWeapon = &g_M3;
 			break;
-		case WEAPON_HANDGRENADE:
-			pWeapon = &g_HandGren;
+		case WEAPON_XM1014:
+			pWeapon = &g_XM1014;
 			break;
-		case WEAPON_SATCHEL:
-			pWeapon = &g_Satchel;
+
+		case WEAPON_MP5N:
+			pWeapon = &g_MP5N;
 			break;
-		case WEAPON_TRIPMINE:
-			pWeapon = &g_Tripmine;
+		case WEAPON_TMP:
+			pWeapon = &g_TMP;
 			break;
-		case WEAPON_SNARK:
-			pWeapon = &g_Snark;
+		case WEAPON_P90:
+			pWeapon = &g_P90;
 			break;
+		case WEAPON_MAC10:
+			pWeapon = &g_MAC10;
+			break;
+		case WEAPON_UMP45:
+			pWeapon = &g_UMP45;
+			break;
+
+		case WEAPON_AK47:
+			pWeapon = &g_AK47;
+			break;
+		case WEAPON_M4A1:
+			pWeapon = &g_M4A1;
+			break;
+		case WEAPON_SG552:
+			pWeapon = &g_SG552;
+			break;
+		case WEAPON_AUG:
+			pWeapon = &g_AUG;
+			break;
+		case WEAPON_FAMAS:
+			pWeapon = &g_FAMAS;
+			break;
+		case WEAPON_GALIL:
+			pWeapon = &g_GALIL;
+			break;
+
+		case WEAPON_AWP:
+			pWeapon = &g_AWP;
+			break;
+		case WEAPON_SCOUT:
+			pWeapon = &g_Scout;
+			break;
+		case WEAPON_G3SG1:
+			pWeapon = &g_G3SG1;
+			break;
+		case WEAPON_SG550:
+			pWeapon = &g_SG550;
+			break;
+
+		case WEAPON_M249:
+			pWeapon = &g_M249;
+			break;
+		case WEAPON_RPGRENADE:
+			pWeapon = &g_RPGRENADE;
+			break;
+		case WEAPON_C4:
+			pWeapon = &g_C4;
+			break;
+		case WEAPON_ULTIMATE:
+			pWeapon = &g_ULTIMATE;
+			break;
+		//Haunter
 	}
 
 	// Store pointer to our destination entity_state_t so we can get our origin, etc. from it
@@ -893,6 +1138,15 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 			continue;
 		}
 
+		//Haunter
+/*		if( from->weapondata[i].m_iId == 0.000000 || from->weapondata[i].m_flNextPrimaryAttack == 0.000000 )
+		{
+//			if( i == WEAPON_PYTHON ) //omega; debug printing for testing
+//			ALERT(at_console, "skipped weapondata..\n");
+			continue;
+		}
+		//Haunter*/
+
 		pfrom = &from->weapondata[i];
 
 		pCurrent->m_fInReload = pfrom->m_fInReload;
@@ -904,10 +1158,13 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		pCurrent->m_flTimeWeaponIdle = pfrom->m_flTimeWeaponIdle;
 		pCurrent->pev->fuser1 = pfrom->fuser1;
 		pCurrent->m_flStartThrow = pfrom->fuser2;
-		pCurrent->m_flReleaseThrow = pfrom->fuser3;
-		pCurrent->m_chargeReady = pfrom->iuser1;
+	//	pCurrent->m_flReleaseThrow = pfrom->fuser3;
+		//Haunter
+		pCurrent->m_iBurstFire = pfrom->fuser3;
+
+		pCurrent->m_iSilenced = pfrom->iuser1;
 		pCurrent->m_fInAttack = pfrom->iuser2;
-		pCurrent->m_fireState = pfrom->iuser3;
+		//Haunter
 
 		pCurrent->m_iSecondaryAmmoType = (int)from->client.vuser3[2];
 		pCurrent->m_iPrimaryAmmoType = (int)from->client.vuser4[0];
@@ -962,11 +1219,18 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		player.m_pActiveItem = g_pWpns[from->client.m_iId];
 	}
 
-	if( player.m_pActiveItem->m_iId == WEAPON_RPG )
+	//Haunter
+	if( player.m_pActiveItem->m_iId == WEAPON_RPGRENADE )
+	{
+		// ( (CRpg *)player.m_pActiveItem )->m_fSpotActive = (int)from->client.vuser2[1];
+		( (CRPGRENADE *)player.m_pActiveItem )->m_cActiveRockets = (int)from->client.vuser2[2];
+	}
+	//Haunter
+/*	if( player.m_pActiveItem->m_iId == WEAPON_RPG )
 	{
 		( (CRpg *)player.m_pActiveItem )->m_fSpotActive = (int)from->client.vuser2[1];
 		( (CRpg *)player.m_pActiveItem )->m_cActiveRockets = (int)from->client.vuser2[2];
-	}
+	}*/
 
 	// Don't go firing anything if we have died.
 	// Or if we don't have a weapon model deployed
@@ -1030,21 +1294,27 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 	to->client.vuser2[0] = player.ammo_hornets;
 	to->client.ammo_rockets = player.ammo_rockets;
 
-	if( player.m_pActiveItem->m_iId == WEAPON_RPG )
+	if( player.m_pActiveItem->m_iId == WEAPON_RPGRENADE )
+	{
+		// to->client.vuser2[1] = ( (CRpg *)player.m_pActiveItem)->m_fSpotActive;
+		to->client.vuser2[2] = ( (CRPGRENADE *)player.m_pActiveItem)->m_cActiveRockets;
+	}
+
+/*	if( player.m_pActiveItem->m_iId == WEAPON_RPG )
 	{
 		to->client.vuser2[1] = ( (CRpg *)player.m_pActiveItem)->m_fSpotActive;
 		to->client.vuser2[2] = ( (CRpg *)player.m_pActiveItem)->m_cActiveRockets;
-	}
+	}*/
 
 	// Make sure that weapon animation matches what the game .dll is telling us
 	//  over the wire ( fixes some animation glitches )
 	if( g_runfuncs && ( HUD_GetWeaponAnim() != to->client.weaponanim ) )
 	{
-		int body = 0;
+		int body = 2;
 
-		//Show laser sight/scope combo
-		if( pWeapon == &g_Python && bIsMultiplayer() )
-			 body = 1;
+		/*Haunter //Pop the model to body 0.
+		if( pWeapon == &g_Tripmine )
+			 body = 0;*/
 
 		// Force a fixed anim down to viewmodel
 		HUD_SendWeaponAnim( to->client.weaponanim, body, 1 );
@@ -1071,10 +1341,13 @@ void HUD_WeaponsPostThink( local_state_s *from, local_state_s *to, usercmd_t *cm
 		pto->m_flTimeWeaponIdle = pCurrent->m_flTimeWeaponIdle;
 		pto->fuser1 = pCurrent->pev->fuser1;
 		pto->fuser2 = pCurrent->m_flStartThrow;
-		pto->fuser3 = pCurrent->m_flReleaseThrow;
-		pto->iuser1 = pCurrent->m_chargeReady;
+	//	pto->fuser3 = pCurrent->m_flReleaseThrow;
+		pto->fuser3 = pCurrent->m_iBurstFire;
+		//Haunter
+		pto->iuser1 = pCurrent->m_iSilenced;
 		pto->iuser2 = pCurrent->m_fInAttack;
-		pto->iuser3 = pCurrent->m_fireState;
+		//Haunter
+
 
 		// Decrement weapon counters, server does this at same time ( during post think, after doing everything else )
 		pto->m_flNextReload -= cmd->msec / 1000.0f;

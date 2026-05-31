@@ -42,7 +42,7 @@ enum gauss_e
 	GAUSS_DRAW
 };
 
-LINK_ENTITY_TO_CLASS( weapon_gauss, CGauss )
+//LINK_ENTITY_TO_CLASS( weapon_gauss, CGauss )
 
 float CGauss::GetFullChargeTime( void )
 {
@@ -627,5 +627,5 @@ class CGaussAmmo : public CBasePlayerAmmo
 	}
 };
 
-LINK_ENTITY_TO_CLASS( ammo_gaussclip, CGaussAmmo )
+//LINK_ENTITY_TO_CLASS( ammo_gaussclip, CGaussAmmo )
 #endif

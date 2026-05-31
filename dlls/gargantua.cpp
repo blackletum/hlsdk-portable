@@ -47,17 +47,23 @@ const float GARG_ATTACKDIST = 80.0f;
 
 // Gargantua is immune to any damage but this
 #define GARG_DAMAGE					(DMG_ENERGYBEAM|DMG_CRUSH|DMG_MORTAR|DMG_BLAST)
+//Haunter
 #define GARG_EYE_SPRITE_NAME		"sprites/gargeye1.spr"
-#define GARG_BEAM_SPRITE_NAME		"sprites/xbeam3.spr"
-#define GARG_BEAM_SPRITE2		"sprites/xbeam3.spr"
-#define GARG_STOMP_SPRITE_NAME		"sprites/gargeye1.spr"
-#define GARG_STOMP_BUZZ_SOUND		"weapons/mine_charge.wav"
+#define GARG_BEAM_SPRITE_NAME		"sprites/garg_flamebeam.spr"
+#define GARG_BEAM_SPRITE2		"sprites/garg_flamebeam.spr"
+#define GARG_STOMP_SPRITE_NAME		"sprites/garg_stomp.spr"
+#define GARG_STOMP_BUZZ_SOUND		"garg/gar_stompwave.wav"
+#define GARG_SHOCK_SPRITE			"sprites/garg_shockwave.spr"
+//Haunter
 #define GARG_FLAME_LENGTH		330
 #define GARG_GIB_MODEL			"models/metalplategibs.mdl"
 
 #define ATTN_GARG					(ATTN_NORM)
 
-#define STOMP_SPRITE_COUNT			10
+//Haunter
+#define STOMP_SPRITE_COUNT			20
+#define GARG_STOMP_RADIUS			550
+//Haunter
 
 int gStompSprite = 0, gGargGibModel = 0;
 void SpawnExplosion( Vector center, float randomRange, float time, int magnitude );
@@ -140,7 +146,7 @@ void CStomp::Think( void )
 			pevOwner = VARS( pev->owner );
 
 		if( pEntity )
-			pEntity->TakeDamage( pev, pevOwner, gSkillData.gargantuaDmgStomp, DMG_SONIC );
+			pEntity->TakeDamage( pev, pevOwner, gSkillData.gargantuaDmgStomp, /*Haunter*/(DMG_SONIC)/*Haunter*/ );
 	}
 
 	// Accelerate the effect
@@ -217,6 +223,10 @@ public:
 	void Precache( void );
 	void UpdateOnRemove();
 	void SetYawSpeed( void );
+	//Haunter
+	void ShockWave ( void );
+	int m_iShockTexture;
+	//Haunter
 	int Classify( void );
 	int TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType );
 	void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType );
@@ -642,7 +652,6 @@ void CGargantua::FlameDamage( Vector vecStart, Vector vecEnd, entvars_t *pevInfl
 			// UNDONE: this should check a damage mask, not an ignore
 			if( iClassIgnore != CLASS_NONE && pEntity->Classify() == iClassIgnore )
 			{
-				// houndeyes don't hurt other houndeyes with their attack
 				continue;
 			}
 
@@ -956,12 +965,131 @@ BOOL CGargantua::CheckRangeAttack1( float flDot, float flDist )
 {
 	if( gpGlobals->time > m_seeTime )
 	{
-		if( flDot >= 0.7f && flDist > GARG_ATTACKDIST )
+		if( flDot >= 0.7f && flDist < GARG_STOMP_RADIUS )
 		{
 				return TRUE;
 		}
 	}
 	return FALSE;
+}
+
+void CGargantua::ShockWave( void )
+{
+	float		flAdjustedDamage;
+	float		flDist;
+
+	/*switch ( RANDOM_LONG( 0, 2 ) )
+	{
+	case 0:	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "houndeye/he_blast1.wav", 1, ATTN_NORM);	break;
+	case 1:	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "houndeye/he_blast2.wav", 1, ATTN_NORM);	break;
+	case 2:	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "houndeye/he_blast3.wav", 1, ATTN_NORM);	break;
+	}*/
+
+	// blast circles
+	MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pev->origin );
+		WRITE_BYTE( TE_BEAMCYLINDER );
+		WRITE_COORD( pev->origin.x );
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z + 16 );
+		WRITE_COORD( pev->origin.x );
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z + 16 + GARG_STOMP_RADIUS / .2 ); // reach damage radius over .3 seconds
+		WRITE_SHORT( m_iShockTexture );
+		WRITE_BYTE( 0 ); // startframe
+		WRITE_BYTE( 0 ); // framerate
+		WRITE_BYTE( 2 ); // life
+		WRITE_BYTE( 16 );  // width
+		WRITE_BYTE( 0 );   // noise
+
+		WRITE_BYTE( 255 );     // R
+		WRITE_BYTE( 163 );     // G
+		WRITE_BYTE( 31 );     // B
+
+		WRITE_BYTE( 255 ); //brightness
+		WRITE_BYTE( 0 );		// speed
+	MESSAGE_END();
+
+	MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pev->origin );
+		WRITE_BYTE( TE_BEAMCYLINDER );
+		WRITE_COORD( pev->origin.x );
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z + 16 );
+		WRITE_COORD( pev->origin.x );
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z + 16 + ( GARG_STOMP_RADIUS / 2 ) / .2 ); // reach damage radius over .3 seconds
+		WRITE_SHORT( m_iShockTexture );
+		WRITE_BYTE( 0 ); // startframe
+		WRITE_BYTE( 0 ); // framerate
+		WRITE_BYTE( 2 ); // life
+		WRITE_BYTE( 16 );  // width
+		WRITE_BYTE( 0 );   // noise
+
+		WRITE_BYTE( 255 );     // R
+		WRITE_BYTE( 163 );     // G
+		WRITE_BYTE( 31 );     // B
+
+		WRITE_BYTE( 255 ); //brightness
+		WRITE_BYTE( 0 );		// speed
+	MESSAGE_END();
+
+
+	CBaseEntity *pEntity = NULL;
+	// iterate on all entities in the vicinity.
+	while( ( pEntity = UTIL_FindEntityInSphere( pEntity, pev->origin, GARG_STOMP_RADIUS ) ) != NULL )
+	{
+		if( pEntity->pev->takedamage != DAMAGE_NO )
+		{
+			if( !FClassnameIs( pEntity->pev, "monster_gargantua" ) )
+			{
+				flAdjustedDamage = 3000; //gSkillData.houndeyeDmgBlast;
+
+
+				flDist = ( pEntity->Center() - pev->origin ).Length();
+
+				flAdjustedDamage -= ( flDist / GARG_STOMP_RADIUS ) * flAdjustedDamage;
+
+				if( !FVisible( pEntity ) )
+				{
+					if( pEntity->IsPlayer() )
+					{
+					// if this entity is a client, and is not in full view, inflict half damage. We do this so that players still
+					// take the residual damage if they don't totally leave the houndeye's effective radius. We restrict it to clients
+					// so that monsters in other parts of the level don't take the damage and get pissed.
+					flAdjustedDamage *= 0.5;
+					}
+					else if( !FClassnameIs( pEntity->pev, "func_breakable" ) && !FClassnameIs( pEntity->pev, "func_pushable" ) )
+					{
+						// do not hurt nonclients through walls, but allow damage to be done to breakables
+						flAdjustedDamage = 0;
+					}
+				}
+
+				//ALERT ( at_aiconsole, "Damage: %f\n", flAdjustedDamage );
+
+				if( flAdjustedDamage > 0 )
+				{
+					pEntity->TakeDamage( pev, pev, flAdjustedDamage, DMG_SONIC | DMG_ALWAYSGIB );
+				}
+			}
+		}
+	}
+
+	//Haunter - Light up the world!
+	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+		WRITE_BYTE( TE_DLIGHT );
+		WRITE_COORD( pev->origin.x ); // origin
+		WRITE_COORD( pev->origin.y );
+		WRITE_COORD( pev->origin.z );
+		WRITE_BYTE( 8 ); // radius
+
+		WRITE_BYTE( 255 );     // R
+		WRITE_BYTE( 163 );     // G
+		WRITE_BYTE( 31 );     // B
+
+		WRITE_BYTE( 2 ); // life * 10
+		WRITE_BYTE( 0 ); // decay
+	MESSAGE_END();
+	//Haunter - Light up the world!
 }
 
 //=========================================================
@@ -1001,8 +1129,9 @@ void CGargantua::HandleAnimEvent( MonsterEvent_t *pEvent )
 		EMIT_SOUND_DYN( edict(), CHAN_BODY, RANDOM_SOUND_ARRAY( pFootSounds ), 1.0, ATTN_GARG, 0, PITCH_NORM + RANDOM_LONG( -10, 10 ) );
 		break;
 	case GARG_AE_STOMP:
+		ShockWave();
 		StompAttack();
-		m_seeTime = gpGlobals->time + 12.0f;
+		m_seeTime = gpGlobals->time + 5.0f; //12;
 		break;
 	case GARG_AE_BREATHE:
 		EMIT_SOUND_DYN( edict(), CHAN_VOICE, RANDOM_SOUND_ARRAY( pBreatheSounds ), 1.0, ATTN_GARG, 0, PITCH_NORM + RANDOM_LONG( -10, 10 ) );
@@ -1102,7 +1231,7 @@ void CGargantua::RunTask( Task_t *pTask )
 	switch( pTask->iTask )
 	{
 	case TASK_DIE:
-		if( gpGlobals->time > m_flWaitFinished )
+		if( gpGlobals->time > (m_flWaitFinished + 3.15) )
 		{
 			pev->renderfx = kRenderFxExplode;
 			pev->rendercolor.x = 255;

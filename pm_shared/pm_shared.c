@@ -2022,7 +2022,16 @@ void PM_UnDuck( void )
 
 	VectorCopy( pmove->origin, newOrigin );
 
+	/*Hauter
 	if( pmove->onground != -1 )
+	{
+		for( i = 0; i < 3; i++ )
+		{
+			newOrigin[i] += ( pmove->player_mins[1][i] - pmove->player_mins[0][i] );
+		}
+	}Haunter*/
+	//Valve's bouncy duck code
+	if( pmove->onground != -1 && pmove->flags & FL_DUCKING && pmove->bInDuck == false )
 	{
 		for( i = 0; i < 3; i++ )
 		{

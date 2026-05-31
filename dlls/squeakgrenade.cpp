@@ -407,8 +407,8 @@ void CSqueakGrenade::SuperBounceTouch( CBaseEntity *pOther )
 	m_flNextBounceSoundTime = gpGlobals->time + 0.5f;// half second.
 }
 #endif
-
-LINK_ENTITY_TO_CLASS( weapon_snark, CSqueak )
+#if 0 // Haunter
+//LINK_ENTITY_TO_CLASS( weapon_snark, CSqueak )
 
 void CSqueak::Spawn()
 {
@@ -476,7 +476,7 @@ BOOL CSqueak::Deploy()
 	return result;
 }
 
-void CSqueak::Holster( int skiplocal /* = 0  )
+void CSqueak::Holster( int skiplocal /* = 0 */ )
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
 
@@ -605,4 +605,5 @@ void CSqueak::WeaponIdle( void )
 	}
 	SendWeaponAnim( iAnim );
 }
+#endif //Haunter
 #endif

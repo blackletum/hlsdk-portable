@@ -235,6 +235,8 @@ int gmsgAmmoX = 0;
 int gmsgHudText = 0;
 int gmsgDeathMsg = 0;
 int gmsgScoreInfo = 0;
+int gmsgShroud = 0;
+int gmsgBank = 0;
 int gmsgTeamInfo = 0;
 int gmsgTeamScore = 0;
 int gmsgGameMode = 0;
@@ -295,11 +297,16 @@ void LinkUserMessages( void )
 	gmsgShowMenu = REG_USER_MSG( "ShowMenu", -1 );
 	gmsgShake = REG_USER_MSG( "ScreenShake", sizeof(ScreenShake) );
 	gmsgFade = REG_USER_MSG( "ScreenFade", sizeof(ScreenFade) );
-	gmsgAmmoX = REG_USER_MSG( "AmmoX", 2 );
+	gmsgAmmoX = REG_USER_MSG( "AmmoX", 3 );
 	gmsgTeamNames = REG_USER_MSG( "TeamNames", -1 );
 
 	gmsgStatusText = REG_USER_MSG( "StatusText", -1 );
 	gmsgStatusValue = REG_USER_MSG( "StatusValue", 3 );
+	//Haunter
+	gmsgShroud = REG_USER_MSG( "Shroud", 1 );
+	gmsgBank   = REG_USER_MSG( "Bank", 4 );
+	//Haunter
+
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer )
@@ -408,21 +415,20 @@ void CBasePlayer::DeathSound( void )
 	*/
 
 	// temporarily using pain sounds for death sounds
+	//Haunter
 	switch( RANDOM_LONG( 1, 5 ) )
 	{
-	case 1: 
-		EMIT_SOUND( ENT( pev ), CHAN_VOICE, "player/pl_pain5.wav", 1, ATTN_NORM );
+	case 1:
+		EMIT_SOUND( ENT( pev ), CHAN_VOICE, "player/die1.wav", 1, ATTN_NORM );
 		break;
-	case 2: 
-		EMIT_SOUND( ENT( pev ), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM );
+	case 2:
+		EMIT_SOUND( ENT( pev ), CHAN_VOICE, "player/die2.wav", 1, ATTN_NORM );
 		break;
-	case 3: 
-		EMIT_SOUND( ENT( pev ), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM );
+	case 3:
+		EMIT_SOUND( ENT( pev ), CHAN_VOICE, "player/die3.wav", 1, ATTN_NORM );
 		break;
 	}
-
-	// play one of the suit death alarms
-	EMIT_GROUPNAME_SUIT( ENT( pev ), "HEV_DEAD" );
+	//Haunter
 }
 
 // override takehealth
@@ -431,6 +437,35 @@ int CBasePlayer::TakeHealth( float flHealth, int bitsDamageType )
 {
 	return CBaseMonster::TakeHealth( flHealth, bitsDamageType );
 }
+
+//Atomizer - Gives the player Armor and returns the amount
+int CBasePlayer::GiveArmor( float flArmor )
+{
+	int ArmorGiven;
+
+	if( !pev->takedamage )
+		return 0;
+
+	if( pev->armorvalue >= 100 )
+		return 0;
+
+	ArmorGiven = 101 - pev->armorvalue;
+
+	if( ArmorGiven >= flArmor )
+	{
+		ArmorGiven = flArmor;
+	}
+
+	pev->armorvalue += ArmorGiven;
+
+	if( pev->armorvalue > 100 )
+	{
+		pev->armorvalue = 100;
+	}
+
+	return ArmorGiven;
+}
+//Atom
 
 Vector CBasePlayer::GetGunPosition()
 {
@@ -490,8 +525,13 @@ void CBasePlayer::TraceAttack( entvars_t *pevAttacker, float flDamage, Vector ve
 	etc are implemented with subsequent calls to TakeDamage using DMG_GENERIC.
 */
 
-#define ARMOR_RATIO	0.2	// Armor Takes 80% of the damage
-#define ARMOR_BONUS	0.5	// Each Point of Armor is work 1/x points of health
+//Haunter
+#define ARMOR_RATIO	0.5	// Armor Takes 50% of the damage
+#define ARMOR_BONUS  1	// Each Point of Armor is work 1/x points of health
+/*
+#define ARMOR_RATIO	 0.2	// Armor Takes 80% of the damage
+#define ARMOR_BONUS  0.5	// Each Point of Armor is work 1/x points of health
+Haunter */
 
 int CBasePlayer::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType )
 {
@@ -600,76 +640,53 @@ int CBasePlayer::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 
 		if( bitsDamage & DMG_CLUB )
 		{
-			if( fmajor )
-				SetSuitUpdate( "!HEV_DMG4", FALSE, SUIT_NEXT_IN_30SEC );	// minor fracture
 			bitsDamage &= ~DMG_CLUB;
 			ffound = TRUE;
 		}
 		if( bitsDamage & ( DMG_FALL | DMG_CRUSH ) )
 		{
-			if( fmajor )
-				SetSuitUpdate( "!HEV_DMG5", FALSE, SUIT_NEXT_IN_30SEC );	// major fracture
-			else
-				SetSuitUpdate( "!HEV_DMG4", FALSE, SUIT_NEXT_IN_30SEC );	// minor fracture
-
 			bitsDamage &= ~( DMG_FALL | DMG_CRUSH );
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & DMG_BULLET )
 		{
-			if( m_lastDamageAmount > 5 )
-				SetSuitUpdate( "!HEV_DMG6", FALSE, SUIT_NEXT_IN_30SEC );	// blood loss detected
-			//else
-			//	SetSuitUpdate( "!HEV_DMG0", FALSE, SUIT_NEXT_IN_30SEC );	// minor laceration
-
 			bitsDamage &= ~DMG_BULLET;
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & DMG_SLASH )
 		{
-			if( fmajor )
-				SetSuitUpdate( "!HEV_DMG1", FALSE, SUIT_NEXT_IN_30SEC );	// major laceration
-			else
-				SetSuitUpdate( "!HEV_DMG0", FALSE, SUIT_NEXT_IN_30SEC );	// minor laceration
-
 			bitsDamage &= ~DMG_SLASH;
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & DMG_SONIC )
 		{
-			if( fmajor )
-				SetSuitUpdate( "!HEV_DMG2", FALSE, SUIT_NEXT_IN_1MIN );	// internal bleeding
 			bitsDamage &= ~DMG_SONIC;
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & ( DMG_POISON | DMG_PARALYZE ) )
 		{
-			SetSuitUpdate( "!HEV_DMG3", FALSE, SUIT_NEXT_IN_1MIN );	// blood toxins detected
 			bitsDamage &= ~( DMG_POISON | DMG_PARALYZE );
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & DMG_ACID )
 		{
-			SetSuitUpdate( "!HEV_DET1", FALSE, SUIT_NEXT_IN_1MIN );	// hazardous chemicals detected
 			bitsDamage &= ~DMG_ACID;
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & DMG_NERVEGAS )
 		{
-			SetSuitUpdate( "!HEV_DET0", FALSE, SUIT_NEXT_IN_1MIN );	// biohazard detected
 			bitsDamage &= ~DMG_NERVEGAS;
 			ffound = TRUE;
 		}
 
 		if( bitsDamage & DMG_RADIATION )
 		{
-			SetSuitUpdate( "!HEV_DET2", FALSE, SUIT_NEXT_IN_1MIN );	// radiation detected
 			bitsDamage &= ~DMG_RADIATION;
 			ffound = TRUE;
 		}
@@ -681,41 +698,6 @@ int CBasePlayer::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	}
 
 	pev->punchangle.x = -2;
-
-	if( fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75 )
-	{
-		// first time we take major damage...
-		// turn automedic on if not on
-		SetSuitUpdate( "!HEV_MED1", FALSE, SUIT_NEXT_IN_30MIN );	// automedic on
-
-		// give morphine shot if not given recently
-		SetSuitUpdate( "!HEV_HEAL7", FALSE, SUIT_NEXT_IN_30MIN );	// morphine shot
-	}
-
-	if( fTookDamage && !ftrivial && fcritical && flHealthPrev < 75 )
-	{
-		// already took major damage, now it's critical...
-		if( pev->health < 6 )
-			SetSuitUpdate( "!HEV_HLTH3", FALSE, SUIT_NEXT_IN_10MIN );	// near death
-		else if( pev->health < 20 )
-			SetSuitUpdate( "!HEV_HLTH2", FALSE, SUIT_NEXT_IN_10MIN );	// health critical
-
-		// give critical health warnings
-		if( !RANDOM_LONG( 0, 3 ) && flHealthPrev < 50 )
-			SetSuitUpdate( "!HEV_DMG7", FALSE, SUIT_NEXT_IN_5MIN ); //seek medical attention
-	}
-
-	// if we're taking time based damage, warn about its continuing effects
-	if( fTookDamage && ( bitsDamageType & DMG_TIMEBASED ) && flHealthPrev < 75 )
-	{
-		if( flHealthPrev < 50 )
-		{
-			if( !RANDOM_LONG( 0, 3 ) )
-				SetSuitUpdate( "!HEV_DMG7", FALSE, SUIT_NEXT_IN_5MIN ); //seek medical attention
-		}
-		else
-			SetSuitUpdate( "!HEV_HLTH1", FALSE, SUIT_NEXT_IN_10MIN );	// health dropping
-	}
 
 	return fTookDamage;
 }
@@ -729,6 +711,9 @@ int CBasePlayer::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 //=========================================================
 void CBasePlayer::PackDeadPlayerItems( void )
 {
+	//Atomizer
+	int iLastWeapon;
+	//Atom
 	int iWeaponRules;
 	int iAmmoRules;
 	int i, j;
@@ -760,6 +745,11 @@ void CBasePlayer::PackDeadPlayerItems( void )
 
 			while( pPlayerItem && iPW < MAX_WEAPONS )
 			{
+				//Atomizer
+				iLastWeapon = m_pActiveItem->m_iId;//pPlayerItem->m_iId;
+				//iWeaponRules = GR_PLR_DROP_GUN_ACTIVE;
+				//Atom
+
 				switch( iWeaponRules )
 				{
 				case GR_PLR_DROP_GUN_ACTIVE:
@@ -830,6 +820,42 @@ void CBasePlayer::PackDeadPlayerItems( void )
 
 	pWeaponBox->SetThink( &CWeaponBox::Kill );
 	pWeaponBox->pev->nextthink = gpGlobals->time + 120;
+
+	//Atomizer
+	switch( iLastWeapon )
+	{
+		case WEAPON_AK47: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_ak47.mdl" ); break;
+		case WEAPON_AWP: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_awp.mdl" ); break;
+		case WEAPON_AUG: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_aug.mdl" ); break;
+		case WEAPON_C4: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_backpack.mdl" ); break;
+		case WEAPON_DEAGLE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_deagle.mdl" ); break;
+		case WEAPON_ELITE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_elite.mdl" ); break;
+		case WEAPON_FAMAS: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_famas.mdl" ); break;
+		case WEAPON_FIVESEVEN: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_fiveseven.mdl" ); break;
+		case WEAPON_G3SG1: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_g3sg1.mdl" ); break;
+		case WEAPON_GALIL: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_galil.mdl" ); break;
+		case WEAPON_GLOCK18: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_glock18.mdl" ); break;
+		case WEAPON_KNIFE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_knife.mdl" ); break;
+		case WEAPON_M249: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_m249.mdl" ); break;
+		case WEAPON_M3: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_m3.mdl" ); break;
+		case WEAPON_M4A1: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_m4a1.mdl" ); break;
+		case WEAPON_MAC10: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_mac10.mdl" ); break;
+		case WEAPON_MP5N: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_mp5.mdl" ); break;
+		case WEAPON_P90: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_p90.mdl" ); break;
+		case WEAPON_P228: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_p228.mdl" ); break;
+		case WEAPON_RPGRENADE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_rpg.mdl" ); break;
+		case WEAPON_SCOUT: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_scout.mdl" ); break;
+		case WEAPON_SG550: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_sg550.mdl" ); break;
+		case WEAPON_SG552: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_sg552.mdl" ); break;
+		case WEAPON_TMP: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_tmp.mdl" ); break;
+		case WEAPON_USP: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_usp.mdl" ); break;
+		case WEAPON_UMP45: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_ump45.mdl" ); break;
+		case WEAPON_XM1014: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_xm1014.mdl" ); break;
+		case WEAPON_FLASHBANG: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_flashbang.mdl" ); break;
+		case WEAPON_HEGRENADE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_hegrenade.mdl" ); break;
+		case WEAPON_ULTIMATE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_ultimate.mdl" ); break;
+	}
+	//Atom
 
 	// back these two lists up to their first elements
 	iPA = 0;
@@ -937,7 +963,7 @@ void CBasePlayer::RemoveAllItems( BOOL removeSuit )
 		m_rgAmmo[i] = 0;
 
 	if( satchelfix.value )
-		DeactivateSatchels( this );
+		DeactivateC4( this );
 
 	UpdateClientData();
 
@@ -1008,10 +1034,10 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	MESSAGE_END();
 
 	// reset FOV
-	pev->fov = m_iFOV = m_iClientFOV = 0;
+	pev->fov = m_iFOV = m_iClientFOV = 0;//Atomizer
 
 	MESSAGE_BEGIN( MSG_ONE, gmsgSetFOV, NULL, pev );
-		WRITE_BYTE( 0 );
+		WRITE_BYTE( 0 ); //Atomizer
 	MESSAGE_END();
 
 	// UNDONE: Put this in, but add FFADE_PERMANENT and make fade time 8.8 instead of 4.12
@@ -1079,6 +1105,25 @@ void CBasePlayer::SetAnimation( PLAYER_ANIM playerAnim )
 			break;
 		}
 		break;
+
+	//Haunter
+		case PLAYER_ATTACK2:
+		switch( m_Activity )
+		{
+		case ACT_HOVER:
+		case ACT_SWIM:
+		case ACT_HOP:
+		case ACT_LEAP:
+		case ACT_DIESIMPLE:
+			m_IdealActivity = m_Activity;
+			break;
+		default:
+			m_IdealActivity = ACT_RANGE_ATTACK2;
+			break;
+		}
+		break;
+	//Haunter
+
 	case PLAYER_IDLE:
 	case PLAYER_WALK:
 		if( !FBitSet( pev->flags, FL_ONGROUND ) && ( m_Activity == ACT_HOP || m_Activity == ACT_LEAP ) )	// Still jumping
@@ -1940,7 +1985,10 @@ void CBasePlayer::UpdateStatusBar()
 }
 
 #define CLIMB_SHAKE_FREQUENCY		22	// how many frames in between screen shakes when climbing
-#define	MAX_CLIMB_SPEED			200	// fastest vertical climbing speed possible
+//Haunter
+#define	MAX_CLIMB_SPEED			150	// fastest vertical climbing speed possible
+//default: 200
+//Haunter
 #define	CLIMB_SPEED_DEC			15	// climbing deceleration rate
 #define	CLIMB_PUNCH_X			-7  // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z			7	// how far to 'punch' client Z axis when climbing
@@ -2113,8 +2161,30 @@ void CBasePlayer::PreThink( void )
 	{
 		pev->velocity = g_vecZero;
 	}
+
+	//Atomizer
+	if( g_pGameRules->IsMultiplayer() )
+	{
+		if( m_iMoney > MP_MAXMONEY )
+			m_iMoney = MP_MAXMONEY;
+		else if( m_iMoney < 0 )
+			m_iMoney = 0;
+	}
+	else
+	{
+		if( m_iMoney > CVAR_GET_FLOAT( "cl_maxmoney" ) )
+		{
+			if( m_iMoney > 950000000 )
+				m_iMoney = 950000000;
+			else
+				m_iMoney = CVAR_GET_FLOAT( "cl_maxmoney" );
+		}
+		else if( m_iMoney < 0 )
+			m_iMoney = 0;
+	}
+	//Atom
 }
-/* Time based Damage works as follows: 
+/* Time based Damage works as follows:
 	1) There are several types of timebased damage:
 
 		#define DMG_PARALYZE		(1 << 14)	// slows affected creature down
@@ -2264,7 +2334,6 @@ void CBasePlayer::CheckTimeBasedDamage()
 					{
 						m_rgbTimeBasedDamage[i] = 0;
 						m_rgItems[ITEM_ANTIDOTE]--;
-						SetSuitUpdate( "!HEV_HEAL4", FALSE, SUIT_REPEAT_OK );
 					}
 				}
 
@@ -2996,14 +3065,39 @@ void CBasePlayer::Spawn( void )
 	m_bitsHUDDamage = -1;
 	m_bitsDamageType = 0;
 	m_afPhysicsFlags = 0;
-	m_fLongJump = FALSE;// no longjump module. 
+	m_fLongJump = FALSE;// no longjump module.
+	if( g_pGameRules->IsMultiplayer() )
+	{
+		//m_iMoney            = CVAR_GET_FLOAT("mp_startmoney"); //Haunter
+		if( CVAR_GET_FLOAT( "mp_startmoney" ) > 32000 )
+		{
+			m_iMoney = 32000;
+		}
+		else if( CVAR_GET_FLOAT( "mp_startmoney" ) < 32000 )
+		{
+			m_iMoney            = CVAR_GET_FLOAT( "mp_startmoney" );
+		}
+	}
+	else
+	{
+		//m_iMoney            = CVAR_GET_FLOAT("cl_startmoney"); //Haunter
+
+		if( CVAR_GET_FLOAT( "cl_startmoney" ) > 950000000 )
+		{
+			m_iMoney = 950000000;
+		}
+		else if( CVAR_GET_FLOAT( "cl_startmoney" ) < 950000000 )
+		{
+			m_iMoney            = CVAR_GET_FLOAT( "cl_startmoney" );
+		}
+	}
 
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "slj", "0" );
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "hl", "1" );
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "fr", "1" );
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "bj", bhopcap.value ? "0" : "1" );
 
-	pev->fov = m_iFOV = 0;// init field of view.
+	pev->fov = m_iFOV			= 0;//Haunter - 0 // init field of view.
 	m_iClientFOV = -1; // make sure fov reset is sent
 
 	m_flNextDecalTime = 0;// let this player decal as soon as he spawns.
@@ -3065,6 +3159,9 @@ void CBasePlayer::Spawn( void )
 	m_lastx = m_lasty = 0;
 
 	m_flNextChatTime = gpGlobals->time;
+
+	//Haunter Make their speed slower
+	g_engfuncs.pfnSetClientMaxspeed( ENT( pev ), m_iSpeed() );
 
 	g_pGameRules->PlayerSpawn( this );
 }
@@ -3172,6 +3269,8 @@ int CBasePlayer::Restore( CRestore &restore )
 	}
 
 	g_engfuncs.pfnSetPhysicsKeyValue( edict(), "hl", "1" );
+	//Haunter Yeah, have to save their speed too
+	g_engfuncs.pfnSetClientMaxspeed( ENT( pev ), m_iSpeed() );
 
 	if( m_fLongJump )
 	{
@@ -3662,32 +3761,21 @@ void CBasePlayer::CheatImpulseCommands( int iImpulse )
 		break;
 	case 101:
 		gEvilImpulse101 = TRUE;
-		GiveNamedItem( "item_suit" );
-		GiveNamedItem( "item_battery" );
-		GiveNamedItem( "weapon_crowbar" );
-		GiveNamedItem( "weapon_9mmhandgun" );
-		GiveNamedItem( "ammo_9mmclip" );
-		GiveNamedItem( "weapon_shotgun" );
-		GiveNamedItem( "ammo_buckshot" );
-		GiveNamedItem( "weapon_9mmAR" );
-		GiveNamedItem( "ammo_9mmAR" );
-		GiveNamedItem( "ammo_ARgrenades" );
-		GiveNamedItem( "weapon_handgrenade" );
-		GiveNamedItem( "weapon_tripmine" );
-#if !OEM_BUILD
-		GiveNamedItem( "weapon_357" );
-		GiveNamedItem( "ammo_357" );
-		GiveNamedItem( "weapon_crossbow" );
-		GiveNamedItem( "ammo_crossbow" );
-		GiveNamedItem( "weapon_egon" );
-		GiveNamedItem( "weapon_gauss" );
-		GiveNamedItem( "ammo_gaussclip" );
-		GiveNamedItem( "weapon_rpg" );
-		GiveNamedItem( "ammo_rpgclip" );
-		GiveNamedItem( "weapon_satchel" );
-		GiveNamedItem( "weapon_snark" );
-		GiveNamedItem( "weapon_hornetgun" );
-#endif
+		//Haunter
+		if( g_pGameRules->IsMultiplayer() )
+		{
+			m_iMoney = MP_MAXMONEY;
+		//	ClientPrint(pev, HUD_PRINTTALK, UTIL_VarArgs( "Bank: $%i\n", m_iMoney ) );
+		}
+		else
+		{
+			m_iMoney = CVAR_GET_FLOAT( "cl_maxmoney" );
+			if( m_iMoney > 950000000 )
+			{
+				m_iMoney = 950000000;
+			}
+		}
+		//Haunter
 		gEvilImpulse101 = FALSE;
 		break;
 	case 102:
@@ -4040,6 +4128,7 @@ int CBasePlayer::GetAmmoIndex( const char *psz )
 // makes sure the client has all the necessary ammo info,  if values have changed
 void CBasePlayer::SendAmmoUpdate( void )
 {
+	//Haunter
 	for( int i = 0; i < MAX_AMMO_SLOTS; i++ )
 	{
 		if( m_rgAmmo[i] != m_rgAmmoLast[i] )
@@ -4047,15 +4136,16 @@ void CBasePlayer::SendAmmoUpdate( void )
 			m_rgAmmoLast[i] = m_rgAmmo[i];
 
 			ASSERT( m_rgAmmo[i] >= 0 );
-			ASSERT( m_rgAmmo[i] < 255 );
+			ASSERT( m_rgAmmo[i] < 999 );
 
 			// send "Ammo" update message
 			MESSAGE_BEGIN( MSG_ONE, gmsgAmmoX, NULL, pev );
 				WRITE_BYTE( i );
-				WRITE_BYTE( Q_max( Q_min( m_rgAmmo[i], 254 ), 0 ) );  // clamp the value to one byte
+				WRITE_SHORT( Q_max( Q_min( m_rgAmmo[i], 65534 ), 0 ) );  // clamp the value to one byte
 			MESSAGE_END();
 		}
 	}
+	//Haunter
 }
 
 /*
@@ -4311,6 +4401,33 @@ void CBasePlayer::UpdateClientData( void )
 		UpdateStatusBar();
 		m_flNextSBarUpdateTime = gpGlobals->time + 0.2f;
 	}
+
+	if( m_iMoney >= 0 )
+	{
+		ASSERT( gmsgBank > 0 );
+
+		m_iBank = m_iMoney;
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgBank, NULL, pev );
+			WRITE_LONG( m_iBank );
+		MESSAGE_END();
+	}
+
+	//Haunter
+	/*if ( m_pActiveItem->m_iId == WEAPON_AWP || m_pActiveItem->m_iId == WEAPON_SCOUT || m_pActiveItem->m_iId == WEAPON_G3SG1 || m_pActiveItem->m_iId == WEAPON_SG550 )
+	{
+		ASSERT( gmsgShroud > 0 );
+
+		m_iShroud = pev->fov = m_iFOV;
+
+		MESSAGE_BEGIN( MSG_ONE, gmsgShroud, NULL, pev );
+			WRITE_BYTE(m_iShroud);
+		MESSAGE_END();
+	}
+	else if ( m_pActiveItem->m_iId == WEAPON_AUG || m_pActiveItem->m_iId == WEAPON_SG552 || m_pActiveItem->m_iId == WEAPON_P90 )
+	{
+	}*/
+	//Haunter
 }
 
 //=========================================================
@@ -4636,19 +4753,22 @@ int CBasePlayer::GetCustomDecalFrames( void )
 //=========================================================
 void CBasePlayer::DropPlayerItem( char *pszItemName )
 {
-	if( !g_pGameRules->IsMultiplayer() || ( weaponstay.value > 0 ) )
+	//Atomizer - Dropping in Single player allowed
+	/*if ( !g_pGameRules->IsMultiplayer() || (CVAR_GET_FLOAT("mp_weaponstay") > 0) )
 	{
 		// no dropping in single player.
 		return;
-	}
+	}*/
+	//Atom
 
-	if( pszItemName[0] == '\0' )
-	{
+	//Atomizer - Always drop the active item
+	/*if ( !strlen( pszItemName ) )
+	{*/
 		// if this string has no length, the client didn't type a name!
 		// assume player wants to drop the active item.
 		// make the string null to make future operations in this function easier
 		pszItemName = NULL;
-	} 
+	//} //Atom
 
 	CBasePlayerItem *pWeapon;
 	int i;
@@ -4681,23 +4801,73 @@ void CBasePlayer::DropPlayerItem( char *pszItemName )
 			pWeapon = pWeapon->m_pNext; 
 		}
 
-		// if we land here with a valid pWeapon pointer, that's because we found the 
+		// if we land here with a valid pWeapon pointer, that's because we found the
 		// item we want to drop and hit a BREAK;  pWeapon is the item.
 		if( pWeapon )
 		{
+			//Atomizer
+			int iWeapon = pWeapon->m_iId;
+
+			//Dont drop the knife
+			if( iWeapon == WEAPON_KNIFE )
+				return;
+			//Dont drop the grenades either, Haunter
+			if( iWeapon == WEAPON_FLASHBANG )
+				return;
+			if( iWeapon == WEAPON_HEGRENADE )
+				return;
+			//Atom
+
 			if( !g_pGameRules->GetNextBestWeapon( this, pWeapon ) )
 				return; // can't drop the item they asked for, may be our last item or something we can't holster
 
-			UTIL_MakeVectors( pev->angles ); 
+			UTIL_MakeVectors( pev->angles );
 
 			pev->weapons &= ~( 1 << pWeapon->m_iId );// take item off hud
 
+			//Atomizer
 			CWeaponBox *pWeaponBox = (CWeaponBox *)CBaseEntity::Create( "weaponbox", pev->origin + gpGlobals->v_forward * 10, pev->angles, edict() );
 			pWeaponBox->pev->angles.x = 0;
 			pWeaponBox->pev->angles.z = 0;
 			pWeaponBox->PackWeapon( pWeapon );
 			pWeaponBox->pev->velocity = gpGlobals->v_forward * 300 + gpGlobals->v_forward * 100;
-			
+
+			//Atomizer
+			switch( iWeapon )
+			{
+				case WEAPON_AK47: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_ak47.mdl" ); break;
+				case WEAPON_AWP: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_awp.mdl" ); break;
+				case WEAPON_AUG: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_aug.mdl" ); break;
+				case WEAPON_C4: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_backpack.mdl" ); break;
+				case WEAPON_DEAGLE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_deagle.mdl" ); break;
+				case WEAPON_ELITE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_elite.mdl" ); break;
+				case WEAPON_FAMAS: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_famas.mdl" ); break;
+				case WEAPON_FIVESEVEN: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_fiveseven.mdl" ); break;
+				case WEAPON_G3SG1: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_g3sg1.mdl" ); break;
+				case WEAPON_GALIL: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_galil.mdl" ); break;
+				case WEAPON_GLOCK18: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_glock18.mdl" ); break;
+				case WEAPON_KNIFE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_knife.mdl" ); break;
+				case WEAPON_M249: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_m249.mdl" ); break;
+				case WEAPON_M3: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_m3.mdl" ); break;
+				case WEAPON_M4A1: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_m4a1.mdl" ); break;
+				case WEAPON_MAC10: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_mac10.mdl" ); break;
+				case WEAPON_MP5N: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_mp5.mdl" ); break;
+				case WEAPON_P90: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_p90.mdl" ); break;
+				case WEAPON_P228: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_p228.mdl" ); break;
+				case WEAPON_RPGRENADE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_rpg.mdl" ); break;
+				case WEAPON_SCOUT: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_scout.mdl" ); break;
+				case WEAPON_SG550: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_sg550.mdl" ); break;
+				case WEAPON_SG552: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_sg552.mdl" ); break;
+				case WEAPON_TMP: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_tmp.mdl" ); break;
+				case WEAPON_USP: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_usp.mdl" ); break;
+				case WEAPON_UMP45: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_ump45.mdl" ); break;
+				case WEAPON_XM1014: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_xm1014.mdl" ); break;
+				case WEAPON_FLASHBANG: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_flashbang.mdl" ); break;
+				case WEAPON_HEGRENADE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_hegrenade.mdl" ); break;
+				case WEAPON_ULTIMATE: SET_MODEL( ENT( pWeaponBox->pev ), "models/w_ultimate.mdl" ); break;
+			}
+			//Atom
+
 			// drop half of the ammo for this weapon.
 			int iAmmoIndex;
 
@@ -4709,14 +4879,16 @@ void CBasePlayer::DropPlayerItem( char *pszItemName )
 				if( pWeapon->iFlags() & ITEM_FLAG_EXHAUSTIBLE )
 				{
 					// pack up all the ammo, this weapon is its own ammo type
-					pWeaponBox->PackAmmo( MAKE_STRING( pWeapon->pszAmmo1() ), m_rgAmmo[iAmmoIndex] );
-					m_rgAmmo[iAmmoIndex] = 0; 
+					//Atomizer pWeaponBox->PackAmmo( MAKE_STRING(pWeapon->pszAmmo1()), m_rgAmmo[ iAmmoIndex ] );
+					//Atomizer m_rgAmmo[ iAmmoIndex ] = 0;
 				}
 				else
 				{
 					// pack half of the ammo
-					pWeaponBox->PackAmmo( MAKE_STRING( pWeapon->pszAmmo1() ), m_rgAmmo[iAmmoIndex] / 2 );
-					m_rgAmmo[iAmmoIndex] /= 2; 
+					//Atomizer - Pack all ammo
+					//pWeaponBox->PackAmmo( MAKE_STRING(pWeapon->pszAmmo1()), m_rgAmmo[ iAmmoIndex ]/* / 2*/ );
+					//m_rgAmmo[ iAmmoIndex ] /*/*/= 0;//2;
+					//Atom
 				}
 			}
 
@@ -4864,8 +5036,8 @@ LINK_ENTITY_TO_CLASS( monster_hevsuit_dead, CDeadHEV )
 //=========================================================
 void CDeadHEV::Spawn( void )
 {
-	PRECACHE_MODEL( "models/player.mdl" );
-	SET_MODEL( ENT( pev ), "models/player.mdl" );
+	PRECACHE_MODEL( "models/hev.mdl" );
+	SET_MODEL( ENT( pev ), "models/hev.mdl" );
 
 	pev->effects = 0;
 	pev->yaw_speed = 8;
@@ -5037,33 +5209,6 @@ void CInfoIntermission::Think( void )
 		pev->v_angle = UTIL_VecToAngles( ( pTarget->v.origin - pev->origin ).Normalize() );
 		pev->v_angle.x = -pev->v_angle.x;
 	}
-	
-	//Atomizer
-	if ( g_pGameRules->IsMultiplayer() )
-	{
-		if (m_iMoney > MP_MAXMONEY)
-			m_iMoney = MP_MAXMONEY;
-		else if (m_iMoney < 0)
-			m_iMoney = 0;
-
-	}
-	else
-	{
-		if (m_iMoney > CVAR_GET_FLOAT("cl_maxmoney"))
-		{
-			if (m_iMoney > 950000000)
-			{
-				m_iMoney = 950000000;
-			}
-			else
-				m_iMoney = CVAR_GET_FLOAT("cl_maxmoney");
-		}
-		else if (m_iMoney < 0)
-			m_iMoney = 0;
-
-		
-	}
-	//Atom
 }
 
 LINK_ENTITY_TO_CLASS( info_intermission, CInfoIntermission )

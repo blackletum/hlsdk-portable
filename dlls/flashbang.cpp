@@ -106,7 +106,7 @@ void CFlashBang::Holster( )
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_FLASHBANG);
-		SetThink( DestroyItem );
+		SetThink( &CFlashBang::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumFlashbangs = 0;
@@ -131,7 +131,7 @@ void CFlashBang::PrimaryAttack()
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_FLASHBANG);
-		SetThink( DestroyItem );
+		SetThink( &CFlashBang::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumFlashbangs = 0;
@@ -147,7 +147,7 @@ void CFlashBang::WeaponIdle( void )
 	{
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_FLASHBANG);
-		SetThink( DestroyItem );
+		SetThink( &CFlashBang::DestroyItem );
 		pev->nextthink = gpGlobals->time + 0.1;
 
 		m_pPlayer->m_iNumFlashbangs = 0;

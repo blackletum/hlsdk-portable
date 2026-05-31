@@ -93,18 +93,8 @@ struct skilldata_t
 	float sentryHealth;
 
 	// Player Weapons
-	float plrDmgCrowbar;
-	float plrDmg9MM;
-	float plrDmg357;
-	float plrDmgMP5;
 	float plrDmgM203Grenade;
-	float plrDmgBuckshot;
-	float plrDmgCrossbowClient;
-	float plrDmgCrossbowMonster;
 	float plrDmgRPG;
-	float plrDmgGauss;
-	float plrDmgEgonNarrow;
-	float plrDmgEgonWide;
 	float plrDmgHornet;
 	float plrDmgHandGrenade;
 	float plrDmgSatchel;

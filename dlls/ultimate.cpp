@@ -46,7 +46,7 @@ CJusticeRocket *CJusticeRocket::CreateJusticeRocket( Vector vecOrigin, Vector ve
 	UTIL_SetOrigin( pRocket->pev, vecOrigin );
 	pRocket->pev->angles = vecAngles;
 	pRocket->Spawn();
-	pRocket->SetTouch( CJusticeRocket::RocketTouch );
+	pRocket->SetTouch( &CJusticeRocket::RocketTouch );
 	pRocket->m_pLauncher = pLauncher;// remember what RPG fired me. 
 	pRocket->m_pLauncher->m_cActiveRockets++;// register this missile as active for the launcher
 	pRocket->pev->owner = pOwner->edict();
@@ -69,8 +69,8 @@ void CJusticeRocket :: Spawn( void )
 
 	pev->classname = MAKE_STRING("justice_rocket");
 
-	SetThink( IgniteThink );
-	SetTouch( ExplodeTouchRPG );
+	SetThink( &CJusticeRocket::IgniteThink );
+	SetTouch( &CJusticeRocket::ExplodeTouchRPG );
 
 	pev->angles.x -= 0;
 	UTIL_MakeVectors( pev->angles );
@@ -136,7 +136,7 @@ void CJusticeRocket :: IgniteThink( void  )
 	m_flIgniteTime = gpGlobals->time;
 
 	// set to follow laser spot
-	SetThink( FollowThink );
+	SetThink( &CJusticeRocket::FollowThink );
 	pev->nextthink = gpGlobals->time + 0.1;
 }
 

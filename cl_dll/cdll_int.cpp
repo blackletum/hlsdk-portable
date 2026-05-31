@@ -27,6 +27,10 @@
 #include "vgui_int.h"
 #include "vgui_TeamFortressViewport.h"
 #endif
+//Haunter
+//#include "tri_scope.h"
+//CTriScope *pTriScope = NULL;
+//Haunter
 
 #if GOLDSOURCE_SUPPORT && (XASH_WIN32 || XASH_LINUX || XASH_APPLE) && XASH_X86
 #define USE_FAKE_VGUI	!USE_VGUI
@@ -273,6 +277,13 @@ int DLLEXPORT HUD_VidInit( void )
 #elif USE_VGUI
 	VGui_Startup();
 #endif
+
+	//Haunter
+/*	if( pTriScope )
+        delete pTriScope;
+    pTriScope = new CTriScope();*/
+	//Haunter
+
 	return 1;
 }
 

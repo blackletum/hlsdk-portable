@@ -80,6 +80,14 @@ cvar_t	*cl_pitchspeed;
 cvar_t	*cl_anglespeedkey;
 cvar_t	*cl_vsmoothing;
 
+//Haunter
+cvar_t	*cl_maxmoney;
+cvar_t	*cl_buytime;
+cvar_t	*cl_startmoney;
+cvar_t	*cl_getcash;
+cvar_t	*cl_white;
+cvar_t	*cl_left;
+//Haunter
 /*
 ===============================================================================
 
@@ -1137,6 +1145,15 @@ void InitInput( void )
 	cl_pitchdown		= gEngfuncs.pfnRegisterVariable( "cl_pitchdown", "89", 0 );
 
 	cl_vsmoothing		= gEngfuncs.pfnRegisterVariable( "cl_vsmoothing", "0.05", FCVAR_ARCHIVE );
+
+	//Haunter
+	cl_maxmoney		= gEngfuncs.pfnRegisterVariable( "cl_maxmoney", "16000", FCVAR_ARCHIVE );
+	cl_buytime		= gEngfuncs.pfnRegisterVariable( "cl_buytime", "4", FCVAR_ARCHIVE );
+	cl_startmoney		= gEngfuncs.pfnRegisterVariable( "cl_startmoney", "800", FCVAR_ARCHIVE );
+	cl_getcash		= gEngfuncs.pfnRegisterVariable( "cl_getcash", "1", FCVAR_ARCHIVE );
+	cl_white		= gEngfuncs.pfnRegisterVariable( "cl_white", "1", FCVAR_ARCHIVE );
+	cl_left			= gEngfuncs.pfnRegisterVariable( "cl_left", "0", FCVAR_ARCHIVE );
+	//Haunter
 
 	m_pitch			= gEngfuncs.pfnRegisterVariable( "m_pitch","0.022", FCVAR_ARCHIVE );
 	m_yaw			= gEngfuncs.pfnRegisterVariable( "m_yaw","0.022", FCVAR_ARCHIVE );

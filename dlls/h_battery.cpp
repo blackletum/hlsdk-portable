@@ -49,11 +49,12 @@ public:
 
 	static TYPEDESCRIPTION m_SaveData[];
 
-	float m_flNextCharge; 
+	float m_flNextCharge;
 	int m_iReactivate; // DeathMatch Delay until reactvated
 	int m_iJuice;
 	int m_iOn;			// 0 = off, 1 = startup, 2 = going
 	float m_flSoundTime;
+	int TimeES;
 };
 
 TYPEDESCRIPTION CRecharge::m_SaveData[] =
@@ -111,7 +112,20 @@ void CRecharge::Precache()
 }
 
 void CRecharge::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
-{ 
+{
+	if( g_pGameRules->IsMultiplayer() )
+	{
+		TimeES = (int)CVAR_GET_FLOAT( "mp_buytime" ); //Haunter
+		if( TimeES <= 0 )
+			TimeES = 1;
+	}
+	else
+	{
+		TimeES = (int)CVAR_GET_FLOAT( "cl_buytime" ); //Haunter
+		if( TimeES <= 0 )
+			TimeES = 1;
+	}
+
 	// Make sure that we have a caller
 	if( !pActivator )
 		return;
@@ -120,16 +134,18 @@ void CRecharge::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	if( !pActivator->IsPlayer() )
 		return;
 
+	//Atomizer - Unlimited usage
 	// if there is no juice left, turn it off
-	if( m_iJuice <= 0 )
+	/*if( m_iJuice <= 0 )
 	{
-		pev->frame = 1;			
+		pev->frame = 1;
 		Off();
-	}
+	}*/
 
 	// if the player doesn't have the suit, or there is no juice left, make the deny noise
-	if( ( m_iJuice <= 0 ) || ( !( pActivator->pev->weapons & ( 1 << WEAPON_SUIT ) ) ) || ( ( chargerfix.value ) && ( pActivator->pev->armorvalue == MAX_NORMAL_BATTERY ) ) )
+	if( !( pActivator->pev->weapons & ( 1 << WEAPON_SUIT ) ) || ( !( pActivator->pev->weapons & ( 1 << WEAPON_KNIFE ) ) ) )
 	{
+		ClientPrint( pActivator->pev, HUD_PRINTCENTER, UTIL_VarArgs( "Acquire the HEV suit & the knife first...\n" ) );
 		if( m_flSoundTime <= gpGlobals->time )
 		{
 			m_flSoundTime = gpGlobals->time + 0.62f;
@@ -148,28 +164,56 @@ void CRecharge::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	m_hActivator = pActivator;
 
 	// Play the on sound or the looping charging sound
-	if( !m_iOn )
-	{
-		m_iOn++;
-		EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/suitchargeok1.wav", 0.85, ATTN_NORM );
-		m_flSoundTime = 0.56f + gpGlobals->time;
-	}
+	//Atomizer
+	CBasePlayer *pPlayer = (CBasePlayer *)pActivator;
 
-	if( ( m_iOn == 1 ) && ( m_flSoundTime <= gpGlobals->time ) )
-	{
-		m_iOn++;
-		EMIT_SOUND( ENT( pev ), CHAN_STATIC, "items/suitcharge1.wav", 0.85, ATTN_NORM );
-	}
+	ShowMenu( pPlayer, 0x27F, TimeES, 0, "#Buy" );
+	pPlayer->m_iArmor = 1; //Haunter
+	pPlayer->m_iMenu = 1;
+	pPlayer->m_iBuyable = 1;
 
+
+//	EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/suitchargeok1.wav", 0.85, ATTN_NORM );
+	m_flSoundTime = 0.56f + gpGlobals->time;
+
+	/*if( pPlayer->GiveAmmo( 5, (char *)pPlayer->m_pActiveItem->pszAmmo1(), pPlayer->m_pActiveItem->iMaxAmmo1() ) )
+	{
+		//Original Code
+		if( !m_iOn )
+		{
+			m_iOn++;
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/suitchargeok1.wav", 0.85, ATTN_NORM );
+			m_flSoundTime = 0.56f + gpGlobals->time;
+		}
+		if( ( m_iOn == 1 ) && ( m_flSoundTime <= gpGlobals->time ) )
+		{
+			m_iOn++;
+			EMIT_SOUND( ENT( pev ), CHAN_STATIC, "items/suitcharge1.wav", 0.85, ATTN_NORM );
+		}
+		//Original Code
+	}
+	else
+	{
+		if( m_flSoundTime <= gpGlobals->time )
+		{
+			m_flSoundTime = gpGlobals->time + 0.62;
+			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "items/suitchargeno1.wav", 0.85, ATTN_NORM );
+		}
+		return;
+	}*/
+
+
+	//Give Ammo instead of Armour
 	// charge the player
-	if( m_hActivator->pev->armorvalue < 100 )
+	/*if( m_hActivator->pev->armorvalue < 100 )
 	{
 		m_iJuice--;
 		m_hActivator->pev->armorvalue += 1;
 
 		if( m_hActivator->pev->armorvalue > 100 )
 			m_hActivator->pev->armorvalue = 100;
-	}
+	}*/
+	//Atom
 
 	// govern the rate of charge
 	m_flNextCharge = gpGlobals->time + 0.1f;
