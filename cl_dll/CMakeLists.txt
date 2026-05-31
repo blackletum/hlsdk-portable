@@ -26,6 +26,7 @@ project (CLDLL)
 set (CLDLL_LIBRARY client)
 
 add_definitions(-DCLIENT_DLL)
+add_definitions(-DCLIENT_WEAPONS)
 
 if(NOT MSVC)
 	add_compile_options(-fno-exceptions) # GCC/Clang flag
@@ -63,20 +64,39 @@ if (USE_VGUI)
 endif()
 
 set (CLDLL_SOURCES
-	../dlls/crossbow.cpp
-	../dlls/crowbar.cpp
-	../dlls/egon.cpp
-	../dlls/gauss.cpp
-	../dlls/handgrenade.cpp
-	../dlls/hornetgun.cpp
-	../dlls/mp5.cpp
-	../dlls/python.cpp
+	../dlls/ak47.cpp
+	../dlls/aug.cpp
+	../dlls/awp.cpp
+	../dlls/c4.cpp
+	../dlls/deagle.cpp
+	../dlls/elite.cpp
+	../dlls/famas.cpp
+	../dlls/fiveseven.cpp
+	../dlls/flashbang.cpp
+	../dlls/g3sg1.cpp
+	../dlls/galil.cpp
+	../dlls/glock18.cpp
+	../dlls/hegrenade.cpp
+	../dlls/knife.cpp
+	../dlls/m249.cpp
+	../dlls/m3.cpp
+	../dlls/m4a1.cpp
+	../dlls/mac10.cpp
+	../dlls/mp5navy.cpp
+	../dlls/p228.cpp
+	../dlls/p90.cpp
 	../dlls/rpg.cpp
-	../dlls/satchel.cpp
-	../dlls/shotgun.cpp
+	../dlls/rpgrenade.cpp
+	../dlls/scout.cpp
+	../dlls/sg550.cpp
+	../dlls/sg552.cpp
 	../dlls/squeakgrenade.cpp
+	../dlls/tmp.cpp
 	../dlls/tripmine.cpp
-	../dlls/glock.cpp
+	../dlls/ultimate.cpp
+	../dlls/ump45.cpp
+	../dlls/usp.cpp
+	../dlls/xm1014.cpp
 	ev_hldm.cpp
 	hl/hl_baseentity.cpp
 	hl/hl_events.cpp

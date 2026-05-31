@@ -48,9 +48,12 @@ set (SVDLL_SOURCES
 	agrunt.cpp
 	airtank.cpp
 	aflock.cpp
+	ak47.cpp
 	animating.cpp
 	animation.cpp
 	apache.cpp
+	aug.cpp
+	awp.cpp
 	barnacle.cpp
 	barney.cpp
 	bigmomma.cpp
@@ -58,72 +61,82 @@ set (SVDLL_SOURCES
 	bmodels.cpp
 	bullsquid.cpp
 	buttons.cpp
+	c4.cpp
 	cbase.cpp
 	client.cpp
 	combat.cpp
 	controller.cpp
-	crossbow.cpp
-	crowbar.cpp
+	deagle.cpp
 	defaultai.cpp
 	doors.cpp
 	effects.cpp
-	egon.cpp
+	elite.cpp
 	explode.cpp
+	famas.cpp
+	fiveseven.cpp
+	flashbang.cpp
 	flyingmonster.cpp
 	func_break.cpp
 	func_tank.cpp
+	g3sg1.cpp
+	galil.cpp
 	game.cpp
 	gamerules.cpp
 	gargantua.cpp
-	gauss.cpp
 	genericmonster.cpp
 	ggrenade.cpp
 	globals.cpp
-	glock.cpp
+	glock18.cpp
 	gman.cpp
 	h_ai.cpp
 	h_battery.cpp
 	h_cine.cpp
 	h_cycler.cpp
 	h_export.cpp
-	handgrenade.cpp
 	hassassin.cpp
 	headcrab.cpp
 	healthkit.cpp
+	hegrenade.cpp
 	hgrunt.cpp
 	hornet.cpp
-	hornetgun.cpp
 	houndeye.cpp
 	ichthyosaur.cpp
 	islave.cpp
 	items.cpp
+	knife.cpp
 	leech.cpp
 	lights.cpp
+	m249.cpp
+	m3.cpp
+	m4a1.cpp
+	mac10.cpp
 	maprules.cpp
 	monstermaker.cpp
 	monsters.cpp
 	monsterstate.cpp
 	mortar.cpp
-	mp5.cpp
+	mp5navy.cpp
 	multiplay_gamerules.cpp
 	nihilanth.cpp
 	nodes.cpp
 	observer.cpp
 	osprey.cpp
+	p228.cpp
+	p90.cpp
 	pathcorner.cpp
 	plane.cpp
 	plats.cpp
 	player.cpp
-	playermonster.cpp
-	python.cpp
 	rat.cpp
 	roach.cpp
 	rpg.cpp
-	satchel.cpp
+	rpgrenade.cpp
 	schedule.cpp
 	scientist.cpp
+	scout.cpp
 	scripted.cpp
-	shotgun.cpp
+	sg550.cpp
+	sg552.cpp
 	singleplay_gamerules.cpp
 	skill.cpp
 	sound.cpp
@@ -136,14 +149,19 @@ set (SVDLL_SOURCES
 	teamplay_gamerules.cpp
 	tempmonster.cpp
 	tentacle.cpp
+	tmp.cpp
 	triggers.cpp
 	tripmine.cpp
 	turret.cpp
+	ultimate.cpp
+	ump45.cpp
+	usp.cpp
 	util.cpp
 	vehicle.cpp
 	weapons.cpp
 	world.cpp
 	xen.cpp
+	xm1014.cpp
 	zombie.cpp
 	../pm_shared/pm_debug.c
 	../pm_shared/pm_math.c

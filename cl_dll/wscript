@@ -41,7 +41,7 @@ def configure(conf):
 
 def build(bld):
 	libs = ['vcs_info']
-	defines = ['CLIENT_DLL']
+	defines = ['CLIENT_DLL', 'CLIENT_WEAPONS']
 	defines += bld.env.EXPORT_DEFINES_LIST
 	includes = ['.',
 		'../dlls',
@@ -79,20 +79,39 @@ def build(bld):
 	source += bld.path.parent.ant_glob([
 		'public/safe_snprintf.c',
 		'pm_shared/*.c',
-		'dlls/crossbow.cpp',
-		'dlls/crowbar.cpp',
-		'dlls/egon.cpp',
-		'dlls/gauss.cpp',
-		'dlls/glock.cpp',
-		'dlls/handgrenade.cpp',
-		'dlls/hornetgun.cpp',
-		'dlls/mp5.cpp',
-		'dlls/python.cpp',
+		'dlls/ak47.cpp',
+		'dlls/aug.cpp',
+		'dlls/awp.cpp',
+		'dlls/c4.cpp',
+		'dlls/deagle.cpp',
+		'dlls/elite.cpp',
+		'dlls/famas.cpp',
+		'dlls/fiveseven.cpp',
+		'dlls/flashbang.cpp',
+		'dlls/g3sg1.cpp',
+		'dlls/galil.cpp',
+		'dlls/glock18.cpp',
+		'dlls/hegrenade.cpp',
+		'dlls/knife.cpp',
+		'dlls/m249.cpp',
+		'dlls/m3.cpp',
+		'dlls/m4a1.cpp',
+		'dlls/mac10.cpp',
+		'dlls/mp5navy.cpp',
+		'dlls/p228.cpp',
+		'dlls/p90.cpp',
 		'dlls/rpg.cpp',
-		'dlls/satchel.cpp',
-		'dlls/shotgun.cpp',
+		'dlls/rpgrenade.cpp',
+		'dlls/scout.cpp',
+		'dlls/sg550.cpp',
+		'dlls/sg552.cpp',
 		'dlls/squeakgrenade.cpp',
-		'dlls/tripmine.cpp'
+		'dlls/tmp.cpp',
+		'dlls/tripmine.cpp',
+		'dlls/ultimate.cpp',
+		'dlls/ump45.cpp',
+		'dlls/usp.cpp',
+		'dlls/xm1014.cpp',
 	])
 
 
