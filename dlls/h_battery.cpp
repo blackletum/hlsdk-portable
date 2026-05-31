@@ -29,6 +29,11 @@
 #include "weapons.h"
 #include "game.h"
 
+//Atomizer
+#include "player.h"
+#include "weapons.h"
+//Atom
+
 class CRecharge : public CBaseToggle
 {
 public:
@@ -58,6 +63,7 @@ TYPEDESCRIPTION CRecharge::m_SaveData[] =
 	DEFINE_FIELD( CRecharge, m_iJuice, FIELD_INTEGER ),
 	DEFINE_FIELD( CRecharge, m_iOn, FIELD_INTEGER ),
 	DEFINE_FIELD( CRecharge, m_flSoundTime, FIELD_TIME ),
+	DEFINE_FIELD( CRecharge, TimeES, FIELD_INTEGER ),
 };
 
 IMPLEMENT_SAVERESTORE( CRecharge, CBaseToggle )

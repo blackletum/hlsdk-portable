@@ -902,8 +902,9 @@ void ClientPrecache( void )
 	PRECACHE_SOUND( "debris/glass2.wav" );
 	PRECACHE_SOUND( "debris/glass3.wav" );
 
+	PRECACHE_SOUND( "items/flashlight_on.wav" );
+	PRECACHE_SOUND( "items/flashlight_off.wav" );
 	PRECACHE_SOUND( SOUND_FLASHLIGHT_ON );
-	PRECACHE_SOUND( SOUND_FLASHLIGHT_OFF );
 
 	// player gib sounds
 	PRECACHE_SOUND( "common/bodysplat.wav" );
@@ -948,7 +949,7 @@ const char *GetGameDescription()
 	if( g_pGameRules ) // this function may be called before the world has spawned, and the game rules initialized
 		return g_pGameRules->GetGameDescription();
 	else
-		return "Half-Life";
+		return "Counter-Life"; //Haunter
 }
 
 /*

@@ -94,7 +94,7 @@ void DLLEXPORT HUD_TxferLocalOverrides( struct entity_state_s *state, const stru
 	state->iuser3 = client->iuser3;
 
 	// Fire prevention
-	state->iuser4 = client->iuser4;
+	//state->iuser4 = client->iuser4;
 }
 
 /*

@@ -476,7 +476,7 @@ BOOL CSqueak::Deploy()
 	return result;
 }
 
-void CSqueak::Holster( int skiplocal /* = 0 */ )
+void CSqueak::Holster( int skiplocal /* = 0  )
 {
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
 

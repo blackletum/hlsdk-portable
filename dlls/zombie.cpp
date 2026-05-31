@@ -23,6 +23,9 @@
 #include	"cbase.h"
 #include	"monsters.h"
 #include	"schedule.h"
+//Haunter
+#include	"weapons.h"
+//Haunter
 
 //=========================================================
 // Monster's Anim Events Go Here
@@ -61,6 +64,9 @@ public:
 	BOOL CheckRangeAttack1( float flDot, float flDist ) { return FALSE; }
 	BOOL CheckRangeAttack2( float flDot, float flDist ) { return FALSE; }
 	int TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType );
+	//Haunter
+	void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType); 
+	//Haunter
 };
 
 LINK_ENTITY_TO_CLASS( monster_zombie, CZombie )
@@ -258,6 +264,55 @@ void CZombie::HandleAnimEvent( MonsterEvent_t *pEvent )
 			break;
 	}
 }
+
+//Haunter
+void CZombie :: TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType)
+{
+	if ( bitsDamageType != DMG_BLAST )
+	{
+		if ( pev->takedamage )
+		{
+			m_LastHitGroup = ptr->iHitgroup;
+			int flDamageOrig = flDamage;
+		
+			switch ( ptr->iHitgroup )
+			{
+				case HITGROUP_HEAD: flDamage *= gSkillData.monHead; 
+					break; 
+
+				case HITGROUP_GENERIC:
+				case HITGROUP_CHEST:
+				case HITGROUP_STOMACH:
+				case HITGROUP_LEFTARM: 
+				case HITGROUP_RIGHTARM:
+				case HITGROUP_LEFTLEG: 
+				case HITGROUP_RIGHTLEG: 
+					flDamage = 0.5; 
+					break; 
+		
+				default:
+					break;
+			}
+			
+			if (flDamage <= 0)
+			{
+				SpawnBlood(ptr->vecEndPos, BloodColor(), 30);// a little surface blood.
+				TraceBleed( 30, vecDir, ptr, bitsDamageType );
+			}
+			else
+			{
+				SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage);// a little surface blood
+				TraceBleed( flDamage, vecDir, ptr, bitsDamageType );
+				AddMultiDamage( pevAttacker, this, flDamage, bitsDamageType );
+			}
+		}
+	}
+	
+	SpawnBlood(ptr->vecEndPos, BloodColor(), flDamage);// a little surface blood
+	TraceBleed( flDamage, vecDir, ptr, bitsDamageType );
+	AddMultiDamage( pevAttacker, this, flDamage, bitsDamageType );
+} 
+//Haunter
 
 //=========================================================
 // Spawn

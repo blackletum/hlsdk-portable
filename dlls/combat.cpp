@@ -572,6 +572,341 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 	}
 
 	Remember( bits_MEMORY_KILLED );
+	//Haunter
+//These are the values for the monsters killed by players.
+
+	if ( CVAR_GET_FLOAT("cl_getcash") == 1 && !(g_pGameRules->IsMultiplayer()))
+	{
+		CBasePlayer *pPlayer = GetClassPtr((CBasePlayer *)pevAttacker);
+		CBaseEntity *ep = CBaseEntity::Instance( pevAttacker );
+		if ( ep && ep->Classify() == CLASS_PLAYER )
+		{
+			CBasePlayer *PK = (CBasePlayer*)ep;
+			if (FClassnameIs(pev, "monster_barney"))
+			{
+				pPlayer->m_iMoney -= 200;
+				if (pPlayer->m_iMoney < 0)
+					pPlayer->m_iMoney =0;
+				ClientPrint( pPlayer->pev, HUD_PRINTCENTER, "You lost money for killing an ally" );
+			}
+			else if (FClassnameIs(pev, "monster_scientist"))
+			{	
+				pPlayer->m_iMoney -= 500;
+				if (pPlayer->m_iMoney < 0)
+					pPlayer->m_iMoney =0;
+				ClientPrint( pPlayer->pev, HUD_PRINTCENTER, "You lost money for killing an ally" );
+			}
+			if (FClassnameIs(pev, "monster_apache"))
+			{
+				pPlayer->m_iMoney += 5000;
+			}
+			else if (FClassnameIs(pev, "monster_alien_grunt"))
+			{
+				pPlayer->m_iMoney += 500;
+			}
+			else if (FClassnameIs(pev, "monster_barnacle"))
+			{
+				pPlayer->m_iMoney += 30;
+			}
+			else if (FClassnameIs(pev, "monster_bigmomma"))
+			{
+				pPlayer->m_iMoney += 2000;
+			}
+			else if (FClassnameIs(pev, "monster_bullchicken"))
+			{
+				pPlayer->m_iMoney += 90;
+			}
+			else if (FClassnameIs(pev, "monster_alien_controller"))
+			{
+				pPlayer->m_iMoney += 60;
+			}
+			else if (FClassnameIs(pev, "monster_gargantua"))
+			{
+				pPlayer->m_iMoney += 2000;
+			}
+			else if (FClassnameIs(pev, "monster_human_assassin"))
+			{
+				pPlayer->m_iMoney += 100;
+			}
+			else if (FClassnameIs(pev, "monster_headcrab") || FClassnameIs(pev, "monster_babycrab"))
+			{
+				pPlayer->m_iMoney += 10;
+		//		if (pPlayer->m_iMoney > CVAR_GET_FLOAT("cl_maxmoney"))
+		//			pPlayer->m_iMoney = CVAR_GET_FLOAT("cl_maxmoney");
+			}
+			else if (FClassnameIs(pev, "monster_human_grunt") || FClassnameIs(pev, "monster_grunt_repel") )
+			{
+				pPlayer->m_iMoney += 200;
+			}
+			else if (FClassnameIs(pev, "monster_houndeye"))
+			{
+				pPlayer->m_iMoney += 20;
+			}
+			else if (FClassnameIs(pev, "monster_ichthyosaur"))
+			{
+				pPlayer->m_iMoney += 500;
+			}
+			else if (FClassnameIs(pev, "monster_alien_slave"))
+			{
+				pPlayer->m_iMoney += 50;
+			}
+			else if (FClassnameIs(pev, "monster_leech"))
+			{
+				pPlayer->m_iMoney += 10;
+			}
+			else if (FClassnameIs(pev, "monster_nihilanth"))
+			{
+				pPlayer->m_iMoney += 5000;
+			}
+			else if (FClassnameIs(pev, "monster_snark"))
+			{
+				pPlayer->m_iMoney += 10;
+			}
+			else if (FClassnameIs(pev, "monster_zombie"))
+			{
+				pPlayer->m_iMoney += 30;
+			}
+			else
+			{ 
+			}
+		}
+	}
+
+	if ( (CVAR_GET_FLOAT("mp_getcash") == 1) && g_pGameRules->IsMultiplayer() ) 
+	{
+		CBasePlayer *pPlayer = GetClassPtr((CBasePlayer *)pevAttacker);
+		CBaseEntity *ep = CBaseEntity::Instance( pevAttacker );
+		if ( ep && ep->Classify() == CLASS_PLAYER )
+		{
+			CBasePlayer *PK = (CBasePlayer*)ep;
+			
+			if (FClassnameIs(pev, "monster_apache"))
+			{
+				pPlayer->m_iMoney += 5000;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY )
+					pPlayer->m_iMoney = MP_MAXMONEY;
+				
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s downed an Apache \n",
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+					
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_alien_grunt"))
+			{
+				pPlayer->m_iMoney += 500;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s blasted an Alien Grunt \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_barnacle"))
+			{
+				pPlayer->m_iMoney += 30;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s spilled a Barnacle \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_bigmomma"))
+			{
+				pPlayer->m_iMoney += 2000;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s killed one Big Momma \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_bullchicken"))
+			{
+				pPlayer->m_iMoney += 50;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s slaughtered a Bullchicken \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_alien_controller"))
+			{
+				pPlayer->m_iMoney += 50;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s dropped an Alien Controller \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_gargantua"))
+			{
+				pPlayer->m_iMoney += 2000;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s blown up a Gargantua \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_human_assassin"))
+			{
+				pPlayer->m_iMoney += 100;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s silenced a Human Assassin \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_headcrab") || FClassnameIs(pev, "monster_babycrab"))
+			{
+				pPlayer->m_iMoney += 10;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s squashed a Headcrab \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_human_grunt") || FClassnameIs(pev, "monster_grunt_repel") )
+			{
+				pPlayer->m_iMoney += 100;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s killed a Human Grunt \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_houndeye"))
+			{
+				pPlayer->m_iMoney += 10;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s shot a Houndeye \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_ichthyosaur"))
+			{
+				pPlayer->m_iMoney += 500;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s drowned an Ichthyosaur \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_alien_slave"))
+			{
+				pPlayer->m_iMoney += 50;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s whipped an Alien Slave \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_leech"))
+			{
+				pPlayer->m_iMoney += 10;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s squished a Leech \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_nihilanth"))
+			{
+				pPlayer->m_iMoney += 5000;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s defeated Nihilanth! \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_snark"))
+			{
+				pPlayer->m_iMoney += 10;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s exploded a Snark \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else if (FClassnameIs(pev, "monster_zombie"))
+			{
+				pPlayer->m_iMoney += 10;
+				
+				if (pPlayer->m_iMoney > MP_MAXMONEY)
+					pPlayer->m_iMoney = MP_MAXMONEY;
+
+				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s put to rest a Zombie \n", 
+					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
+
+				PK->AddPoints(1, false);
+			}
+			else
+			{ 
+			}
+		}
+	}
+	//Haunter
 
 	// clear the deceased's sound channels.(may have been firing or reloading when killed)
 	EMIT_SOUND( ENT( pev ), CHAN_WEAPON, "common/null.wav", 1, ATTN_NORM );
@@ -994,6 +1329,86 @@ float CBaseMonster::DamageForce( float damage )
 	return force;
 }
 
+//Radius flash - this is when you get flashed by a flashbang
+//Atomizer
+void RadiusFlash( Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType )
+{
+	CBaseEntity *pEntity = NULL;
+	TraceResult	tr;
+	float		flAdjustedDamage, falloff;
+	Vector		vecSpot;
+	float		flRadius = 1000;
+
+
+	if ( flRadius )
+		falloff = flDamage / flRadius;
+	else
+		falloff = 1.0;
+
+	int bInWater = (UTIL_PointContents ( vecSrc ) == CONTENTS_WATER);
+
+	vecSrc.z += 1;// in case grenade is lying on the ground
+
+	if ( !pevAttacker )
+		pevAttacker = pevInflictor;
+
+	// iterate on all entities in the vicinity.
+	while ((pEntity = UTIL_FindEntityInSphere( pEntity, vecSrc, flRadius )) != NULL)
+	{
+		// get the heck out of here if it aint a player.
+		if (pEntity->IsPlayer() == FALSE)
+			return;
+
+		if ( pEntity->pev->takedamage != DAMAGE_NO )
+		{
+
+			// blast's don't tavel into or out of water
+			if (bInWater && pEntity->pev->waterlevel == 0)
+				continue;
+			if (!bInWater && pEntity->pev->waterlevel == 3)
+				continue;
+
+			vecSpot = pEntity->BodyTarget( vecSrc );
+			
+			UTIL_TraceLine ( vecSrc, vecSpot, dont_ignore_monsters, ENT(pevInflictor), &tr );
+
+			if ( tr.flFraction == 1.0 || tr.pHit == pEntity->edict() )
+			{// the explosion can 'see' this entity, so hurt them!
+				if (tr.fStartSolid)
+				{
+					// if we're stuck inside them, fixup the position and distance
+					tr.vecEndPos = vecSrc;
+					tr.flFraction = 0.0;
+				}
+				
+				// decrease damage for an ent that's farther from the bomb.
+				flAdjustedDamage = ( vecSrc - tr.vecEndPos ).Length() * falloff;
+				flAdjustedDamage = flDamage - flAdjustedDamage;
+			
+				if ( flAdjustedDamage < 0 )
+				{
+					flAdjustedDamage = 0;
+				}
+			
+				Vector vecLOS;
+				float flDot;
+
+				UTIL_MakeVectors ( pEntity->pev->v_angle );// so we know which the target is facing
+
+				vecLOS = ( vecSrc - (pEntity->pev->origin + pEntity->pev->view_ofs));
+					
+				flDot = DotProduct (vecLOS , gpGlobals->v_forward);			
+
+				if (flDot >= 0.0 )
+					UTIL_ScreenFade( pEntity, Vector(255,255,255), flAdjustedDamage * 3, flAdjustedDamage / 1.5, 255, FFADE_IN );
+				else
+					UTIL_ScreenFade( pEntity, Vector(255,255,255), flAdjustedDamage * 1, flAdjustedDamage / 6, 200, FFADE_IN );
+			}		
+		}
+	}
+}
+//Atom
+
 //
 // RadiusDamage - this entity is exploding, or otherwise needs to inflict damage upon entities within a certain range.
 // 
@@ -1349,6 +1764,10 @@ void CBaseEntity::FireBullets( ULONG cShots, Vector vecSrc, Vector vecDirShootin
 
 	for( ULONG iShot = 1; iShot <= cShots; iShot++ )
 	{
+		//Atomizer
+		int spark = 1;
+		//Atom
+
 		// get circular gaussian spread
 		float x, y, z;
 		do {
@@ -1385,6 +1804,12 @@ void CBaseEntity::FireBullets( ULONG cShots, Vector vecSrc, Vector vecDirShootin
 			switch( iBulletType )
 			{
 			case BULLET_MONSTER_MP5:
+			//Haunter
+			case BULLET_MONSTER_M249:
+			case BULLET_MONSTER_SENTRY:
+			case BULLET_MONSTER_TURRET:
+			case BULLET_MONSTER_APACHE:
+			//Haunter
 			case BULLET_MONSTER_9MM:
 			case BULLET_MONSTER_12MM:
 			default:
@@ -1398,6 +1823,10 @@ void CBaseEntity::FireBullets( ULONG cShots, Vector vecSrc, Vector vecDirShootin
 					WRITE_COORD( tr.vecEndPos.z );
 				MESSAGE_END();
 				break;
+			case BULLET_MONSTER_USP: //Haunter - No tracers for hassassins
+			case BULLET_MONSTER_BUCKSHOT:
+				break;
+			
 			}
 		}
 		// do damage, paint decals

@@ -199,6 +199,9 @@ public:
 
 	virtual void Spawn( void );
 	void Pain( void );
+	//Haunter
+	int BloodColor() { return BLOOD_COLOR_RED; } 
+	//Haunter
 
 	//virtual void Think( void );
 	virtual void Jump( void );
@@ -208,6 +211,9 @@ public:
 	virtual Vector GetGunPosition( void );
 	virtual int TakeHealth( float flHealth, int bitsDamageType );
 	virtual void TraceAttack( entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
+	//Atomizer
+	virtual int GiveArmor( float flArmor );
+    //Atom
 	virtual int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType);
 	virtual void	Killed( entvars_t *pevAttacker, int iGib );
 	virtual Vector BodyTarget( const Vector &posSrc ) { return Center( ) + pev->view_ofs * RANDOM_FLOAT( 0.5, 1.1 ); };		// position to shoot at

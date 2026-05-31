@@ -720,8 +720,8 @@ void CISlave::ArmBeam( int side )
 	if( flDist == 1.0f )
 		return;
 
-	DecalGunshot( &tr, BULLET_PLAYER_CROWBAR );
-
+	DecalGunshot( &tr, BULLET_PLAYER_CROWBAR/*Atomizer*/, FALSE, pev );/*Atom*/
+	
 	m_pBeam[m_iBeams] = CBeam::BeamCreate( "sprites/lgtning.spr", 30 );
 	if( !m_pBeam[m_iBeams] )
 		return;

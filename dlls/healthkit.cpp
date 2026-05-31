@@ -173,6 +173,19 @@ void CWallHealth::Precache()
 
 void CWallHealth::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 { 
+	if ( g_pGameRules->IsMultiplayer() )
+	{
+		TimeHS = (int)CVAR_GET_FLOAT( "mp_buytime" ); //Haunter
+		if ( TimeHS <= 0)
+			TimeHS = 1;
+	}
+	else
+	{
+		TimeHS = (int)CVAR_GET_FLOAT( "cl_buytime" ); //Haunter
+		if ( TimeHS <= 0)
+			TimeHS = 1;
+	}
+
 	// Make sure that we have a caller
 	if( !pActivator )
 		return;

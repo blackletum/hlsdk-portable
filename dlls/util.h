@@ -305,7 +305,10 @@ extern BOOL			UTIL_ShouldShowBlood( int bloodColor );
 extern void			UTIL_BloodDecalTrace( TraceResult *pTrace, int bloodColor );
 extern void			UTIL_DecalTrace( TraceResult *pTrace, int decalNumber );
 extern void			UTIL_PlayerDecalTrace( TraceResult *pTrace, int playernum, int decalNumber, BOOL bIsCustom );
-extern void			UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber );
+//Atomizer
+extern void			UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber, bool ClientOnly, entvars_t* pShooter );
+//extern void			UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber );
+//Atom
 extern void			UTIL_Sparks( const Vector &position );
 extern void			UTIL_Ricochet( const Vector &position, float scale );
 extern void			UTIL_StringToVector( float *pVector, const char *pString );

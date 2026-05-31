@@ -37,6 +37,10 @@
 #include "pm_shared.h"
 #include "hltv.h"
 
+//Haunter
+#include "maxcarry.h"
+//Haunter
+
 // #define DUCKFIX
 
 extern DLL_GLOBAL ULONG g_ulModelIndexPlayer;
@@ -70,6 +74,72 @@ extern CGraph WorldGraph;
 // Global Savedata for player
 TYPEDESCRIPTION	CBasePlayer::m_playerSaveData[] =
 {
+	//Haunter
+	//These are for gameplay
+	DEFINE_FIELD( CBasePlayer, m_iMoney, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_bResumeZoom, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, m_bIsSilencing, FIELD_BOOLEAN ),
+	DEFINE_FIELD( CBasePlayer, m_iLastZoom, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iFire, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_iArmor, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_iShroud, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iBank, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iShotsFired, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_flAccuracy, FIELD_FLOAT ),
+	
+	//These are for the two silenced weapons
+	DEFINE_FIELD( CBasePlayer, m_iSilencing, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_iSilencing2, FIELD_INTEGER),
+	
+	//This is for the Glock18
+	DEFINE_FIELD( CBasePlayer, m_flLastFire, FIELD_FLOAT ),
+	
+	//These are for the buying system
+	DEFINE_FIELD( CBasePlayer, m_iTimeSP, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iTimeMP, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iBuyable, FIELD_INTEGER),
+	
+	//These are the ammunitions
+	DEFINE_FIELD( CBasePlayer, m_i9mmAmmo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i45Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i50Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i357Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i57Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i12GAmmo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i556Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iM203Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i5562Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i338Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i762Ammo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iNumFlashbangs, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iNumHEGrenades, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iNumC4, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iRPGAmmo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iJudAmmo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iJusAmmo, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iM203Ammo, FIELD_INTEGER ),
+	 
+	
+	DEFINE_FIELD( CBasePlayer, m_i9mm, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i45, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i50, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i357, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i57, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i12G, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i556, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iM203, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i5562, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i338, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_i762, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iHE, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_iFB, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_iC4, FIELD_INTEGER),
+	DEFINE_FIELD( CBasePlayer, m_iRPG, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iJud, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iJus, FIELD_INTEGER ),
+	DEFINE_FIELD( CBasePlayer, m_iM203, FIELD_INTEGER ),
+	//Haunter
+
 	DEFINE_FIELD( CBasePlayer, m_flFlashLightTime, FIELD_TIME ),
 	DEFINE_FIELD( CBasePlayer, m_iFlashBattery, FIELD_INTEGER ),
 
@@ -3473,6 +3543,10 @@ void CBasePlayer::ForceClientDllUpdate( void )
 	m_fInitHUD = TRUE;		// Force HUD gmsgResetHUD message
 	memset( m_rgAmmoLast, 0, sizeof( m_rgAmmoLast )); // a1ba: Force update AmmoX
 
+//Haunter
+int gmsgShroud = 0;
+int gmsgBank = 0;
+//Haunter 
 
 
 	// Now force all the necessary messages
@@ -4963,6 +5037,33 @@ void CInfoIntermission::Think( void )
 		pev->v_angle = UTIL_VecToAngles( ( pTarget->v.origin - pev->origin ).Normalize() );
 		pev->v_angle.x = -pev->v_angle.x;
 	}
+	
+	//Atomizer
+	if ( g_pGameRules->IsMultiplayer() )
+	{
+		if (m_iMoney > MP_MAXMONEY)
+			m_iMoney = MP_MAXMONEY;
+		else if (m_iMoney < 0)
+			m_iMoney = 0;
+
+	}
+	else
+	{
+		if (m_iMoney > CVAR_GET_FLOAT("cl_maxmoney"))
+		{
+			if (m_iMoney > 950000000)
+			{
+				m_iMoney = 950000000;
+			}
+			else
+				m_iMoney = CVAR_GET_FLOAT("cl_maxmoney");
+		}
+		else if (m_iMoney < 0)
+			m_iMoney = 0;
+
+		
+	}
+	//Atom
 }
 
 LINK_ENTITY_TO_CLASS( info_intermission, CInfoIntermission )

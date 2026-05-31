@@ -542,7 +542,7 @@ void CTentacle::Cycle( void )
 			m_iGoalAnim = TENTACLE_ANIM_Pit_Idle;
 			if( pev->sequence == TENTACLE_ANIM_Pit_Idle )
 			{
-				pev->health = 75;
+				pev->health = 50;
 			}
 		}
 		else if( m_flSoundTime > gpGlobals->time )

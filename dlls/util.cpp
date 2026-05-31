@@ -1261,7 +1261,7 @@ void UTIL_PlayerDecalTrace( TraceResult *pTrace, int playernum, int decalNumber,
 	MESSAGE_END();
 }
 
-void UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber )
+void UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber/*Atomizer*/, bool ClientOnly, entvars_t* pShooter )/*Atom*/
 {
 	if( decalNumber < 0 )
 		return;

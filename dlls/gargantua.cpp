@@ -176,6 +176,21 @@ void CStomp::Think( void )
 			STOP_SOUND( edict(), CHAN_BODY, GARG_STOMP_BUZZ_SOUND );
 		}
 	}
+
+	// Haunter - Light up the world!
+	MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+	  WRITE_BYTE( TE_DLIGHT );
+	  WRITE_COORD( vecStart.x );     // origin
+	  WRITE_COORD( vecStart.y );
+	  WRITE_COORD( vecStart.z );
+	  WRITE_BYTE( RANDOM_FLOAT( 32, 48 ) );     // radius
+	  WRITE_BYTE( 255 );     // R
+	  WRITE_BYTE( 163 );     // G
+	  WRITE_BYTE( 31 );     // B
+	  WRITE_BYTE( 2 );     // life * 10
+	  WRITE_BYTE( 0 ); // decay
+	MESSAGE_END();
+	// Haunter - Light up the world!
 }
 
 void StreakSplash( const Vector &origin, const Vector &direction, int color, int count, int speed, int velocityRange )
@@ -284,6 +299,7 @@ TYPEDESCRIPTION	CGargantua::m_SaveData[] =
 	DEFINE_ARRAY( CGargantua, m_pFlame, FIELD_CLASSPTR, 4 ),
 	DEFINE_FIELD( CGargantua, m_flameX, FIELD_FLOAT ),
 	DEFINE_FIELD( CGargantua, m_flameY, FIELD_FLOAT ),
+	DEFINE_FIELD( CGargantua, m_iShockTexture, FIELD_INTEGER ),
 };
 
 IMPLEMENT_SAVERESTORE( CGargantua, CBaseMonster )
@@ -469,7 +485,7 @@ void CGargantua::StompAttack( void )
 	Vector vecEnd = (vecAim * 1024) + vecStart;
 
 	UTIL_TraceLine( vecStart, vecEnd, ignore_monsters, edict(), &trace );
-	CStomp::StompCreate( vecStart, trace.vecEndPos, 0 );
+//	CStomp::StompCreate( vecStart, trace.vecEndPos, 0 );
 	UTIL_ScreenShake( pev->origin, 12.0, 100.0, 2.0, 1000 );
 	EMIT_SOUND_DYN( edict(), CHAN_WEAPON, RANDOM_SOUND_ARRAY( pStompSounds ), 1.0, ATTN_GARG, 0, PITCH_NORM + RANDOM_LONG( -10, 10 ) );
 
@@ -584,6 +600,21 @@ void CGargantua::FlameUpdate( void )
 				WRITE_BYTE( 2 );	// life * 10
 				WRITE_COORD( 0 ); // decay
 			MESSAGE_END();
+
+			// Haunter - Light up the world!
+			MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+			  WRITE_BYTE( TE_DLIGHT );
+			  WRITE_COORD( vecStart.x );     // origin
+			  WRITE_COORD( vecStart.y );
+			  WRITE_COORD( vecStart.z );
+			  WRITE_BYTE( RANDOM_FLOAT( 32, 48 ) );     // radius
+			  WRITE_BYTE( 255 );     // R
+			  WRITE_BYTE( 163 );     // G
+			  WRITE_BYTE( 31 );     // B
+			  WRITE_BYTE( 2 );     // life * 10
+			  WRITE_BYTE( 0 ); // decay
+		   MESSAGE_END();
+		   // Haunter - Light up the world!
 		}
 	}
 	if( streaks )
@@ -766,6 +797,8 @@ void CGargantua::Precache()
 	gStompSprite = PRECACHE_MODEL( GARG_STOMP_SPRITE_NAME );
 	gGargGibModel = PRECACHE_MODEL( GARG_GIB_MODEL );
 	PRECACHE_SOUND( GARG_STOMP_BUZZ_SOUND );
+	m_iShockTexture = PRECACHE_MODEL( GARG_SHOCK_SPRITE);//Haunter
+	
 
 	PRECACHE_SOUND_ARRAY( pAttackHitSounds );
 	PRECACHE_SOUND_ARRAY( pBeamAttackSounds );
@@ -1098,6 +1131,12 @@ void CGargantua::RunTask( Task_t *pTask )
 				pGib->pev->nextthink = gpGlobals->time + 1.25f;
 				pGib->SetThink( &CBaseEntity::SUB_FadeOut );
 			}
+			
+			Vector position = pev->origin;
+			position.z += 32;
+			SpawnExplosion( position, 70, 0.15, 60 );
+			UTIL_ScreenShake( pev->origin, 4.0, 3.0, 1.0, 750 );
+			
 			MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, pev->origin );
 				WRITE_BYTE( TE_BREAKMODEL );
 

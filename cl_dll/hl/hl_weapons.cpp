@@ -53,20 +53,44 @@ int g_irunninggausspred = 0;
 vec3_t previousorigin;
 
 // HLDM Weapon placeholder entities.
-CGlock g_Glock;
-CCrowbar g_Crowbar;
-CPython g_Python;
-CMP5 g_Mp5;
-CCrossbow g_Crossbow;
-CShotgun g_Shotgun;
-CRpg g_Rpg;
-CGauss g_Gauss;
-CEgon g_Egon;
-CHgun g_HGun;
-CHandGrenade g_HandGren;
-CSatchel g_Satchel;
-CTripmine g_Tripmine;
-CSqueak g_Snark;
+//Haunter
+CKnife g_Knife;
+CHEGrenade g_HE;
+CFlashBang g_FB;
+
+CUSP g_USP;
+CGlock18 g_Glock18;
+CDeagle g_Deagle;
+CP228 g_P228;
+CFiveseveN g_FiveseveN;
+CElite g_Elite;
+
+CM3 g_M3;
+CXM1014 g_XM1014;
+
+CMP5N g_MP5N;
+CTMP g_TMP;
+CP90 g_P90;
+CMac10 g_MAC10;
+CUMP45 g_UMP45;
+
+CAK47 g_AK47;
+CM4A1 g_M4A1;
+CSG552 g_SG552;
+CAUG g_AUG;
+CFAMAS g_FAMAS;
+CGalil g_GALIL;
+
+CAWP g_AWP;
+CScout g_Scout;
+CG3SG1 g_G3SG1;
+CSG550 g_SG550;
+
+CM249 g_M249;
+CRPGRENADE g_RPGRENADE;
+CC4 g_C4;
+CULTIMATE g_ULTIMATE;
+//Haunter
 
 /*
 ======================
@@ -167,6 +191,36 @@ BOOL CBasePlayerWeapon::DefaultReload( int iClipSize, int iAnim, float fDelay, i
 	return TRUE;
 }
 
+//Haunter XYZ
+BOOL CBasePlayerWeapon :: EquipSilencer( int iAnim, float fDelay, int body )
+{
+	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + fDelay;
+
+	//!!UNDONE -- reload sound goes here !!!
+	SendWeaponAnim( iAnim );
+
+	if ( (m_pPlayer->m_bIsSilencing == TRUE) && (m_pPlayer->m_iSilencing == 1) )
+	{
+		if (m_iSilenced == 0)
+		{
+            m_iSilenced = 1;
+		}
+		else if (m_iSilenced == 1)
+		{
+			m_iSilenced = 0;
+		}	
+
+		//m_pPlayer->m_bIsSilencing = FALSE;
+	}
+
+	m_fInSilencing = TRUE;
+
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + fDelay;
+
+	return TRUE;
+}
+//Haunter
+
 /*
 =====================
 CBasePlayerWeapon::CanDeploy
@@ -174,6 +228,7 @@ CBasePlayerWeapon::CanDeploy
 */
 BOOL CBasePlayerWeapon::CanDeploy( void ) 
 {
+	/*Haunter
 	BOOL bHasAmmo = 0;
 
 	if( !pszAmmo1() )
@@ -197,7 +252,7 @@ BOOL CBasePlayerWeapon::CanDeploy( void )
 	if( !bHasAmmo )
 	{
 		return FALSE;
-	}
+	} Haunter */
 
 	return TRUE;
 }
@@ -253,6 +308,38 @@ void CBasePlayerWeapon::ResetEmptySound( void )
 
 /*
 =====================
+CBasePlayerWeapon :: PlayEmptySound2
+
+For handguns
+=====================
+*/
+//Haunter
+BOOL CBasePlayerWeapon :: PlayEmptySound2( void )
+{
+	if (m_iPlayEmptySound2)
+	{
+		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/dryfire_pistol.wav", 0.8, ATTN_NORM);
+		m_iPlayEmptySound2 = 1;// default: 0
+		return 0;
+	}
+	return 0;
+}
+
+/*
+=====================
+CBasePlayerWeapon :: ResetEmptySound2
+
+For handguns
+=====================
+*/
+void CBasePlayerWeapon :: ResetEmptySound2( void )
+{
+	m_iPlayEmptySound2 = 1;
+}
+//Haunter
+
+/*
+=====================
 CBasePlayerWeapon::Holster
 
 Put away weapon
@@ -261,8 +348,17 @@ Put away weapon
 void CBasePlayerWeapon::Holster( int skiplocal /* = 0 */ )
 { 
 	m_fInReload = FALSE; // cancel any reload in progress.
-	g_irunninggausspred = false;
+	//Haunter XYZ
+	//m_pPlayer->m_iSilencing = 0;
+	//m_pPlayer->m_bIsSilencing = FALSE;
+	//Haunter
 	m_pPlayer->pev->viewmodel = 0; 
+	m_pPlayer->pev->weaponmodel = 0;
+
+	//Atomizer
+	if (m_pPlayer->pev->fov != 0)
+		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = 0;
+	//Atom
 }
 
 /*
@@ -420,6 +516,8 @@ void CBasePlayer::SelectItem( const char *pstr )
 		m_pActiveItem->Deploy();
 	}
 }
+//Atom
+/*
 
 /*
 =====================
@@ -463,6 +561,41 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	g_irunninggausspred = false;
 }
 
+//Haunter
+/*
+=====================
+CBasePlayer :: GiveArmor
+
+The hell I know what this does
+=====================
+*/
+int CBasePlayer :: GiveArmor( float flArmor )
+{
+	int ArmorGiven;
+
+	if (!pev->takedamage)
+		return 0;
+
+	if ( pev->armorvalue >= 100 )
+		return 0;
+
+	ArmorGiven = 101 - pev->armorvalue;
+
+	if (ArmorGiven >= flArmor)
+	{
+		ArmorGiven = flArmor;
+	}
+
+	pev->armorvalue += ArmorGiven;
+
+	if (pev->armorvalue > 100 )
+	{
+		pev->armorvalue = 100;
+	}
+	
+	return ArmorGiven;
+}
+//Haunter
 /*
 =====================
 CBasePlayer::Spawn

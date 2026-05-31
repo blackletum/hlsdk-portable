@@ -59,6 +59,59 @@ const char *CBreakable::pSpawnObjects[] =
 	"weapon_satchel",	// 19
 	"weapon_snark",		// 20
 	"weapon_hornetgun",	// 21
+	//Haunter
+	"weapon_knife",		// 1
+	"weapon_hegrenade",	// 2
+	"weapon_flashbang",	// 3
+
+	"weapon_usp",		// 4
+	"weapon_glock18",	// 5
+	"weapon_deagle",	// 6
+	"weapon_p228",		// 7
+	"weapon_fiveseven",	// 8
+	"weapon_elite",		// 9
+	
+	"weapon_mp5navy",   // 10
+	"weapon_tmp",		// 11
+	"weapon_p90",		// 12
+	"weapon_mac10",		// 13
+	"weapon_ump45",		// 14
+
+	"weapon_m3",		// 15
+	"weapon_xm1014",	// 16	
+
+	"weapon_ak47",		// 17
+	"weapon_m4a1",		// 18
+	"weapon_sg552",		// 19
+	"weapon_aug",		// 20
+	"weapon_galil",		// 21
+	"weapon_famas",		// 22
+
+	"weapon_awp",		// 23
+	"weapon_scout",		// 24
+	"weapon_g3sg1",		// 25
+	"weapon_sg550",		// 26
+
+	"weapon_m249",		// 27
+	"weapon_rpgrenade",	// 28
+	"weapon_C4",		// 29
+	"weapon_ultimate",	// 30
+
+	"ammo_USPclip",		// 1
+	"ammo_DEclip",      // 2
+	"ammo_P90clip",		// 3
+	"ammo_AWPclip",		// 4
+	"ammo_XM4clip",		// 5
+	"ammo_MP5clip",		// 6
+	"ammo_AK47clip",	// 7
+	"ammo_M4A1clip",    // 8
+	"ammo_M249clip",	// 9
+	"ammo_Eliteclip",	// 10
+	"ammo_M203Gren",	// 11
+	"ammo_RPclip",		// 12
+	"ammo_jusrock",		// 13
+	"ammo_judclip",		// 14
+	//Haunter
 };
 
 void CBreakable::KeyValue( KeyValueData* pkvd )

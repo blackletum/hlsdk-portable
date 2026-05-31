@@ -183,6 +183,8 @@ public:
 	// other functions
 	void Shoot( Vector &vecSrc, Vector &vecDirToEnemy );
 
+	int m_iShellT;
+
 private:
 	int m_iStartSpin;
 };

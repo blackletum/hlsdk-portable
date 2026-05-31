@@ -404,7 +404,7 @@ int CRpg::GetItemInfo( ItemInfo *p )
 	p->iWeight = RPG_WEIGHT;
 
 	return 1;
-}
+}*/
 
 int CRpg::AddToPlayer( CBasePlayer *pPlayer )
 {

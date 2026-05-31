@@ -97,6 +97,7 @@ TYPEDESCRIPTION	CBarney::m_SaveData[] =
 	DEFINE_FIELD( CBarney, m_checkAttackTime, FIELD_TIME ),
 	DEFINE_FIELD( CBarney, m_lastAttackCheck, FIELD_BOOLEAN ),
 	DEFINE_FIELD( CBarney, m_flPlayerDamage, FIELD_FLOAT ),
+	DEFINE_FIELD( CBarney, m_ClipLeft, FIELD_INTEGER ), //Haunter
 };
 
 IMPLEMENT_SAVERESTORE( CBarney, CTalkMonster )
@@ -201,12 +202,43 @@ Schedule_t slIdleBaStand[] =
 	},
 };
 
+/*Haunter*/
+//=========================================================
+// Barn's reload schedule
+//=========================================================
+Task_t	tlBarneyHideReload[] =
+{
+	{ TASK_STOP_MOVING,				(float)0					},
+	{ TASK_SET_FAIL_SCHEDULE,		(float)SCHED_RELOAD			},
+	{ TASK_FIND_COVER_FROM_ENEMY,	(float)0					},
+	{ TASK_RUN_PATH,				(float)0					},
+	{ TASK_WAIT_FOR_MOVEMENT,		(float)0					},
+	{ TASK_REMEMBER,				(float)bits_MEMORY_INCOVER	},
+	{ TASK_FACE_ENEMY,				(float)0					},
+	{ TASK_PLAY_SEQUENCE,			(float)ACT_RELOAD			},
+};
+
+Schedule_t slBarneyHideReload[] = 
+{
+	{
+		tlBarneyHideReload,
+		ARRAYSIZE ( tlBarneyHideReload ),
+		bits_COND_HEAVY_DAMAGE	|
+		bits_COND_HEAR_SOUND,
+
+		bits_SOUND_DANGER,
+		"BarneyHideReload"
+	}
+};
+//Haunter
+
 DEFINE_CUSTOM_SCHEDULES( CBarney )
 {
 	slBaFollow,
 	slBarneyEnemyDraw,
 	slBaFaceTarget,
 	slIdleBaStand,
+	slBarneyHideReload, //Haunter
 };
 
 IMPLEMENT_CUSTOM_SCHEDULES( CBarney, CTalkMonster )
@@ -227,6 +259,13 @@ void CBarney::RunTask( Task_t *pTask )
 		}
 		CTalkMonster::RunTask( pTask );
 		break;
+
+		//Haunter
+	case TASK_RELOAD:
+		m_IdealActivity = ACT_RELOAD;
+		break;
+		//Haunter
+	
 	default:
 		CTalkMonster::RunTask( pTask );
 		break;
@@ -247,6 +286,16 @@ int CBarney::ISoundMask( void)
 			bits_SOUND_DANGER |
 			bits_SOUND_PLAYER;
 }
+
+//Haunter
+void CBarney :: CheckAmmo ( void )
+{
+	if ( m_cAmmoLoaded <= 0 )
+	{
+		SetConditions(bits_COND_NO_AMMO_LOADED);
+	}
+}
+//Haunter
 
 //=========================================================
 // Classify - indicates this monster's place in the 
@@ -662,7 +711,12 @@ Schedule_t *CBarney::GetScheduleOfType( int Type )
 			return slIdleBaStand;
 		}
 		else
-			return psched;	
+			return psched;
+		
+		case SCHED_BARNEY_COVER_AND_RELOAD:
+		{
+			return &slBarneyHideReload[ 0 ];
+		}
 	}
 
 	return CTalkMonster::GetScheduleOfType( Type );
@@ -711,6 +765,13 @@ Schedule_t *CBarney::GetSchedule( void )
 
 			if( HasConditions( bits_COND_HEAVY_DAMAGE ) )
 				return GetScheduleOfType( SCHED_TAKE_COVER_FROM_ENEMY );
+
+			//Haunter
+			if ( HasConditions ( bits_COND_NO_AMMO_LOADED ) )
+			{
+				return GetScheduleOfType ( SCHED_BARNEY_COVER_AND_RELOAD );
+			}
+			//Haunter
 		}
 		break;
 	case MONSTERSTATE_ALERT:	

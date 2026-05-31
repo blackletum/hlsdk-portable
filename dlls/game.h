@@ -46,6 +46,12 @@ extern cvar_t bhopcap;
 extern cvar_t sv_pushable_fixed_tick_fudge;
 extern cvar_t sv_busters;
 
+//Haunter
+extern cvar_t	startmoneymp;
+extern cvar_t	buytimemp;
+extern cvar_t	getcashmp;
+//Haunter
+
 // Engine Cvars
 extern cvar_t *g_psv_gravity;
 extern cvar_t *g_psv_aim;

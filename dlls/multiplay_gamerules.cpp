@@ -22,6 +22,7 @@
 #include	"player.h"
 #include	"weapons.h"
 #include	"gamerules.h"
+#include	"maxcarry.h"
  
 #include	"skill.h"
 #include	"game.h"
@@ -539,9 +540,21 @@ void CHalfLifeMultiplay::PlayerSpawn( CBasePlayer *pPlayer )
 
 	if( addDefault )
 	{
-		pPlayer->GiveNamedItem( "weapon_crowbar" );
-		pPlayer->GiveNamedItem( "weapon_9mmhandgun" );
-		pPlayer->GiveAmmo( 68, "9mm", _9MM_MAX_CARRY );// 4 full reloads
+		//Atomizer
+		pPlayer->GiveNamedItem( "weapon_knife" );
+		pPlayer->GiveNamedItem( "weapon_usp" );
+		pPlayer->GiveAmmo( 60, "45ACP", _45ACP_MAXCARRY );//Haunter
+		if ( pPlayer->m_iMoney > CVAR_GET_FLOAT("mp_startmoney") || 
+			pPlayer->m_iMoney < CVAR_GET_FLOAT("mp_startmoney") )
+		{
+			pPlayer->m_iMoney = pPlayer->m_iMoney;
+		}
+		else
+		{
+			pPlayer->m_iMoney = CVAR_GET_FLOAT("mp_startmoney"); //Haunter
+		}
+		
+		//Atom
 	}
 
 	pPlayer->m_iAutoWepSwitch = iOldAutoWepSwitch;
@@ -572,6 +585,9 @@ BOOL CHalfLifeMultiplay::AllowAutoTargetCrosshair( void )
 //=========================================================
 int CHalfLifeMultiplay::IPointsForKill( CBasePlayer *pAttacker, CBasePlayer *pKilled )
 {
+	//Haunter
+	pAttacker->m_iMoney += 1500;
+	//Haunter
 	return 1;
 }
 

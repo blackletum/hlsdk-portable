@@ -218,6 +218,13 @@ int CHudHealth::Draw( float flTime )
 		HealthWidth = gHUD.GetSpriteRect( gHUD.m_HUD_number_0 ).right - gHUD.GetSpriteRect( gHUD.m_HUD_number_0 ).left;
 		int CrossWidth = gHUD.GetSpriteRect( m_HUD_cross ).right - gHUD.GetSpriteRect( m_HUD_cross ).left;
 
+		//Haunter
+		// gHUD. is added to DrawHudString Function because of its class in gHUD
+		//gHUD.DrawHudNumberString(ScreenWidth / 12, ScreenHeight / 2, 0, m_iHealth, 255, 255, 255);
+		//HealthWidth = gHUD.GetSpriteRect(gHUD.m_HUD_number_0).right - gHUD.GetSpriteRect(gHUD.m_HUD_number_0).left;
+		//Haunter
+
+
 		y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
 		x = CrossWidth / 2;
 

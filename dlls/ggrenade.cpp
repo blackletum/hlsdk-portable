@@ -44,7 +44,7 @@ void CGrenade::Explode( Vector vecSrc, Vector vecAim )
 	TraceResult tr;
 	UTIL_TraceLine( pev->origin, pev->origin + Vector( 0, 0, -32 ), ignore_monsters, ENT( pev ), & tr );
 
-	Explode( &tr, DMG_BLAST );
+	Explode3( &tr, DMG_BLAST );//Atomizer
 }
 
 // UNDONE: temporary scorching for PreAlpha - find a less sleazy permenant solution.
@@ -186,6 +186,77 @@ void CGrenade::Detonate( void )
 	Explode( &tr, DMG_BLAST );
 }
 
+//Haunter
+//C4 satchel charge
+void CGrenade::DetonateC4( void )
+{
+	TraceResult tr;
+	Vector		vecSpot;// trace starts here!
+
+	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
+	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
+
+	ExplodeC4( &tr, DMG_BLAST );
+	UTIL_ScreenShake( pev->origin, 12.0, 100.0, 2.0, 1000 );
+}
+//Haunter
+
+//Atomizer
+//ABOVE:  CGrenade::Detonate() wasnt modified
+//but it is used for Flashbangs so CGrenade::Explode() is modified
+
+// For High Explosive Grenades
+//Hgrunt's
+void CGrenade::Detonate3( void )
+{
+	TraceResult tr;
+	Vector		vecSpot;// trace starts here!
+
+	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
+	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
+
+	ExplodeHE( &tr, DMG_BLAST );
+	UTIL_ScreenShake( tr.vecEndPos, 25.0, 150.0, 1.0, 1000 );
+}
+
+//Player's
+void CGrenade::Detonate2( void )
+{
+	TraceResult tr;
+	Vector		vecSpot;// trace starts here!
+
+	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
+	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
+
+	ExplodeHE( &tr, DMG_BLAST );
+	UTIL_ScreenShake( tr.vecEndPos, 25.0, 150.0, 1.0, 1000 );
+}
+
+void CGrenade::DetonateRPG( void )
+{
+	TraceResult tr;
+	Vector		vecSpot;// trace starts here!
+
+	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
+	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
+
+	ExplodeRPG( &tr, DMG_BLAST );
+}
+
+void CGrenade::ExplodeTouchRPG( CBaseEntity *pOther )
+{
+	TraceResult tr;
+	Vector		vecSpot;// trace starts here!
+
+	pev->enemy = pOther->edict();
+
+	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
+	UTIL_TraceLine( vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr );
+
+	ExplodeRPG( &tr, DMG_BLAST  | DMG_MORTAR ); //Atomizer
+	UTIL_ScreenShake( pev->origin, 12.0, 100.0, 2.0, 2000 );
+}
+//Atom
 
 //
 // Contact grenade, explode when it touches something
@@ -360,7 +431,7 @@ void CGrenade::Spawn( void )
 	SET_MODEL( ENT( pev ), "models/grenade.mdl" );
 	UTIL_SetSize( pev, Vector( 0, 0, 0 ), Vector( 0, 0, 0 ) );
 
-	pev->dmg = 100;
+	pev->dmg = 30;//100;  Atomizer
 	m_fRegisteredSound = FALSE;
 }
 
@@ -442,7 +513,7 @@ CGrenade *CGrenade::ShootSatchelCharge( entvars_t *pevOwner, Vector vecStart, Ve
 
 	UTIL_SetSize( pGrenade->pev, Vector( 0, 0, 0 ), Vector( 0, 0, 0 ) );
 
-	pGrenade->pev->dmg = 200;
+	pGrenade->pev->dmg = C4_BLAST;
 	UTIL_SetOrigin( pGrenade->pev, vecStart );
 	pGrenade->pev->velocity = vecVelocity;
 	pGrenade->pev->angles = g_vecZero;

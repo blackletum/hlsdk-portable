@@ -401,6 +401,10 @@ void CHud::Init( void )
 	// In case we get messages before the first update -- time will be valid
 	m_flTime = 1.0;
 
+	//Haunter
+	m_Shroud.Init();
+	m_Bank.Init();
+	//Haunter
 	m_Ammo.Init();
 	m_Health.Init();
 	m_SayText.Init();

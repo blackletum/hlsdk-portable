@@ -148,7 +148,7 @@ int DamageDecal( CBaseEntity *pEntity, int bitsDamageType )
 	return pEntity->DamageDecal( bitsDamageType );
 }
 
-void DecalGunshot( TraceResult *pTrace, int iBulletType )
+void DecalGunshot( TraceResult *pTrace, int iBulletType/*Atomizer*/, bool ClientOnly, entvars_t* pShooter )/*Atom*/
 {
 	// Is the entity valid
 	if( !UTIL_IsValidEntity( pTrace->pHit ) )
@@ -163,19 +163,51 @@ void DecalGunshot( TraceResult *pTrace, int iBulletType )
 
 		switch( iBulletType )
 		{
-		case BULLET_PLAYER_9MM:
+		case BULLET_PLAYER_AK47:
+		case BULLET_PLAYER_AUG:
+		case BULLET_PLAYER_SG552:
+		case BULLET_PLAYER_P90:
+		case BULLET_PLAYER_AWP:
+		case BULLET_PLAYER_SCOUT:
+		case BULLET_PLAYER_G3SG1:
+		case BULLET_PLAYER_GLOCK:
+		case BULLET_PLAYER_MP5N:
+		case BULLET_PLAYER_USP:
+		case BULLET_PLAYER_XM1014:
+		case BULLET_PLAYER_SG550:
+		case BULLET_PLAYER_P228:
+		case BULLET_PLAYER_DE:
+		case BULLET_PLAYER_ULTIMATE:
+		
 		case BULLET_MONSTER_9MM:
-		case BULLET_PLAYER_MP5:
 		case BULLET_MONSTER_MP5:
+		//Haunter
+		case BULLET_MONSTER_M249:
+		case BULLET_MONSTER_USP:
+		case BULLET_MONSTER_SENTRY:
+		case BULLET_MONSTER_BUCKSHOT:
+		//Haunter
 		case BULLET_PLAYER_BUCKSHOT:
-		case BULLET_PLAYER_357:
-		default:
+			default:
 			// smoke and decal
-			UTIL_GunshotDecalTrace( pTrace, DamageDecal( pEntity, DMG_BULLET ) );
+			UTIL_GunshotDecalTrace( pTrace, DamageDecal( pEntity, DMG_BULLET )/*Atomizer*/, ClientOnly, pShooter/*Atom*/ );
 			break;
+		//Haunter
+		case BULLET_MONSTER_TURRET:
+			// smoke and decal
+			UTIL_GunshotDecalTrace( pTrace, DamageDecal( pEntity, DMG_BULLET )/*Atomizer*/, ClientOnly, pShooter/*Atom*/ );
+			break;
+		case BULLET_MONSTER_APACHE:
+			// smoke and decal
+			UTIL_GunshotDecalTrace( pTrace, DamageDecal( pEntity, DMG_BULLET )/*Atomizer*/, ClientOnly, pShooter/*Atom*/ );
+			break;
+		//Haunter
 		case BULLET_MONSTER_12MM:
 			// smoke and decal
-			UTIL_GunshotDecalTrace( pTrace, DamageDecal( pEntity, DMG_BULLET ) );
+			UTIL_GunshotDecalTrace( pTrace, DamageDecal( pEntity, DMG_BULLET )/*Atomizer*/, ClientOnly, pShooter/*Atom*/ );
+			break;
+		case BULLET_PLAYER_KNIFE:
+		//	UTIL_DecalTrace( pTrace, DamageDecal( pEntity, DMG_CLUB ) );
 			break;
 		case BULLET_PLAYER_CROWBAR:
 			// wall decal
@@ -307,6 +339,64 @@ void W_Precache( void )
 
 	// crowbar
 	UTIL_PrecacheOtherWeapon( "weapon_crowbar" );
+
+	//Haunter
+	//CS weapons
+	UTIL_PrecacheOtherWeapon( "weapon_knife" );
+	UTIL_PrecacheOtherWeapon( "weapon_hegrenade" );
+	UTIL_PrecacheOtherWeapon( "weapon_flashbang" );
+
+	UTIL_PrecacheOtherWeapon( "weapon_usp" );
+	UTIL_PrecacheOtherWeapon( "weapon_glock18" );
+	UTIL_PrecacheOtherWeapon( "weapon_deagle" );
+	UTIL_PrecacheOtherWeapon( "weapon_p228" );
+	UTIL_PrecacheOtherWeapon( "weapon_fiveseven" );
+	UTIL_PrecacheOtherWeapon( "weapon_elite" );
+
+	UTIL_PrecacheOtherWeapon( "weapon_m3" );
+	UTIL_PrecacheOtherWeapon( "weapon_xm1014" );
+	
+	UTIL_PrecacheOtherWeapon( "weapon_mp5navy" );
+	UTIL_PrecacheOtherWeapon( "weapon_tmp" );
+	UTIL_PrecacheOtherWeapon( "weapon_p90");
+	UTIL_PrecacheOtherWeapon( "weapon_mac10" );
+	UTIL_PrecacheOtherWeapon( "weapon_ump45" );
+
+	UTIL_PrecacheOtherWeapon( "weapon_ak47" );
+	UTIL_PrecacheOtherWeapon( "weapon_m4a1" );
+	UTIL_PrecacheOtherWeapon( "weapon_sg552" );
+	UTIL_PrecacheOtherWeapon( "weapon_aug");
+	UTIL_PrecacheOtherWeapon( "weapon_galil");
+	UTIL_PrecacheOtherWeapon( "weapon_famas");
+
+	UTIL_PrecacheOtherWeapon( "weapon_awp" );
+	UTIL_PrecacheOtherWeapon( "weapon_scout" );
+	UTIL_PrecacheOtherWeapon( "weapon_g3sg1" );
+	UTIL_PrecacheOtherWeapon( "weapon_sg550" );
+
+	UTIL_PrecacheOtherWeapon( "weapon_m249" );
+	UTIL_PrecacheOtherWeapon( "weapon_rpgrenade" );
+	UTIL_PrecacheOtherWeapon( "weapon_ultimate" );
+	
+#if !defined( OEM_BUILD ) && !defined( HLDEMO_BUILD )
+	// satchel charge
+	UTIL_PrecacheOtherWeapon( "weapon_c4" );
+#endif
+	
+	//Ammo
+	UTIL_PrecacheOther( "ammo_USPclip" );  // .45ACP for the USP.45, Mac10, UMP.45 and Dual USPs
+	UTIL_PrecacheOther( "ammo_DEclip" );   // .50AE for the Desert Eagle and Dual DEs
+	UTIL_PrecacheOther( "ammo_P90clip" );   // 5.7mm for the P90
+	UTIL_PrecacheOther( "ammo_XM4clip" );	// 12 Gauge for the XM1014
+	UTIL_PrecacheOther( "ammo_MP5clip" );  // 9mm for the Glock18, MP5 and TMP
+	UTIL_PrecacheOther( "ammo_AK47clip" ); // 7.62mm for the AK47, Scout and G3SG1
+	UTIL_PrecacheOther( "ammo_M4A1clip" ); /* 5.56mm for the Aug, M4A1, Galil, FAMAS, SG552 and
+											  SG550*/
+	UTIL_PrecacheOther( "ammo_AWPclip" );  // .338 Magnum for the Arctic Warfare Magnum
+	UTIL_PrecacheOther( "ammo_M249clip" ); // 5.56mm for the M249
+	UTIL_PrecacheOther( "ammo_M203Gren" ); //M203 Grenades for the M203
+	UTIL_PrecacheOther( "ammo_RPclip" ); // rocket for the RPG
+	//Haunter
 
 	// glock
 	UTIL_PrecacheOtherWeapon( "weapon_9mmhandgun" );
@@ -578,6 +668,224 @@ void CBasePlayerItem::DefaultTouch( CBaseEntity *pOther )
 
 	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
 
+	//Atomizer
+	switch ( m_iId )
+	{
+		case WEAPON_AK47:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_AUG:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_AWP:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return;
+			}
+			break;
+		case WEAPON_DEAGLE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_ELITE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_FAMAS:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_FIVESEVEN:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_G3SG1:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return;
+			}
+			break;
+		case WEAPON_GALIL:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_GLOCK18:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_M249:
+			if ( pPlayer->HasNamedPlayerItem("weapon_m249"))
+			{
+				return;
+			}
+			break;
+		case WEAPON_ULTIMATE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ultimate"))
+			{
+				return;
+			}
+			break;
+		case WEAPON_M3:
+			if ( pPlayer->HasNamedPlayerItem("weapon_m3") || pPlayer->HasNamedPlayerItem("weapon_xm1014") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_M4A1:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_MAC10:
+			if ( pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_MP5N:
+			if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45")  )
+			{
+				return;
+			}
+			break;
+		case WEAPON_SG550:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return;
+			}
+			break;
+		case WEAPON_SG552:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_TMP:
+			if ( pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_UMP45:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ump45") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_USP:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_XM1014:
+			if ( pPlayer->HasNamedPlayerItem("weapon_xm1014") || pPlayer->HasNamedPlayerItem("weapon_m3"))
+			{
+				return;
+			}
+			break;
+		case WEAPON_P90:
+			if ( pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_KNIFE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_knife") )
+			{
+				return;
+			}
+			pPlayer->m_iNumHEGrenades = 0;
+			pPlayer->m_iHE = 0;
+			pPlayer->m_iNumFlashbangs = 0;
+			pPlayer->m_iFB = 0;
+			pPlayer->m_iNumC4 = 0;
+			pPlayer->m_iC4 = 0;
+			pPlayer->m_i762  = 0;
+			pPlayer->m_i556  = 0;
+			pPlayer->m_i50   = 0;
+			pPlayer->m_i45   = 0;
+			pPlayer->m_i5562 = 0;
+			pPlayer->m_i338  = 0;
+			pPlayer->m_i57   = 0;
+			pPlayer->m_i357  = 0;
+			pPlayer->m_i9mm  = 0;
+			pPlayer->m_i12G  = 0;
+			pPlayer->m_iM203 = 0;
+			pPlayer->m_iJud  = 0;
+			pPlayer->m_iJus	 = 0;
+			pPlayer->m_iRPG  = 0;
+
+			break;
+		case WEAPON_P228:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return;
+			}
+			break;
+		case WEAPON_SCOUT:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return;
+			}
+			break;
+		case WEAPON_RPGRENADE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_rpgrenade") )
+			{
+				break;
+			}
+		case WEAPON_FLASHBANG:
+			break;
+		case WEAPON_HEGRENADE:
+			break;
+	}
+//Atom
+
 	// can I have this?
 	if( !g_pGameRules->CanHavePlayerItem( pPlayer, this ) )
 	{
@@ -763,6 +1071,204 @@ int CBasePlayerWeapon::AddDuplicate( CBasePlayerItem *pOriginal )
 
 int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 {
+	//Atomizer
+	switch ( m_iId )
+	{
+		case WEAPON_AK47:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_AUG:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_AWP:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_DEAGLE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_ELITE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				 || pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_FAMAS:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_FIVESEVEN:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_G3SG1:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_GALIL:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_GLOCK18:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_M249:
+			if ( pPlayer->HasNamedPlayerItem("weapon_m249"))
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_ULTIMATE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ultimate"))
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_M3:
+			if ( pPlayer->HasNamedPlayerItem("weapon_xm1014") || pPlayer->HasNamedPlayerItem("weapon_m3") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_XM1014:
+			if ( pPlayer->HasNamedPlayerItem("weapon_xm1014") || pPlayer->HasNamedPlayerItem("weapon_m3") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_M4A1:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_MAC10:
+			if ( pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_MP5N:
+			if ( pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_SG550:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_SG552:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||
+				/*pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_TMP:
+			if ( pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_UMP45:
+			if ( pPlayer->HasNamedPlayerItem("weapon_ump45") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mac10") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_USP:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_P90:
+			if ( pPlayer->HasNamedPlayerItem("weapon_p90") || pPlayer->HasNamedPlayerItem("weapon_mp5navy") || pPlayer->HasNamedPlayerItem("weapon_tmp") || pPlayer->HasNamedPlayerItem("weapon_mac10") || pPlayer->HasNamedPlayerItem("weapon_ump45") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_KNIFE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_knife") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_P228:
+			if ( pPlayer->HasNamedPlayerItem("weapon_deagle") || pPlayer->HasNamedPlayerItem("weapon_usp") || pPlayer->HasNamedPlayerItem("weapon_glock18") || pPlayer->HasNamedPlayerItem("weapon_p228") 
+				|| pPlayer->HasNamedPlayerItem("weapon_fiveseven") || pPlayer->HasNamedPlayerItem("weapon_elite") )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_SCOUT:
+			if ( /*pPlayer->HasNamedPlayerItem("weapon_ak47") || pPlayer->HasNamedPlayerItem("weapon_m4a1") || pPlayer->HasNamedPlayerItem("weapon_aug") || pPlayer->HasNamedPlayerItem("weapon_sg552") ||*/
+				pPlayer->HasNamedPlayerItem("weapon_awp") || pPlayer->HasNamedPlayerItem("weapon_scout") || pPlayer->HasNamedPlayerItem("weapon_g3sg1") || pPlayer->HasNamedPlayerItem("weapon_sg550") /*||
+				pPlayer->HasNamedPlayerItem("weapon_famas") || pPlayer->HasNamedPlayerItem("weapon_galil")*/ )
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_RPGRENADE:
+			if ( pPlayer->HasNamedPlayerItem("weapon_rpgrenade"))
+			{
+				return FALSE;
+			}
+			break;
+		case WEAPON_FLASHBANG:
+			break;
+		case WEAPON_HEGRENADE:
+			break;
+	}
+	//Atom
+
 	int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
 
 	pPlayer->pev->weapons |= ( 1 << m_iId );
@@ -969,7 +1475,8 @@ BOOL CBasePlayerWeapon::CanDeploy( void )
 	if( !bHasAmmo )
 	{
 		return FALSE;
-	}
+	}*/
+	//Atom
 
 	return TRUE;
 }
@@ -1028,6 +1535,23 @@ void CBasePlayerWeapon::ResetEmptySound( void )
 {
 	m_iPlayEmptySound = 1;
 }
+//Haunter
+BOOL CBasePlayerWeapon :: PlayEmptySound2( void )
+{
+	if (m_iPlayEmptySound2)
+	{
+		EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/dryfire_pistol.wav", 0.8, ATTN_NORM);
+		m_iPlayEmptySound2 = 1;// default: 0
+		return 0;
+	}
+	return 0;
+}
+
+void CBasePlayerWeapon :: ResetEmptySound2( void )
+{
+	m_iPlayEmptySound2 = 1;
+}
+//Haunter
 
 //=========================================================
 //=========================================================
@@ -1046,8 +1570,17 @@ int CBasePlayerWeapon::SecondaryAmmoIndex( void )
 void CBasePlayerWeapon::Holster( int skiplocal /* = 0 */ )
 { 
 	m_fInReload = FALSE; // cancel any reload in progress.
+	//Haunter XYZ
+	//m_pPlayer->m_iSilencing = 0;
+	//m_pPlayer->m_bIsSilencing = FALSE;
+	//Haunter
 	m_pPlayer->pev->viewmodel = 0; 
 	m_pPlayer->pev->weaponmodel = 0;
+
+	//Atomizer
+	if (m_pPlayer->pev->fov != 0)
+		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = 0;
+	//Atom
 }
 
 void CBasePlayerAmmo::Spawn( void )
@@ -1404,7 +1937,8 @@ void CWeaponBox::Touch( CBaseEntity *pOther )
 				}
 			}
 		}
-	}
+	}*/
+	//Atom
 
 	EMIT_SOUND( pOther->edict(), CHAN_ITEM, "items/gunpickup2.wav", 1, ATTN_NORM );
 	SetTouch( NULL );

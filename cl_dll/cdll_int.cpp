@@ -342,6 +342,9 @@ Called at start and end of demos to restore to "non"HUD state.
 void DLLEXPORT HUD_Reset( void )
 {
 	gHUD.VidInit();
+	//Haunter
+//	pTriScope->Reset();
+	//Haunter
 }
 
 /*

@@ -35,7 +35,11 @@
 
 #include "r_studioint.h"
 #include "com_model.h"
+//Haunter
+//#include "tri_scope.h"
 
+//extern CTriScope *pTriScope;
+//Haunter
 extern engine_studio_api_t IEngineStudio;
 
 static int g_tracerCount[32];
@@ -238,6 +242,19 @@ float EV_HLDM_PlayTextureSound( int idx, pmtrace_t *ptr, float *vecSrc, float *v
 	return fvolbar;
 }
 
+//Haunter
+void EV_HLDM_MuzzleFlash(vec3_t pos, float amount)
+{
+      dlight_t *dl = gEngfuncs.pEfxAPI->CL_AllocDlight(0);
+      dl->origin = pos;
+      dl->color.r = 255; // red
+      dl->color.g = 255; // green
+      dl->color.b = 128; // blue
+      dl->radius = amount * 100;
+      dl->die = gEngfuncs.GetClientTime() + 0.01;
+}
+// Haunter
+
 char *EV_HLDM_DamageDecal( physent_t *pe )
 {
 	static char decalname[32];
@@ -314,12 +331,32 @@ void EV_HLDM_DecalGunshot( pmtrace_t *pTrace, int iBulletType )
 	{
 		switch( iBulletType )
 		{
-		case BULLET_PLAYER_9MM:
-		case BULLET_MONSTER_9MM:
-		case BULLET_PLAYER_MP5:
-		case BULLET_MONSTER_MP5:
-		case BULLET_PLAYER_BUCKSHOT:
-		case BULLET_PLAYER_357:
+			case BULLET_PLAYER_AK47:
+			case BULLET_PLAYER_AUG:
+			case BULLET_PLAYER_SG552:
+			case BULLET_PLAYER_P90:
+			case BULLET_PLAYER_AWP:
+			case BULLET_PLAYER_SCOUT:
+			case BULLET_PLAYER_G3SG1:
+			case BULLET_PLAYER_GLOCK:
+			case BULLET_PLAYER_MP5N:
+			case BULLET_PLAYER_USP:
+			case BULLET_PLAYER_SG550:
+			case BULLET_PLAYER_P228:
+			case BULLET_PLAYER_DE:
+			case BULLET_PLAYER_XM1014:
+			case BULLET_PLAYER_ULTIMATE:
+
+			case BULLET_MONSTER_9MM:
+			case BULLET_MONSTER_MP5:
+			//Haunter
+			case BULLET_MONSTER_BUCKSHOT:
+			case BULLET_MONSTER_TURRET:
+			case BULLET_MONSTER_APACHE:
+			case BULLET_MONSTER_USP:
+			case BULLET_MONSTER_M249:
+			case BULLET_MONSTER_SENTRY:
+			//Haunter
 		default:
 			// smoke and decal
 			EV_HLDM_GunshotDecalTrace( pTrace, EV_HLDM_DamageDecal( pe ) );
@@ -327,6 +364,35 @@ void EV_HLDM_DecalGunshot( pmtrace_t *pTrace, int iBulletType )
 		}
 	}
 }
+
+/*void EV_HLDM_DecalGunshotPlayer( pmtrace_t *pTrace, int iBulletType )
+{
+	physent_t *pe;
+
+	pe = gEngfuncs.pEventAPI->EV_GetPhysent( pTrace->ent );
+
+	if ( pe && pe->solid == SOLID_BSP )
+	{
+		switch( iBulletType )
+		{
+			case BULLET_PLAYER_AK47:
+			case BULLET_PLAYER_AUG:
+			case BULLET_PLAYER_AWP:
+			case BULLET_PLAYER_SCOUT:
+			case BULLET_PLAYER_GLOCK:
+			case BULLET_PLAYER_USP:
+			case BULLET_PLAYER_SG550:
+			case BULLET_PLAYER_COLT:
+			case BULLET_PLAYER_P228:
+			case BULLET_PLAYER_DE:
+			case BULLET_PLAYER_XM1014:
+		default:
+			// smoke and decal
+			EV_HLDM_GunshotDecalTrace( pTrace, EV_HLDM_DamageDecal( pe ) );
+			break;
+		}
+	}
+}*/
 
 int EV_HLDM_CheckTracer( int idx, float *vecSrc, float *end, float *forward, float *right, int iBulletType, int iTracerFreq, int *tracerCount )
 {
@@ -1331,7 +1397,7 @@ void EV_FireRpg( event_args_t *args )
 }
 //======================
 //	     RPG END 
-//======================
+//======================*/
 
 //======================
 //	    EGON START 

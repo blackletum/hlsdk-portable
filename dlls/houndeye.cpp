@@ -657,6 +657,21 @@ void CHoundeye::SonicAttack( void )
 			}
 		}
 	}
+
+	//Haunter - Light up the world!
+    MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+		WRITE_BYTE( TE_DLIGHT );
+		WRITE_COORD( pev->origin.x ); // origin
+        WRITE_COORD( pev->origin.y );
+        WRITE_COORD( pev->origin.z );
+        WRITE_BYTE( 8 ); // radius
+
+        WriteBeamColor(); // R G B of Houndeye attack
+
+        WRITE_BYTE( 2 ); // life * 10
+        WRITE_BYTE( 0 ); // decay
+    MESSAGE_END();
+    //Haunter - Light up the world!
 }
 
 //=========================================================

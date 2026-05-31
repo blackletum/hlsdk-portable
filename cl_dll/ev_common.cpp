@@ -137,10 +137,11 @@ Bullet shell casings
 */
 void EV_EjectBrass( float *origin, float *velocity, float rotation, int model, int soundtype )
 {
+	//Haunter
 	vec3_t endpos;
 	VectorClear( endpos );
 	endpos[1] = rotation;
-	gEngfuncs.pEfxAPI->R_TempModel( origin, velocity, endpos, 2.5, model, soundtype );
+	gEngfuncs.pEfxAPI->R_TempModel( origin, velocity, endpos, 60/*2.5*/, model, soundtype );
 }
 
 /*
@@ -154,7 +155,7 @@ void EV_GetDefaultShellInfo( event_args_t *args, float *origin, float *velocity,
 {
 	int i;
 	vec3_t view_ofs;
-	float fR, fU;
+	float fR, fU, fF;
 
 	int idx;
 

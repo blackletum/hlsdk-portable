@@ -29,6 +29,10 @@
 #include "items.h"
 #include "gamerules.h"
 
+//Haunter
+#include "maxcarry.h"
+//Haunter
+
 extern int gmsgItemPickup;
 
 class CWorldItem : public CBaseEntity

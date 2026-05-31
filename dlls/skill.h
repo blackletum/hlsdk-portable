@@ -113,6 +113,14 @@ struct skilldata_t
 	// weapons shared by monsters
 	float monDmg9MM;
 	float monDmgMP5;
+	//Haunter
+	float monDmgM249;
+	float monDmgUSP;
+	float monDmgBS;
+	float monDmgSentry;
+	float monDmgTurret;
+	float monDmgApache;
+	//Haunter
 	float monDmg12MM;
 	float monDmgHornet;
 

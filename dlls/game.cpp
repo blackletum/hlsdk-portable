@@ -380,9 +380,35 @@ cvar_t	sk_12mm_bullet1 = {"sk_12mm_bullet1","0"};
 cvar_t	sk_12mm_bullet2 = {"sk_12mm_bullet2","0"};
 cvar_t	sk_12mm_bullet3 = {"sk_12mm_bullet3","0"};
 
-cvar_t	sk_9mmAR_bullet1 = {"sk_9mmAR_bullet1","0"};
-cvar_t	sk_9mmAR_bullet2 = {"sk_9mmAR_bullet2","0"};
-cvar_t	sk_9mmAR_bullet3 = {"sk_9mmAR_bullet3","0"};
+cvar_t	sk_HgruntAR_bullet1 = {"sk_HgruntAR_bullet1","0"};
+cvar_t	sk_HgruntAR_bullet2 = {"sk_HgruntAR_bullet2","0"};
+cvar_t	sk_HgruntAR_bullet3 = {"sk_HgruntAR_bullet3","0"};
+
+//Haunter
+cvar_t	sk_HgruntMG_bullet1 = {"sk_HgruntMG_bullet1","0"};
+cvar_t	sk_HgruntMG_bullet2 = {"sk_HgruntMG_bullet2","0"};
+cvar_t	sk_HgruntMG_bullet3 = {"sk_HgruntMG_bullet3","0"};
+
+cvar_t	sk_Hassassin_bullet1 = {"sk_Hassassin_bullet1","0"};
+cvar_t	sk_Hassassin_bullet2 = {"sk_Hassassin_bullet2","0"};
+cvar_t	sk_Hassassin_bullet3 = {"sk_Hassassin_bullet3","0"};
+
+cvar_t	sk_Barney_bullet1 = {"sk_Barney_bullet1","0"};
+cvar_t	sk_Barney_bullet2 = {"sk_Barney_bullet2","0"};
+cvar_t	sk_Barney_bullet3 = {"sk_Barney_bullet3","0"};
+
+cvar_t	sk_SentryMG_bullet1 = {"sk_SentryMG_bullet1","0"};
+cvar_t	sk_SentryMG_bullet2 = {"sk_SentryMG_bullet2","0"};
+cvar_t	sk_SentryMG_bullet3 = {"sk_SentryMG_bullet3","0"};
+
+cvar_t	sk_TurretMG_bullet1 = {"sk_TurretMG_bullet1","0"};
+cvar_t	sk_TurretMG_bullet2 = {"sk_TurretMG_bullet2","0"};
+cvar_t	sk_TurretMG_bullet3 = {"sk_TurretMG_bullet3","0"};
+
+cvar_t	sk_ApacheMG_bullet1 = {"sk_ApacheMG_bullet1","0"};
+cvar_t	sk_ApacheMG_bullet2 = {"sk_ApacheMG_bullet2","0"};
+cvar_t	sk_ApacheMG_bullet3 = {"sk_ApacheMG_bullet3","0"};
+//Haunter
 
 cvar_t	sk_9mm_bullet1 = {"sk_9mm_bullet1","0"};
 cvar_t	sk_9mm_bullet2 = {"sk_9mm_bullet2","0"};

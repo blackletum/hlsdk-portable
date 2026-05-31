@@ -25,6 +25,9 @@
 #define RGB_YELLOWISH 0x00FFA000 //255,160,0
 #define RGB_REDISH 0x00FF1010 //255,160,0
 #define RGB_GREENISH 0x0000A000 //0,160,0
+//Haunter
+#define RGB_WHITE  0x00FFFFFF //255,255,255
+//Haunter
 
 #include "wrect.h"
 #include "cl_dll.h"
@@ -187,6 +190,58 @@ private:
 	int m_iGeigerRange;
 };
 
+//Haunter
+class CHudShroud: public CHudBase
+{
+public:
+	int Init( void );
+	int VidInit( void );
+	int Draw(float flTime);
+	int MsgFunc_Shroud(const char *pszName, int iSize, void *pbuf);
+
+private:
+	HSPRITE Bottom;
+	HSPRITE Bot_Left;
+	HSPRITE Top;
+	HSPRITE Top_Right;
+	HSPRITE Top_Left;
+	HSPRITE Left;
+	HSPRITE Right;
+	HSPRITE Bottom2;
+	HSPRITE Bot_Right2;
+	HSPRITE Bot_Left2;
+	HSPRITE Top2;
+	HSPRITE Top_Right2;
+	HSPRITE Top_Left2;
+	HSPRITE Left2;
+	HSPRITE Right2;
+	HSPRITE Bottom3;
+	HSPRITE Bot_Right3;
+	HSPRITE Bot_Left3;
+	HSPRITE Top3;
+	HSPRITE Top_Right3;
+	HSPRITE Top_Left3;
+	HSPRITE Left3;
+	HSPRITE Right3;
+	HSPRITE Hor;
+	HSPRITE Verc;
+	HSPRITE Bot_Right;
+	int m_iLos;
+};
+
+//Haunter
+class CHudBank: public CHudBase
+{
+public:
+	int Init( void );
+	int VidInit( void );
+	int Draw(float flTime);
+	int MsgFunc_Bank(const char *pszName, int iSize, void *pbuf);
+
+private:
+	int m_iBank;
+};
+//Haunter
 //
 //-----------------------------------------------------
 //
@@ -599,9 +654,13 @@ public:
 	
 	int GetSpriteIndex( const char *SpriteName );	// gets a sprite index, for use in the m_rghSprites[] array
 
+	//Haunter
+	CHudShroud		m_Shroud;
+	CHudBank		m_Bank;
+	//Haunter
 	CHudAmmo		m_Ammo;
 	CHudHealth		m_Health;
-	CHudSpectator		m_Spectator;
+	CHudSpectator	m_Spectator;
 	CHudGeiger		m_Geiger;
 	CHudBattery		m_Battery;
 	CHudTrain		m_Train;

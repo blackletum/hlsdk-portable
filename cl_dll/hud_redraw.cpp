@@ -176,6 +176,11 @@ int CHud::Redraw( float flTime, int intermission )
 			pList = pList->pNext;
 		}
 	}
+	//Haunter
+	//omega;draw orthogonal triangles
+//    HUD_DrawOrthoTriangles();
+	//Haunter
+
 
 	// are we in demo mode? do we need to draw the logo in the top corner?
 	if( m_iLogo )

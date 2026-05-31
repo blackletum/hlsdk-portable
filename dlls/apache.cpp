@@ -211,6 +211,9 @@ void CApache::Killed( entvars_t *pevAttacker, int iGib )
 	{
 		m_flNextRocket = gpGlobals->time + 15.0f;
 	}
+	//Haunter
+//	CBaseMonster::Killed( pevAttacker, iGib );
+	//Haunter
 }
 
 void CApache::DyingThink( void )
