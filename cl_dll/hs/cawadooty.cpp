@@ -131,8 +131,8 @@ int CHudCOD:: MsgFunc_COD(const char *pszName,  int iSize, void *pbuf )
 
 int CHudCOD::RankExists(int rank)
 {
-	char cod[6];
-	sprintf( cod, "cod%d", rank );
+	char cod[32];
+	snprintf( cod, sizeof(cod), "cod%d", rank );
 
 	if (gHUD.GetSpriteIndex( cod ) > -1)
 		return 1;
