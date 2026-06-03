@@ -458,8 +458,6 @@ void CHalfLifeMultiplay::InitHUD( CBasePlayer *pl )
 		WRITE_SHORT( pl->m_iDeaths );
 		WRITE_SHORT( 0 );
 		WRITE_SHORT( 0 );
-		WRITE_SHORT( 0 );
-		WRITE_SHORT( 0 );
 		WRITE_SHORT( pl->m_fHSDev );
 	MESSAGE_END();
 
