@@ -229,7 +229,7 @@ void BotCreate(const char *skin, const char *name, const char *skill)
       }
 
       // copy the name of the model to the bot's name...
-      strlcpy( c_name, skin, BOT_SKIN_LEN + 1 );
+      strlcpy( c_name, skin, BOT_NAME_LEN + 1 );
    }
 
 	if ((name != NULL) && (*name != 0))
