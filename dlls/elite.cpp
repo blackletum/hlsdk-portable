@@ -110,24 +110,21 @@ return DefaultDeploy( "models/v_elite.mdl", "models/p_elite.mdl", ELITE_DRAW, "d
 void CElite::PrimaryAttack( void )
 {
 	if (m_pPlayer->pev->velocity.Length2D() > 0)
-		ELITEFire( (0.1) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		ELITEFire( (0.1) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( !FBitSet( m_pPlayer->pev->flags, FL_ONGROUND ) )
-		ELITEFire( (0.4) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		ELITEFire( (0.4) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( FBitSet( m_pPlayer->pev->flags, FL_DUCKING ) )
-		ELITEFire( (0.075) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		ELITEFire( (0.075) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		ELITEFire( (0.1) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		ELITEFire( (0.1) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) )
-		ELITEFire( (0.1) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		ELITEFire( (0.1) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		ELITEFire( (0.4) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		ELITEFire( (0.4) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		ELITEFire( (0.4) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
-
+		ELITEFire( (0.4) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else
-		ELITEFire( (0.085) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		ELITEFire( (0.085) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 }
 
 void CElite::ELITEFire( float flSpread , float flCycleTime, BOOL fUseSemi )

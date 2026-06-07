@@ -697,7 +697,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 				
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s downed an Apache \n",
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 					
 				PK->AddPoints(1, false);
@@ -710,7 +710,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s blasted an Alien Grunt \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -723,7 +723,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s spilled a Barnacle \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -736,7 +736,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s killed one Big Momma \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -749,7 +749,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s slaughtered a Bullchicken \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -762,7 +762,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s dropped an Alien Controller \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -775,7 +775,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s blown up a Gargantua \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -788,7 +788,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s silenced a Human Assassin \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -801,7 +801,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s squashed a Headcrab \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -814,7 +814,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s killed a Human Grunt \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -827,7 +827,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s shot a Houndeye \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -840,7 +840,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s drowned an Ichthyosaur \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -853,7 +853,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s whipped an Alien Slave \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -866,7 +866,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s squished a Leech \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -879,7 +879,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s defeated Nihilanth! \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -892,7 +892,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s exploded a Snark \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);
@@ -905,7 +905,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 					pPlayer->m_iMoney = MP_MAXMONEY;
 
 				UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "%s put to rest a Zombie \n", 
-					( pevAttacker->netname && STRING(pevAttacker->netname)[0] != 0 ) ? 
+					( pevAttacker->netname && ( STRING( pevAttacker->netname ))[0] != 0 ) ? 
 					STRING(pevAttacker->netname) : "unconnected" ), STRING(pev->classname));
 
 				PK->AddPoints(1, false);

@@ -95,24 +95,21 @@ BOOL CP228::Deploy( )
 void CP228::PrimaryAttack( void )
 {
 	if (m_pPlayer->pev->velocity.Length2D() > 170)
-		P228Fire( (0.2) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
+		P228Fire( (0.2) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( !FBitSet( m_pPlayer->pev->flags, FL_ONGROUND ) )
-		P228Fire( (0.5) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
+		P228Fire( (0.5) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( FBitSet( m_pPlayer->pev->flags, FL_DUCKING ) )
-		P228Fire( (0.075) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		P228Fire( (0.075) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		P228Fire( (0.2) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
+		P228Fire( (0.2) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) )
-		P228Fire( (0.2) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		P228Fire( (0.2) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		P228Fire( (0.5) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
+		P228Fire( (0.5) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		P228Fire( (0.5) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		P228Fire( (0.5) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 	else
-		P228Fire( (0.1) * (1 - m_pPlayer->m_flAccuracy), NULL, TRUE );
+		P228Fire( (0.1) * (1 - m_pPlayer->m_flAccuracy), 0, TRUE );
 }
 
 void CP228::P228Fire( float flSpread , float flCycleTime, BOOL fUseSemi )

@@ -287,7 +287,7 @@ int CKnife::Slash( int fFirst )
 
 		if (fHitWorld)
 		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd-vecSrc)*2, NULL);
+			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd-vecSrc)*2, 0);
 
 			if ( g_pGameRules->IsMultiplayer() )
 			{
@@ -449,7 +449,7 @@ int CKnife::Stab( int fFirst )
 
 		if (fHitWorld)
 		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd-vecSrc)*2, NULL);
+			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd-vecSrc)*2, 0);
 
 			if ( g_pGameRules->IsMultiplayer() )
 			{

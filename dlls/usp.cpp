@@ -192,24 +192,21 @@ void CUSP::Holster( void )
 void CUSP::PrimaryAttack( void )
 {
 	if (m_pPlayer->pev->velocity.Length2D() > 0)
-		USPFire( (0.13) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+		USPFire( (0.13) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( !FBitSet( m_pPlayer->pev->flags, FL_ONGROUND ) )
-		USPFire( (0.4) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+		USPFire( (0.4) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( FBitSet( m_pPlayer->pev->flags, FL_DUCKING ) )
-		USPFire( (0.055) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		USPFire( (0.055) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		USPFire( (0.13) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+		USPFire( (0.13) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) )
-		USPFire( (0.13) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		USPFire( (0.13) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		USPFire( (0.4) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+		USPFire( (0.4) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		USPFire( (0.4) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+		USPFire( (0.4) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	else
-		USPFire( (0.075) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+		USPFire( (0.075) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 }
 
 void CUSP::USPFire( float flSpread , float flCycleTime, BOOL fUseSemi )
@@ -272,10 +269,10 @@ void CUSP::USPFire( float flSpread , float flCycleTime, BOOL fUseSemi )
 	Vector vecAiming = gpGlobals->v_forward;
 	Vector vecDir;
 
-	#ifdef CLIENT_DLL
+#ifdef CLIENT_DLL
     if ( m_iSilenced == 0 )
 #else
-    if ( m_iSilenced == NULL )
+    if ( m_iSilenced == 0 )
 #endif
 	{
 		m_iSilenced = 0; //No silencer
@@ -288,7 +285,7 @@ void CUSP::USPFire( float flSpread , float flCycleTime, BOOL fUseSemi )
 
 	}
 	
-	if ( m_iSilenced != NULL )//Silencer added
+	if ( m_iSilenced != 0 )//Silencer added
     {
 		m_iSilenced = 1;
 		

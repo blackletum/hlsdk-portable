@@ -148,24 +148,21 @@ void CGlock18::PrimaryAttack( void )
 	if (m_iBurstFire == 0)
 	{
 		if (m_pPlayer->pev->velocity.Length2D() > 10)
-			GLOCK18Fire( (0.1) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+			GLOCK18Fire( (0.1) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else if ( !FBitSet( m_pPlayer->pev->flags, FL_ONGROUND ) )
-			GLOCK18Fire( (0.5) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+			GLOCK18Fire( (0.5) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else if ( FBitSet( m_pPlayer->pev->flags, FL_DUCKING ) )
-			GLOCK18Fire( (0.075) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
-		
+			GLOCK18Fire( (0.075) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else if ( (m_pPlayer->pev->velocity.Length2D() > 10) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-			GLOCK18Fire( (0.2) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+			GLOCK18Fire( (0.2) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else if ( (m_pPlayer->pev->velocity.Length2D() > 10) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) )
-			GLOCK18Fire( (0.2) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
-		
+			GLOCK18Fire( (0.2) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else if ( (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-			GLOCK18Fire( (0.5) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+			GLOCK18Fire( (0.5) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else if ( (m_pPlayer->pev->velocity.Length2D() > 10) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-			GLOCK18Fire( (0.5) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
-	
+			GLOCK18Fire( (0.5) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 		else
-		    GLOCK18Fire( (0.05) * ( m_pPlayer->m_flAccuracy), NULL, TRUE );
+		    GLOCK18Fire( (0.05) * ( m_pPlayer->m_flAccuracy), 0, TRUE );
 	}
 }
 
@@ -237,7 +234,7 @@ void CGlock18::GLOCK18Fire( float flSpread , float flCycleTime, BOOL fUseSemi )
 	#ifdef CLIENT_DLL
     if ( m_iBurstFire != 0 )
 #else
-    if ( m_iBurstFire != NULL )
+    if ( m_iBurstFire != 0 )
 #endif
 	{
 		m_iBurstFire = 1;

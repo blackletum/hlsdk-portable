@@ -97,24 +97,23 @@ return DefaultDeploy( "models/v_deagle.mdl", "models/p_deagle.mdl", DEAGLE_DRAW,
 void CDeagle::PrimaryAttack( void )
 {
 	if (m_pPlayer->pev->velocity.Length2D() > 0)
-		DEAGLEFire( (0.13) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.13) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( !FBitSet( m_pPlayer->pev->flags, FL_ONGROUND ) )
-		DEAGLEFire( (0.4) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.4) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( FBitSet( m_pPlayer->pev->flags, FL_DUCKING ) )
-		DEAGLEFire( (0.055) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.055) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		DEAGLEFire( (0.13) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.13) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) )
-		DEAGLEFire( (0.13) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.13) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	
 	else if ( (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		DEAGLEFire( (0.4) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.4) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else if ( (m_pPlayer->pev->velocity.Length2D() > 0) && (!FBitSet( m_pPlayer->pev->flags, FL_ONGROUND )) && (FBitSet( m_pPlayer->pev->flags, FL_DUCKING )) )
-		DEAGLEFire( (0.4) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
-
+		DEAGLEFire( (0.4) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 	else
-		DEAGLEFire( (0.075) * (m_pPlayer->m_flAccuracy), NULL, TRUE );
+		DEAGLEFire( (0.075) * (m_pPlayer->m_flAccuracy), 0, TRUE );
 }
 
 void CDeagle::DEAGLEFire( float flSpread , float flCycleTime, BOOL fUseSemi )

@@ -190,7 +190,7 @@ void CFiveseveN::FIVESEVENFire( float flSpread , BOOL fUseSemi )
 	
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
 
-	KickBack (1.55, NULL, 1.25, NULL, 0.85, NULL, 1);
+	KickBack (1.55, 0, 1.25, 0, 0.85, 0, 1);
 }
 
 
