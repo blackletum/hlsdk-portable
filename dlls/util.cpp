@@ -2937,7 +2937,7 @@ void UTIL_SetModel( edict_t *e, const char *model )
 int UTIL_PrecacheModel( char* s )
 {
     if (FStringNull(MAKE_STRING(s))) //model not specified ???
-        return NULL;
+        return 0;
     
     int length;
     int model;

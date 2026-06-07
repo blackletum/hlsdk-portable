@@ -420,7 +420,7 @@ void CTalkMonster::StartTask( Task_t *pTask )
 	case TASK_TLK_HEADRESET:
 		// reset head position after looking at something
 		if (!IsTalking())
-			m_hTalkTarget = NULL;
+			m_hTalkTarget = 0;
 		TaskComplete();
 		break;
 	case TASK_TLK_STOPSHOOTING:
@@ -462,7 +462,7 @@ void CTalkMonster::StartTask( Task_t *pTask )
 		}
 		break;
 	case TASK_PLAY_SCRIPT:
-		m_hTalkTarget = NULL;
+		m_hTalkTarget = 0;
 		CBaseMonster::StartTask( pTask );
 		break;
 	default:
@@ -648,7 +648,7 @@ CBaseEntity *CTalkMonster::EnumFriends( CBaseEntity *pPrevious, int listNumber, 
 		}
 	}
 
-	return NULL;
+	return 0;
 }
 
 void CTalkMonster::AlertFriends( void )
@@ -912,7 +912,7 @@ void CTalkMonster::Touch( CBaseEntity *pOther )
 		float speed = fabs( pOther->pev->velocity.x ) + fabs( pOther->pev->velocity.y );
 		if( speed > 50.0f )
 		{
-			if (m_pSchedule != NULL && (m_pSchedule->iInterruptMask & bits_COND_CLIENT_PUSH))
+			if (m_pSchedule != 0 && (m_pSchedule->iInterruptMask & bits_COND_CLIENT_PUSH))
 			{
 				SetConditions( bits_COND_CLIENT_PUSH );
 				if ( m_MonsterState != MONSTERSTATE_SCRIPT )
@@ -963,7 +963,7 @@ int CTalkMonster :: FOkToSpeak( int speakFlags )
 		return FALSE;
 
 	// don't talk if you're in combat
-	if (!FBitSet(speakFlags, SPEAK_DISREGARD_ENEMY) && m_hEnemy != NULL && FVisible( m_hEnemy ))
+	if (!FBitSet(speakFlags, SPEAK_DISREGARD_ENEMY) && m_hEnemy != 0 && FVisible( m_hEnemy ))
 		return FALSE;
 
 	return TRUE;
@@ -1079,7 +1079,7 @@ int CTalkMonster::FIdleSpeak( void )
 	// player using this entity is alive and wounded?
 	CBaseEntity *pTarget = m_hTargetEnt;
 
-	if( pTarget != NULL )
+	if( pTarget != 0 )
 	{
 		if( pTarget->IsPlayer() )
 		{
@@ -1439,7 +1439,7 @@ void CTalkMonster::FollowerUse( CBaseEntity *pActivator, CBaseEntity *pCaller, U
 	//ALERT(at_console,"Talkmonster was Used: ");
 
 	// CanFollow is now true if the monster could physically follow anyone
-	if ( pCaller != NULL && pCaller->IsPlayer() && CanFollow() )
+	if ( pCaller != 0 && pCaller->IsPlayer() && CanFollow() )
 		{
 		if ( !IsFollowing() )
 	{

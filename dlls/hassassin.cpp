@@ -829,7 +829,7 @@ void CHAssassin::RunAI( void )
 	CBaseMonster::RunAI();
 
 	// always visible if moving
-	if ( m_hEnemy == NULL || pev->deadflag != DEAD_NO || m_Activity == ACT_RUN || m_Activity == ACT_WALK || !(pev->flags & FL_ONGROUND))
+	if ( m_hEnemy == 0 || pev->deadflag != DEAD_NO || m_Activity == ACT_RUN || m_Activity == ACT_WALK || !(pev->flags & FL_ONGROUND))
 		m_iTargetRanderamt = 255;
 	else
 		m_iTargetRanderamt = InvisOpacity();
@@ -944,7 +944,7 @@ Schedule_t *CHAssassin::GetSchedule( void )
 				CSound *pSound;
 				pSound = PBestSound();
 
-				ASSERT( pSound != NULL );
+				ASSERT( pSound != 0 );
 				if( pSound &&( pSound->m_iType & bits_SOUND_DANGER ) )
 				{
 					return GetScheduleOfType( SCHED_TAKE_COVER_FROM_BEST_SOUND );
@@ -991,7 +991,7 @@ Schedule_t *CHAssassin::GetSchedule( void )
 				CSound *pSound;
 				pSound = PBestSound();
 
-				ASSERT( pSound != NULL );
+				ASSERT( pSound != 0 );
 				if( pSound && ( pSound->m_iType & bits_SOUND_DANGER ) )
 				{
 					return GetScheduleOfType( SCHED_TAKE_COVER_FROM_BEST_SOUND );

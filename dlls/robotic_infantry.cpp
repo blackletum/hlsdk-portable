@@ -306,7 +306,7 @@ void Crinfantry :: JustSpoke( void )
 //=========================================================
 void Crinfantry :: PrescheduleThink ( void )
 {
-	if ( InSquad() && m_hEnemy != NULL )
+	if ( InSquad() && m_hEnemy != 0 )
 	{
 		if ( HasConditions ( bits_COND_SEE_ENEMY ) )
 		{
@@ -356,7 +356,7 @@ BOOL Crinfantry :: CheckMeleeAttack1 ( float flDot, float flDist )
 {
 	CBaseMonster *pEnemy;
 
-	if ( m_hEnemy != NULL )
+	if ( m_hEnemy != 0 )
 	{
 		pEnemy = m_hEnemy->MyMonsterPointer();
 
@@ -711,7 +711,7 @@ CBaseEntity *Crinfantry :: Kick( void )
 		return pEntity;
 	}
 
-	return NULL;
+	return 0;
 }
 
 //=========================================================
@@ -735,7 +735,7 @@ Vector Crinfantry :: GetGunPosition( )
 //=========================================================
 void Crinfantry :: Shoot ( void )
 {
-	if (m_hEnemy == NULL && m_pCine == NULL) //LRC - scripts may fire when you have no enemy
+	if (m_hEnemy == 0 && m_pCine == 0) //LRC - scripts may fire when you have no enemy
 	{
 		return;
 	}
@@ -765,7 +765,7 @@ void Crinfantry :: Shoot ( void )
 //=========================================================
 void Crinfantry :: Shotgun ( void )
 {
-	if (m_hEnemy == NULL && m_pCine == NULL)
+	if (m_hEnemy == 0 && m_pCine == 0)
 	{
 		return;
 	}
@@ -791,7 +791,7 @@ void Crinfantry :: Shotgun ( void )
 //=========================================================
 void Crinfantry :: SMG ( void )
 {
-	if (m_hEnemy == NULL && m_pCine == NULL) //LRC - scripts may fire when you have no enemy
+	if (m_hEnemy == 0 && m_pCine == 0) //LRC - scripts may fire when you have no enemy
 	{
 		return;
 	}
@@ -880,7 +880,7 @@ void Crinfantry :: HandleAnimEvent( MonsterEvent_t *pEvent )
 			if (m_pCine)
 			{
 				Vector vecToss = g_vecZero;
-				if (m_hTargetEnt != NULL && m_pCine->PreciseAttack())
+				if (m_hTargetEnt != 0 && m_pCine->PreciseAttack())
 				{
 					vecToss = VecCheckToss( pev, GetGunPosition(), m_hTargetEnt->pev->origin, 0.5 );
 				}
@@ -906,7 +906,7 @@ void Crinfantry :: HandleAnimEvent( MonsterEvent_t *pEvent )
 			if (m_pCine)
 			{
 				Vector vecToss;
-				if (m_hTargetEnt != NULL && m_pCine->PreciseAttack())
+				if (m_hTargetEnt != 0 && m_pCine->PreciseAttack())
 					vecToss = VecCheckThrow( pev, GetGunPosition(), m_hTargetEnt->pev->origin, gSkillData.hgruntGrenadeSpeed, 0.5 );
 				else
 				{
@@ -1967,7 +1967,7 @@ Schedule_t *Crinfantry :: GetSchedule( void )
 		CSound *pSound;
 		pSound = PBestSound();
 
-		ASSERT( pSound != NULL );
+		ASSERT( pSound != 0 );
 		if ( pSound)
 		{
 			if (pSound->m_iType & bits_SOUND_DANGER)
@@ -2030,10 +2030,10 @@ Schedule_t *Crinfantry :: GetSchedule( void )
 						// before he starts pluggin away.
 						if (FOkToSpeak())// && RANDOM_LONG(0,1))
 						{
-							if ((m_hEnemy != NULL) && m_hEnemy->IsPlayer())
+							if ((m_hEnemy != 0) && m_hEnemy->IsPlayer())
 								// player
 								SENTENCEG_PlayRndSz( ENT(pev), "HG_ALERT", R_INFANTRY_SENTENCE_VOLUME, R_INFANTRY_ATTN, 0, m_voicePitch);
-							else if ((m_hEnemy != NULL) &&
+							else if ((m_hEnemy != 0) &&
 									(m_hEnemy->Classify() != CLASS_PLAYER_ALLY) && 
 									(m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) && 
 									(m_hEnemy->Classify() != CLASS_MACHINE))
@@ -2071,7 +2071,7 @@ Schedule_t *Crinfantry :: GetSchedule( void )
 				// 10% chance of flinch.
 				int iPercent = RANDOM_LONG(0,99);
 
-				if ( iPercent <= 90 && m_hEnemy != NULL )
+				if ( iPercent <= 90 && m_hEnemy != 0 )
 				{
 					// only try to take cover if we actually have an enemy!
 
@@ -2312,7 +2312,7 @@ Schedule_t* Crinfantry :: GetScheduleOfType ( int Type )
 		}
 	case SCHED_FAIL:
 		{
-			if ( m_hEnemy != NULL )
+			if ( m_hEnemy != 0 )
 			{
 				// rinfantry has an enemy, so pick a different default fail schedule most likely to help recover.
 				return &slrinfantryCombatFail[ 0 ];

@@ -190,7 +190,7 @@ float EV_HLDM_PlayTextureSound( pmtrace_t *ptr, char chTextureType, int iBulletT
 	// hit the world, try to play sound based on texture material type
 	float fvol;
 	float fvolbar;
-	char* rgsz[4];
+	const char* rgsz[4];
 	int cnt;
 	float fattn = ATTN_NORM;
 

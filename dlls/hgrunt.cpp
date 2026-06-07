@@ -889,7 +889,7 @@ void CHGrunt::Shotgun( void )
 //=========================================================
 void CHGrunt :: SMG ( void )
 {
-	if (m_hEnemy == NULL && m_pCine == NULL) //LRC - scripts may fire when you have no enemy
+	if (m_hEnemy == 0 && m_pCine == 0) //LRC - scripts may fire when you have no enemy
 	{
 		return;
 	}

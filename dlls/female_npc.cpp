@@ -225,7 +225,7 @@ int	CDiana::Classify(void)
 //=========================================================
 void CDiana::AlertSound(void)
 {
-	if (m_hEnemy != NULL && !m_hEnemy->IsPlayer() && FOkToSpeak(SPEAK_DISREGARD_ENEMY))
+	if (m_hEnemy != 0 && !m_hEnemy->IsPlayer() && FOkToSpeak(SPEAK_DISREGARD_ENEMY))
 		PlaySentence("DN_ATTACK", RANDOM_FLOAT(2.8, 3.2), VOL_NORM, ATTN_IDLE);
 }
 //=========================================================
@@ -408,7 +408,7 @@ int CDiana::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float fl
 
 		// This is a heurstic to determine if the player intended to harm me
 		// If I have an enemy, we can't establish intent (may just be crossfire)
-		if (m_hEnemy == NULL)
+		if (m_hEnemy == 0)
 		{
 			// If the player was facing directly at me, or I'm already suspicious, get mad
 			if ((m_afMemory & bits_MEMORY_SUSPICIOUS) || IsFacing(pevAttacker, pev->origin))
@@ -514,7 +514,7 @@ Schedule_t* CDiana::GetScheduleOfType(int Type)
 	switch (Type)
 	{
 	case SCHED_ARM_WEAPON:
-		if (m_hEnemy != NULL)
+		if (m_hEnemy != 0)
 		{
 			return slDianaEnemyDraw;
 		}
@@ -564,7 +564,7 @@ Schedule_t* CDiana::GetSchedule(void)
 		CSound* pSound;
 		pSound = PBestSound();
 
-		ASSERT(pSound != NULL);
+		ASSERT(pSound != 0);
 		if (pSound && (pSound->m_iType & bits_SOUND_DANGER))
 			return GetScheduleOfType(SCHED_TAKE_COVER_FROM_BEST_SOUND);
 	}
@@ -614,7 +614,7 @@ Schedule_t* CDiana::GetSchedule(void)
 			return GetScheduleOfType(SCHED_SMALL_FLINCH);
 		}
 
-		if (m_hEnemy == NULL && IsFollowing())
+		if (m_hEnemy == 0 && IsFollowing())
 		{
 			if (!m_hTargetEnt->IsAlive())
 			{

@@ -279,7 +279,7 @@ void COtis :: RunTask( Task_t *pTask )
 	switch ( pTask->iTask )
 	{
 	case TASK_RANGE_ATTACK1:
-		if (m_hEnemy != NULL && (m_hEnemy->IsPlayer()))
+		if (m_hEnemy != 0 && (m_hEnemy->IsPlayer()))
 		{
 			pev->framerate = 1.5;
 		}
@@ -323,7 +323,7 @@ int	COtis :: Classify ( void )
 //=========================================================
 void COtis :: AlertSound( void )
 {
-	if ( m_hEnemy != NULL )
+	if ( m_hEnemy != 0 )
 	{
 		if ( FOkToSpeak(SPEAK_DISREGARD_ENEMY) )
 		{
@@ -388,7 +388,7 @@ BOOL COtis :: CheckRangeAttack1 ( float flDot, float flDist )
 			Vector shootTarget = ( (pEnemy->BodyTarget( shootOrigin ) - pEnemy->pev->origin) + m_vecEnemyLKP );
 			UTIL_TraceLine( shootOrigin, shootTarget, dont_ignore_monsters, ENT(pev), &tr );
 			m_checkAttackTime = gpGlobals->time + 1;
-			if ( tr.flFraction == 1.0 || (tr.pHit != NULL && CBaseEntity::Instance(tr.pHit) == pEnemy) )
+			if ( tr.flFraction == 1.0 || (tr.pHit != 0 && CBaseEntity::Instance(tr.pHit) == pEnemy) )
 				m_lastAttackCheck = TRUE;
 			else
 				m_lastAttackCheck = FALSE;
@@ -597,7 +597,7 @@ int COtis :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float 
 
 		// This is a heurstic to determine if the player intended to harm me
 		// If I have an enemy, we can't establish intent (may just be crossfire)
-		if ( m_hEnemy == NULL )
+		if ( m_hEnemy == 0 )
 		{
 			// If the player was facing directly at me, or I'm already suspicious, get mad
 			if ( (m_afMemory & bits_MEMORY_SUSPICIOUS) || IsFacing( pevAttacker, pev->origin ) )
@@ -762,7 +762,7 @@ Schedule_t* COtis :: GetScheduleOfType ( int Type )
 	switch( Type )
 	{
 	case SCHED_ARM_WEAPON:
-		if ( m_hEnemy != NULL )
+		if ( m_hEnemy != 0 )
 		{
 			// face enemy, then draw.
 			return slOtisEnemyDraw;
@@ -815,7 +815,7 @@ Schedule_t *COtis :: GetSchedule ( void )
 		CSound *pSound;
 		pSound = PBestSound();
 
-		ASSERT( pSound != NULL );
+		ASSERT( pSound != 0 );
 		if ( pSound && (pSound->m_iType & bits_SOUND_DANGER) )
 			return GetScheduleOfType( SCHED_TAKE_COVER_FROM_BEST_SOUND );
 	}
@@ -867,7 +867,7 @@ Schedule_t *COtis :: GetSchedule ( void )
 			return GetScheduleOfType( SCHED_SMALL_FLINCH );
 		}
 
-		if ( m_hEnemy == NULL && IsFollowing() )
+		if ( m_hEnemy == 0 && IsFollowing() )
 		{
 			if ( !m_hTargetEnt->IsAlive() )
 			{
