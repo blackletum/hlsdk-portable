@@ -116,7 +116,7 @@ void CSteamAchievements::OnUserStatsReceived( UserStatsReceived_t *pCallback )
 		else
 		{
 			char buffer[128];
-			_snprintf( buffer, 128, "RequestStats - failed, %d\n", pCallback->m_eResult );
+			safe_snprintf( buffer, 128, "RequestStats - failed, %d\n", pCallback->m_eResult );
 			OutputDebugString( buffer );
 		}
 	}
@@ -134,7 +134,7 @@ void CSteamAchievements::OnUserStatsStored( UserStatsStored_t *pCallback )
 		else
 		{
 			char buffer[128];
-			_snprintf( buffer, 128, "StatsStored - failed, %d\n", pCallback->m_eResult );
+			safe_snprintf( buffer, 128, "StatsStored - failed, %d\n", pCallback->m_eResult );
 			OutputDebugString( buffer );
 		}
 	}

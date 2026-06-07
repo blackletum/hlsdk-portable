@@ -85,9 +85,8 @@ bool ShouldUseConsoleFont()
 int GetMessageConsoleWidth(const char* message, unsigned int length)
 {
 	char buf[512] = {0};
-	length = Q_min(length, sizeof(buf) - 1);
-	strncpy(buf, message, length);
-	buf[length] = '\0';
+	length = Q_min(length + 1, sizeof(buf));
+	strlcpy(buf, message, length);
 	int width, height;
 	gEngfuncs.pfnDrawConsoleStringLen(buf, &width, &height);
 	return width;
@@ -116,9 +115,8 @@ int DrawStringUsingConsoleFont(int xpos, int ypos, const char *message, int r, i
 	if (length == -1) {
 		str = message;
 	} else {
-		length = Q_min(length, sizeof(buf) - 1);
-		strncpy(buf, message, length);
-		buf[length] = '\0';
+		length = Q_min(length+1, sizeof(buf));
+		strlcpy(buf, message, length);
 	}
 
 	gEngfuncs.pfnDrawSetTextColor(r / 255.0f, g / 255.0f, b / 255.0f);
@@ -530,8 +528,7 @@ bool CHudCaption::ParseCaptionsFile()
 				continue;
 			}
 
-			strncpy(captionName, pfile + currentTokenStart, tokenLength);
-			captionName[tokenLength] = '\0';
+			strlcpy(captionName, pfile + currentTokenStart, tokenLength+1);
 
 			if (tokenLength == 2 && IsLatinLowerCase(captionName[0]) && IsLatinLowerCase(captionName[1]))
 			{
@@ -571,7 +568,7 @@ bool CHudCaption::ParseCaptionsFile()
 				else
 				{
 					Caption_t& caption = captions[captionCount];
-					strncpy(caption.name, captionName, sizeof(caption.name));
+					strlcpy(caption.name, captionName, sizeof(caption.name));
 
 					SkipSpaces(pfile, i, length);
 					currentTokenStart = i;
@@ -582,8 +579,7 @@ bool CHudCaption::ParseCaptionsFile()
 					if (tokenLength > 0 && pfile[currentTokenStart] == '!')
 					{
 						char numbuf[8];
-						strncpy(numbuf, pfile + currentTokenStart + 1, Q_min(tokenLength, sizeof(numbuf)-1));
-						numbuf[sizeof(numbuf)-1] = '\0';
+						strlcpy(numbuf, pfile + currentTokenStart + 1, Q_min(tokenLength+1, sizeof(numbuf)));
 
 						caption.duration = atof(numbuf);
 
@@ -597,8 +593,7 @@ bool CHudCaption::ParseCaptionsFile()
 					if (tokenLength > 0 && pfile[currentTokenStart] >= '1' && pfile[currentTokenStart] <= '9')
 					{
 						char numbuf[8];
-						strncpy(numbuf, pfile + currentTokenStart, Q_max(tokenLength, sizeof(numbuf)-1));
-						numbuf[sizeof(numbuf)-1] = '\0';
+						strlcpy(numbuf, pfile + currentTokenStart, Q_max(tokenLength+1, sizeof(numbuf)));
 
 						caption.delay = atof(numbuf);
 
@@ -646,8 +641,7 @@ bool CHudCaption::ParseCaptionsFile()
 						continue;
 					}
 
-					strncpy(caption.message, pfile + currentTokenStart, tokenLength);
-					caption.message[tokenLength] = '\0';
+					strlcpy(caption.message, pfile + currentTokenStart, tokenLength+1);
 
 					captionCount++;
 					//gEngfuncs.Con_DPrintf("Parsed a caption. Name: %s. Profile: %c%c. Text: %s\n", caption.name, caption.profile->firstLetter, caption.profile->secondLetter, caption.message);

@@ -392,7 +392,7 @@ int __MsgFunc_Achievement(const char *pszName, int iSize, void *pbuf)
 	if (cl_fake_achievements && cl_fake_achievements->value)
 	{
 		char buf[256];
-		_snprintf(buf, sizeof(buf), "Faking \"%s\"", achievementId);
+		safe_snprintf(buf, sizeof(buf), "Faking \"%s\"", achievementId);
 		gEngfuncs.pfnCenterPrint(buf);
 	}
 	else
