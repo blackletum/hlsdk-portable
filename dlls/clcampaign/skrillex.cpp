@@ -227,7 +227,7 @@ void CSkrillex::HandleAnimEvent( MonsterEvent_t *pEvent )
 					WRITE_BYTE( 0 );		// decay * 0.1
 				MESSAGE_END();
 			}
-			if( m_hDead != NULL )
+			if( m_hDead != 0 )
 			{
 				WackBeam( -1, m_hDead );
 				WackBeam( 1, m_hDead );
@@ -247,7 +247,7 @@ void CSkrillex::HandleAnimEvent( MonsterEvent_t *pEvent )
 		{
 			ClearBeams();
 
-			if( m_hDead != NULL )
+			if( m_hDead != 0 )
 			{
 				Vector vecDest = m_hDead->pev->origin + Vector( 0, 0, 38 );
 				TraceResult trace;
@@ -318,11 +318,11 @@ BOOL CSkrillex::CheckRangeAttack2( float flDot, float flDist )
 		return FALSE;
 	}
 
-	m_hDead = NULL;
+	m_hDead = 0;
 	m_iBravery = 0;
 
-	CBaseEntity *pEntity = NULL;
-	while( ( pEntity = UTIL_FindEntityByClassname( pEntity, "monster_skrillex" ) ) != NULL )
+	CBaseEntity *pEntity = 0;
+	while( ( pEntity = UTIL_FindEntityByClassname( pEntity, "monster_skrillex" ) ) != 0 )
 	{
 		TraceResult tr;
 
@@ -345,7 +345,7 @@ BOOL CSkrillex::CheckRangeAttack2( float flDot, float flDist )
 			}
 		}
 	}
-	if( m_hDead != NULL )
+	if( m_hDead != 0 )
 		return TRUE;
 	else
 		return FALSE;
@@ -487,7 +487,7 @@ Schedule_t *CSkrillex::GetSchedule( void )
 		CSound *pSound;
 		pSound = PBestSound();
 
-		ASSERT( pSound != NULL );
+		ASSERT( pSound != 0 );
 
 		if( pSound && ( pSound->m_iType & bits_SOUND_DANGER ) )
 			return GetScheduleOfType( SCHED_TAKE_COVER_FROM_BEST_SOUND );
@@ -620,7 +620,7 @@ void CSkrillex::WackBeam( int side, CBaseEntity *pEntity )
 	if( m_iBeams >= SKRILLEX_MAX_BEAMS )
 		return;
 
-	if( pEntity == NULL )
+	if( pEntity == 0 )
 		return;
 
 	m_pBeam[m_iBeams] = CBeam::BeamCreate( "sprites/lgtning.spr", 30 );
@@ -665,7 +665,7 @@ void CSkrillex::ZapBeam( int side )
 	m_iBeams++;
 
 	pEntity = CBaseEntity::Instance( tr.pHit );
-	if( pEntity != NULL && pEntity->pev->takedamage )
+	if( pEntity != 0 && pEntity->pev->takedamage )
 	{
 		pEntity->TraceAttack( pev, gSkillData.slaveDmgZap, vecAim, &tr, DMG_SHOCK );
 	}
@@ -682,7 +682,7 @@ void CSkrillex::ClearBeams()
 		if( m_pBeam[i] )
 		{
 			UTIL_Remove( m_pBeam[i] );
-			m_pBeam[i] = NULL;
+			m_pBeam[i] = 0;
 		}
 	}
 	m_iBeams = 0;
