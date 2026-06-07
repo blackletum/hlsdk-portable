@@ -143,17 +143,19 @@ int __MsgFunc_GameMode( const char *pszName, int iSize, void *pbuf )
 int __MsgFunc_PlayMP3( const char *pszName, int iSize, void *pbuf )
 {
 	const char *pszSound;
-	char cmd[64], path[64];
-	int loop;
+	char cmd[256], path[64];
+	int loop, len;
 
 	BEGIN_READ( pbuf, iSize );
 	pszSound = READ_STRING();
 	loop = READ_BYTE();
 
-	sprintf( path, "sound/%s", pszSound );
+	len = safe_snprintf( path, sizeof( path ), "sound/%s", pszSound );
+	if( len < 0 ) return 0;
 	if( !IsXashFWGS( ))
 	{
-		sprintf( cmd, "mp3 %s %s\n", loop ? "loop" : "play", path );
+		len = safe_snprintf( cmd, sizeof( cmd ), "mp3 %s %s\n", loop ? "loop" : "play", path );
+		if( len < 0 ) return 0;
 		gEngfuncs.pfnClientCmd( cmd );
 	}
 	else
