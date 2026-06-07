@@ -4996,20 +4996,22 @@ IMPLEMENT_SAVERESTORE(CTriggerChangeCVar,CBaseEntity);
 void CTriggerChangeCVar::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	char szCommand[256];
-
+	int len;
 	if (!(pev->netname)) return;
 
 	if (ShouldToggle(useType, pev->spawnflags & SF_CVAR_ACTIVE))
 	{
 		if (pev->spawnflags & SF_CVAR_ACTIVE)
 		{
-			sprintf( szCommand, "%s \"%s\"\n",  STRING(pev->netname), m_szStoredString );
+			len = safe_snprintf( szCommand, sizeof( szCommand ),"%s \"%s\"\n",  STRING(pev->netname), m_szStoredString );
+			if( len < 0 ) strcpy( &szCommand[sizeof( szCommand )-3], "\"\n" );
 			pev->spawnflags &= ~SF_CVAR_ACTIVE;
 		}
 		else
 		{
 			strlcpy( m_szStoredString, CVAR_GET_STRING( STRING( pev->netname )), sizeof( m_szStoredString ));
-			sprintf( szCommand, "%s \"%s\"\n", STRING(pev->netname), STRING(pev->message) );
+			len = safe_snprintf( szCommand, sizeof( szCommand ), "%s \"%s\"\n", STRING(pev->netname), STRING(pev->message) );
+			if( len < 0 ) strcpy( &szCommand[sizeof( szCommand )-3], "\"\n" );
 			pev->spawnflags |= SF_CVAR_ACTIVE;
 
 			if (pev->armorvalue >= 0)
@@ -5024,10 +5026,11 @@ void CTriggerChangeCVar::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE
 void CTriggerChangeCVar::Think( void )
 {
 	char szCommand[256];
-
+	int len;
 	if (pev->spawnflags & SF_CVAR_ACTIVE)
 	{
-		sprintf( szCommand, "%s %s\n", STRING(pev->netname), m_szStoredString );
+		len = safe_snprintf( szCommand, sizeof( szCommand ), "%s %s\n", STRING(pev->netname), m_szStoredString );
+		if( len < 0 ) strcpy( &szCommand[sizeof( szCommand )-2], "\n" );
 		SERVER_COMMAND( szCommand );
 		pev->spawnflags &= ~SF_CVAR_ACTIVE;
 	}	
