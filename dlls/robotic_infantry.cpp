@@ -364,13 +364,13 @@ BOOL Crinfantry :: CheckMeleeAttack1 ( float flDot, float flDist )
 		{
 			return FALSE;
 		}
-	}
 
-	if ( flDist <= 64 && flDot >= 0.7	&& 
-		 pEnemy->Classify() != CLASS_ALIEN_BIOWEAPON &&
-		 pEnemy->Classify() != CLASS_PLAYER_BIOWEAPON )
-	{
-		return TRUE;
+		if ( flDist <= 64 && flDot >= 0.7	&& 
+		    pEnemy->Classify() != CLASS_ALIEN_BIOWEAPON &&
+		    pEnemy->Classify() != CLASS_PLAYER_BIOWEAPON )
+		{
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
