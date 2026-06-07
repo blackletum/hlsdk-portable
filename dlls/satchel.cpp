@@ -228,6 +228,7 @@ int CSatchel::AddDuplicate( CBasePlayerItem *pOriginal )
 #endif
 	return CBasePlayerWeapon::AddDuplicate( pOriginal );
 	*/
+	return FALSE;
 }
 
 //=========================================================
@@ -242,8 +243,8 @@ int CSatchel::AddToPlayer( CBasePlayer *pPlayer )
 	if( bResult )
 	{
 		return AddWeapon();
-	}
-	return FALSE;*/
+	}*/
+	return FALSE;
 }
 
 void CSatchel::Spawn()
@@ -290,6 +291,7 @@ int CSatchel::GetItemInfo( ItemInfo *p )
 BOOL CSatchel::IsUseable( void )
 {
 	/*return CanDeploy();*/
+	return FALSE;
 }
 
 BOOL CSatchel::CanDeploy( void )
@@ -304,9 +306,8 @@ BOOL CSatchel::CanDeploy( void )
 	{
 		// player isn't carrying any satchels, but has some out
 		return TRUE;
-	}
-
-	return FALSE;*/
+	}*/
+	return FALSE;
 }
 
 BOOL CSatchel::Deploy()
@@ -326,6 +327,7 @@ BOOL CSatchel::Deploy()
 	}
 #endif
 	return result;*/
+	return FALSE;
 }
 
 void CSatchel::Holster( int skiplocal /* = 0 */ )

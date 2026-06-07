@@ -132,7 +132,7 @@ void CDUSP::PrimaryAttack( void )
 
 void CDUSP::DUSPFire( float flSpread , float flCycleTime, BOOL fUseSemi )
 {
-	int left;
+	int left = 0;
 	if ( m_pPlayer->m_iShotsFired > 1)
 		m_pPlayer->m_iShotsFired = 0;
 

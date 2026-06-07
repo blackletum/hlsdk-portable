@@ -358,10 +358,10 @@ int CHudShroud::Draw(float fTime)
 	}
 	return 1;
 
-	if (gHUD.m_iFOV >= 90)
+	/*if (gHUD.m_iFOV >= 90)
 	{
 		return 1;
-	}
+	}*/
 }
 
 int CHudShroud::MsgFunc_Shroud(const char *pszName,  int iSize, void *pbuf)

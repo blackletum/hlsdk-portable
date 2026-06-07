@@ -712,7 +712,7 @@ int CBasePlayer::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 void CBasePlayer::PackDeadPlayerItems( void )
 {
 	//Atomizer
-	int iLastWeapon;
+	int iLastWeapon = 0;
 	//Atom
 	int iWeaponRules;
 	int iAmmoRules;

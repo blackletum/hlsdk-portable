@@ -2054,7 +2054,7 @@ Vector CBaseEntity::FireBulletsPlayer2( ULONG cShots, Vector vecSrc, Vector vecD
 	float flPenetrationDistance;		// distance at which the bullet is capable of penetrating a wall
 	int iCurrentDamage;   // damage of the bullet at it's current trajectory
 	float flCurrentDistance = 0.0;  //distance that the bullet has traveled so far
-	float x, y, z;
+	float x = 0, y = 0, z;
 
 	TraceResult tr;
 	Vector vecRight = gpGlobals->v_right;

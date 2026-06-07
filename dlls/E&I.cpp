@@ -127,7 +127,7 @@ void CEI::PrimaryAttack( void )
 
 void CEI::EIFire( float flSpread , float flCycleTime, BOOL fUseSemi )
 {
-	int right;
+	int right = 0;
 	if ( m_pPlayer->m_iShotsFired > 1)
 		m_pPlayer->m_iShotsFired = 0;
 
