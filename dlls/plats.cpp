@@ -818,20 +818,20 @@ void CFuncTrain::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 {
 	if ( ShouldToggle( useType ) )
 	{
-	if( pev->spawnflags & SF_TRAIN_WAIT_RETRIGGER )
-	{
+		if( pev->spawnflags & SF_TRAIN_WAIT_RETRIGGER )
+		{
 		// Move toward my target
 //			ALERT(at_console, "Unset Retrigger (use)\n");
-		pev->spawnflags &= ~SF_TRAIN_WAIT_RETRIGGER;
-		Next();
-	}
-	else
-	{
+			pev->spawnflags &= ~SF_TRAIN_WAIT_RETRIGGER;
+			Next();
+		}
+		else
+		{
 //			ALERT(at_console, "Set Retrigger (use)\n");
-		pev->spawnflags |= SF_TRAIN_WAIT_RETRIGGER;
+			pev->spawnflags |= SF_TRAIN_WAIT_RETRIGGER;
 		// Pop back to last target if it's available
-		if( pev->enemy )
-			pev->target = pev->enemy->v.targetname;
+			if( pev->enemy )
+				pev->target = pev->enemy->v.targetname;
 
 			DontThink();
 			UTIL_SetVelocity(this, g_vecZero);
@@ -842,7 +842,7 @@ void CFuncTrain::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE us
 			if ( pev->noiseMovement )
 				STOP_SOUND( edict(), CHAN_STATIC, STRING(pev->noiseMovement) );
 
-		if( pev->noiseStopMoving )
+			if( pev->noiseStopMoving )
 				EMIT_SOUND (ENT(pev), CHAN_VOICE, STRING(pev->noiseStopMoving), m_volume, ATTN_NORM);
 		}
 	}
@@ -1701,22 +1701,22 @@ void CFuncTrackTrain :: DesiredAction( void ) // Next( void )
 
 	if (!FBitSet(pev->spawnflags, SF_TRACKTRAIN_AVELOCITY)) //LRC
 	{
-	Vector delta = nextFront - pev->origin;
-	Vector angles = UTIL_VecToAngles( delta );
-	// The train actually points west
+		Vector delta = nextFront - pev->origin;
+		Vector angles = UTIL_VecToAngles( delta );
+		// The train actually points west
 		angles.y += 180; //LRC, FIXME: add a 'built facing' field.
 
-	// !!!  All of this crap has to be done to make the angles not wrap around, revisit this.
-	FixupAngles( angles );
-	FixupAngles( pev->angles );
+		// !!!  All of this crap has to be done to make the angles not wrap around, revisit this.
+		FixupAngles( angles );
+		FixupAngles( pev->angles );
 
-	if( !pnext || ( delta.x == 0 && delta.y == 0 ) )
-		angles = pev->angles;
+		if( !pnext || ( delta.x == 0 && delta.y == 0 ) )
+			angles = pev->angles;
 
 		float vy, vx, vz;
-	if( !( pev->spawnflags & SF_TRACKTRAIN_NOPITCH ) )
+		if( !( pev->spawnflags & SF_TRACKTRAIN_NOPITCH ) )
 			vx = 10*UTIL_AngleDistance( angles.x, pev->angles.x );
-	else
+		else
 			vx = m_vecBaseAvel.x;
 
 		if ( !(pev->spawnflags & SF_TRACKTRAIN_NOYAW) ) //LRC
@@ -1724,11 +1724,11 @@ void CFuncTrackTrain :: DesiredAction( void ) // Next( void )
 		else
 			vy = m_vecBaseAvel.y;
 
-	if( m_flBank != 0 )
-	{
-		if( pev->avelocity.y < -5 )
+		if( m_flBank != 0 )
+		{
+			if( pev->avelocity.y < -5 )
 				vz = UTIL_AngleDistance( UTIL_ApproachAngle( -m_flBank, pev->angles.z, m_flBank*2 ), pev->angles.z);
-		else if( pev->avelocity.y > 5 )
+			else if( pev->avelocity.y > 5 )
 				vz = UTIL_AngleDistance( UTIL_ApproachAngle( m_flBank, pev->angles.z, m_flBank*2 ), pev->angles.z);
 			else
 				vz = UTIL_AngleDistance( UTIL_ApproachAngle( 0, pev->angles.z, m_flBank*4 ), pev->angles.z) * 4;
