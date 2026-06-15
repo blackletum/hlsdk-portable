@@ -1079,12 +1079,12 @@ void CBaseButton::ButtonActivate()
 	}
 	else
 	{
-	SetMoveDone( &CBaseButton::TriggerAndWait );
-	if( !m_fRotating )
-		LinearMove( m_vecPosition2, pev->speed );
-	else
-		AngularMove( m_vecAngle2, pev->speed );
-}
+		SetMoveDone( &CBaseButton::TriggerAndWait );
+		if( !m_fRotating )
+			LinearMove( m_vecPosition2, pev->speed );
+		else
+			AngularMove( m_vecAngle2, pev->speed );
+	}
 }
 
 //
@@ -1191,7 +1191,7 @@ void CBaseButton::ButtonBackHome( void )
 				// LRC- hmm... I see. On returning, a button will only turn off multisources.
 				continue;
 
-				pTarget->Use( m_hActivator, this, USE_TOGGLE, 0 );
+			pTarget->Use( m_hActivator, this, USE_TOGGLE, 0 );
 		}
 	}
 
