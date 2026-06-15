@@ -1080,7 +1080,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 	// Holster weapon immediately, to allow it to cleanup
 	if( m_pActiveItem )
 		m_pActiveItem->Holster();
-		m_pNextItem = NULL;
+	m_pNextItem = NULL;
 
 	g_pGameRules->PlayerKilled( this, pevAttacker, g_pevLastInflictor );
 

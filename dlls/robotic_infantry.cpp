@@ -239,7 +239,7 @@ void Crinfantry :: SpeakSentence( void )
 int Crinfantry::IRelationship ( CBaseEntity *pTarget )
 {
 	//LRC- only hate alien rinfantrys if my behaviour hasn't been overridden
-	if (!m_iClass && FClassnameIs( pTarget->pev, "monster_alien_rinfantry" ) || ( FClassnameIs( pTarget->pev,  "monster_gargantua" ) ) )
+	if (!m_iClass && (FClassnameIs( pTarget->pev, "monster_alien_rinfantry" ) || ( FClassnameIs( pTarget->pev,  "monster_gargantua" ))))
 	{
 		return R_NM;
 	}
@@ -1015,7 +1015,7 @@ void Crinfantry :: HandleAnimEvent( MonsterEvent_t *pEvent )
 			}
 
 		}
-
+		break;
 		default:
 			CSquadMonster::HandleAnimEvent( pEvent );
 			break;
@@ -1187,7 +1187,7 @@ void Crinfantry :: StartTask ( Task_t *pTask )
 
 	case TASK_DIE:
 		STOP_SOUND( ENT(pev), CHAN_STATIC, "robotic_infantry/ri_work.wav" );
-
+		break;
 
 	default: 
 		CSquadMonster :: StartTask( pTask );

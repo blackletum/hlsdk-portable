@@ -361,7 +361,7 @@ void CRpg::Reload( void )
 
 	if( m_iClip == 0 )
 		iResult = DefaultReload( RPG_MAX_CLIP, RPG_RELOAD, 1.45 );
-		m_flNextPrimaryAttack = m_flNextSecondaryAttack = 2;
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 2;
 
 	if( iResult )
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 );

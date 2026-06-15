@@ -1006,7 +1006,7 @@ MONSTERSTATE CTechnician :: GetIdealState ( void )
 			if ( IsFollowing() )
 			{
 				int relationship = IRelationship( m_hEnemy );
-				if ( relationship != R_FR || relationship != R_HT && !HasConditions( bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE ) )
+				if ( (relationship != R_FR || relationship != R_HT) && !HasConditions( bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE ) )
 				{
 					// Don't go to combat if you're following the player
 					m_IdealMonsterState = MONSTERSTATE_ALERT;
@@ -1078,13 +1078,13 @@ void CTechnician::Heal( void )
     if ( m_hTargetEnt->pev->armorvalue > 100 )
         m_hTargetEnt->pev->armorvalue = 100;
 	
-	CBaseEntity* pEntity = m_hTargetEnt;
-	CBasePlayer* pPlayer = (CBasePlayer*)pEntity;
-	pPlayer->m_technicianCharges++;
-	if (pPlayer->m_technicianCharges == ACH_LOW_BATTERY_COUNT)
-	{
-		pPlayer->SetAchievement("ACH_LOW_BATTERY");
-	}
+    CBaseEntity* pEntity = m_hTargetEnt;
+    CBasePlayer* pPlayer = (CBasePlayer*)pEntity;
+    pPlayer->m_technicianCharges++;
+    if (pPlayer->m_technicianCharges == ACH_LOW_BATTERY_COUNT)
+    {
+        pPlayer->SetAchievement("ACH_LOW_BATTERY");
+    }
 
     // Don't heal again for 1 minute
     m_healTime = gpGlobals->time + 60;
