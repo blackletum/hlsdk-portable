@@ -1188,6 +1188,7 @@ void CGargantua::RunTask( Task_t *pTask )
 			CBaseMonster::RunTask( pTask );
 			break;
 		}
+		// fall through
 	case TASK_FLAME_SWEEP:
 		if( gpGlobals->time > m_flWaitFinished )
 		{
