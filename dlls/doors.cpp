@@ -711,7 +711,7 @@ void CBaseDoor::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	else if (m_toggle_state != TS_AT_BOTTOM)
 		return;
 
-		DoorActivate();
+	DoorActivate();
 }
 
 //
