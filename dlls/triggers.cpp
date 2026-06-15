@@ -1502,8 +1502,8 @@ void CRenderFxManager::Affect( CBaseEntity *pTarget, BOOL bIsFirst, CBaseEntity 
 	{
 		if ( !FBitSet( pev->spawnflags, SF_RENDER_MASKAMT ) )
 			pevTarget->renderamt = pev->renderamt * fAmtFactor;
-			if( !FBitSet( pev->spawnflags, SF_RENDER_MASKCOLOR ) )
-				pevTarget->rendercolor = pev->rendercolor;
+		if( !FBitSet( pev->spawnflags, SF_RENDER_MASKCOLOR ) )
+			pevTarget->rendercolor = pev->rendercolor;
 		if ( pev->scale )
 			pevTarget->scale = pev->scale;
 
@@ -2225,11 +2225,9 @@ void CTriggerHurt :: KeyValue( KeyValueData *pkvd )
 	else if (FStrEq(pkvd->szKeyName, "cangib"))
 	{
 		switch (atoi(pkvd->szValue))
-	{
-		case 1:
-			m_bitsDamageInflict |= DMG_ALWAYSGIB;
-		case 2:
-			m_bitsDamageInflict |= DMG_NEVERGIB;
+		{
+		case 1: m_bitsDamageInflict |= DMG_ALWAYSGIB;break;
+		case 2: m_bitsDamageInflict |= DMG_NEVERGIB;break;
 		}
 		pkvd->fHandled = TRUE;
 	}
