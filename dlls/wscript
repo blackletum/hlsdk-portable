@@ -20,7 +20,20 @@ def configure(conf):
 			conf.fatal("Could not find hl.def")
 
 def build(bld):
-	excluded_files = ['mpstubb.cpp', 'stats.cpp', 'Wxdebug.cpp']
+	excluded_files = ['mpstubb.cpp',
+			'stats.cpp',
+			'Wxdebug.cpp',
+			'crossbow.cpp',
+			'crowbar.cpp',
+			'egon.cpp',
+			'gauss.cpp',
+			'glock.cpp',
+			'handgrenade.cpp',
+			'hornetgun.cpp',
+			'mp5.cpp',
+			'python.cpp',
+			'satchel.cpp',
+			'tripmine.cpp']
 
 	source = bld.path.ant_glob('**/*.cpp', excl=excluded_files)
 	source += bld.path.parent.ant_glob(['pm_shared/*.c', 'public/safe_snprintf.c'])
@@ -43,7 +56,8 @@ def build(bld):
 		'../engine',
 		'../pm_shared',
 		'../game_shared',
-		'../public'
+		'../public',
+		'aomdc'
 	]
 
 	if bld.env.DEST_OS != 'dos' and not bld.env.ANDROID_APK:
