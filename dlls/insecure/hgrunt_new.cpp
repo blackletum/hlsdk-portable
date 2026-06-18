@@ -602,8 +602,8 @@ void CHGrunt::TraceAttack(entvars_t* pevAttacker, float flDamage, Vector vecDir,
 	if (ptr->iHitgroup == 11)
 	{
 		// make sure we're wearing one
-		if (GetBodygroup(HGRUNT_HEAD_GROUP) == HGRUNT_HEAD_MASK
-		    || GetBodygroup(HGRUNT_HEAD_GROUP) == HGRUNT_HEAD_HELMET
+		if ((GetBodygroup(HGRUNT_HEAD_GROUP) == HGRUNT_HEAD_MASK
+		    || GetBodygroup(HGRUNT_HEAD_GROUP) == HGRUNT_HEAD_HELMET)
 			&& (bitsDamageType & (DMG_BULLET | DMG_SLASH | DMG_BLAST | DMG_CLUB)) != 0)
 		{
 			// absorb damage

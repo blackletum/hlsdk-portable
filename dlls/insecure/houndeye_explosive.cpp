@@ -675,6 +675,7 @@ void CHoundeyeExplosive::StartTask(Task_t* pTask)
 	case TASK_DIE:
 		m_flWaitFinished = gpGlobals->time + 1.6;
 		DeathEffect();
+		break;
 	default:
 	{
 		CBaseMonster::StartTask(pTask);
