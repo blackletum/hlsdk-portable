@@ -756,7 +756,7 @@ void CTwinGonarch::Precache()
 
 void CTwinGonarch::Activate()
 {
-	if (m_hTargetEnt == NULL)
+	if (m_hTargetEnt == 0)
 		Remember(bits_MEMORY_ADVANCE_NODE); // Start 'er up
 }
 
@@ -1084,7 +1084,7 @@ void CTwinGonarch::RunTask(Task_t* pTask)
 	{
 		float distance;
 
-		if (m_hTargetEnt == NULL)
+		if (m_hTargetEnt == 0)
 			TaskFail();
 		else
 		{
@@ -1103,7 +1103,7 @@ void CTwinGonarch::RunTask(Task_t* pTask)
 	break;
 
 	case TASK_WAIT_NODE:
-		if (m_hTargetEnt != NULL && (m_hTargetEnt->pev->spawnflags & SF_INFOBM_WAIT) != 0)
+		if (m_hTargetEnt != 0 && (m_hTargetEnt->pev->spawnflags & SF_INFOBM_WAIT) != 0)
 			return;
 
 		if (gpGlobals->time > m_flWaitFinished)

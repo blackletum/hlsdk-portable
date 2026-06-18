@@ -152,7 +152,7 @@ int CISlaveEmpowered::Classify()
 //=========================================================
 void CISlaveEmpowered::AlertSound()
 {
-	if (m_hEnemy != NULL)
+	if (m_hEnemy != 0)
 	{
 		SENTENCEG_PlayRndSz(ENT(pev), "SLVMP_ALERT", 0.85, ATTN_NORM, 0, PITCH_NORM);
 	}
@@ -285,7 +285,7 @@ void CISlaveEmpowered::HandleAnimEvent(MonsterEvent_t* pEvent)
 			WRITE_BYTE(0);					 // decay * 0.1
 			MESSAGE_END();
 		}
-		if (m_hDead != NULL)
+		if (m_hDead != 0)
 		{
 			WackBeam(-1, m_hDead);
 			WackBeam(1, m_hDead);
@@ -355,7 +355,7 @@ void CISlaveEmpowered::HandleAnimEvent(MonsterEvent_t* pEvent)
 	{
 		ClearBeams();
 
-		if (m_hDead != NULL)
+		if (m_hDead != 0)
 		{
 			Vector vecDest = m_hDead->pev->origin + Vector(0, 0, 38);
 			TraceResult trace;
@@ -449,7 +449,7 @@ BOOL CISlaveEmpowered::CheckRangeAttack2(float flDot, float flDist)
 	m_hDead = NULL;
 
 	CBaseEntity* pEntity = NULL;
-	while ((pEntity = UTIL_FindEntityByClassname(pEntity, "monster_alien_slave_empowered")) != NULL)
+	while ((pEntity = UTIL_FindEntityByClassname(pEntity, "monster_alien_slave_empowered")) != 0)
 	{
 		TraceResult tr;
 
@@ -467,7 +467,7 @@ BOOL CISlaveEmpowered::CheckRangeAttack2(float flDot, float flDist)
 			}
 		}
 	}
-	if (m_hDead != NULL)
+	if (m_hDead != 0)
 		return TRUE;
 	else
 		return FALSE;
@@ -738,7 +738,7 @@ void CISlaveEmpowered::WackBeam(int side, CBaseEntity* pEntity)
 	if (m_iBeams >= ISLAVE_EMPOWERED_MAX_BEAMS)
 		return;
 
-	if (pEntity == NULL)
+	if (pEntity == 0)
 		return;
 
 	m_pBeam[m_iBeams] = CBeam::BeamCreate("sprites/lgtning.spr", 30);
@@ -783,7 +783,7 @@ void CISlaveEmpowered::ZapBeam(int side)
 	m_iBeams++;
 
 	pEntity = CBaseEntity::Instance(tr.pHit);
-	if (pEntity != NULL && 0 != pEntity->pev->takedamage)
+	if (pEntity != 0 && 0 != pEntity->pev->takedamage)
 	{
 		// deal extra damage to monsters, so they don't get stuck on a long fight.
 		if (!pEntity->IsPlayer())
@@ -843,7 +843,7 @@ void CISlaveEmpowered::SonicAttack()
 
 	CBaseEntity* pEntity = NULL;
 	// iterate on all entities in the vicinity.
-	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 384)) != NULL)
+	while ((pEntity = UTIL_FindEntityInSphere(pEntity, pev->origin, 384)) != 0)
 	{
 		if (pEntity->pev->takedamage != DAMAGE_NO)
 		{

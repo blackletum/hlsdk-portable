@@ -925,7 +925,7 @@ BOOL CAGruntPoisonous::FCanCheckAttacks()
 //=========================================================
 BOOL CAGruntPoisonous::CheckMeleeAttack1(float flDot, float flDist)
 {
-	if (HasConditions(bits_COND_SEE_ENEMY) && flDist <= AGRUNT_POISON_MELEE_DIST && flDot >= 0.6 && m_hEnemy != NULL)
+	if (HasConditions(bits_COND_SEE_ENEMY) && flDist <= AGRUNT_POISON_MELEE_DIST && flDot >= 0.6 && m_hEnemy != 0)
 	{
 		return TRUE;
 	}
@@ -1085,7 +1085,7 @@ Schedule_t* CAGruntPoisonous::GetSchedule()
 		CSound* pSound;
 		pSound = PBestSound();
 
-		ASSERT(pSound != NULL);
+		ASSERT(pSound != 0);
 		if (pSound && (pSound->m_iType & bits_SOUND_DANGER) != 0)
 		{
 			// dangerous sound nearby!
@@ -1182,7 +1182,7 @@ Schedule_t* CAGruntPoisonous::GetScheduleOfType(int Type)
 	case SCHED_FAIL:
 		// no fail schedule specified, so pick a good generic one.
 	{
-		if (m_hEnemy != NULL)
+		if (m_hEnemy != 0)
 		{
 			// I have an enemy
 			// !!!LATER - what if this enemy is really far away and i'm chasing him?

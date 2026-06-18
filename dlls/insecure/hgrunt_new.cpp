@@ -359,7 +359,7 @@ void CHGrunt::JustSpoke()
 //=========================================================
 void CHGrunt::PrescheduleThink()
 {
-	if (InSquad() && m_hEnemy != NULL)
+	if (InSquad() && m_hEnemy != 0)
 	{
 		if (HasConditions(bits_COND_SEE_ENEMY))
 		{
@@ -409,7 +409,7 @@ BOOL CHGrunt::CheckMeleeAttack1(float flDot, float flDist)
 {
 	CBaseMonster* pEnemy = NULL;
 
-	if (m_hEnemy != NULL)
+	if (m_hEnemy != 0)
 	{
 		pEnemy = m_hEnemy->MyMonsterPointer();
 	}
@@ -783,7 +783,7 @@ Vector CHGrunt::GetGunPosition()
 //=========================================================
 void CHGrunt::Shoot()
 {
-	if (m_hEnemy == NULL)
+	if (m_hEnemy == 0)
 	{
 		return;
 	}
@@ -810,7 +810,7 @@ void CHGrunt::Shoot()
 //=========================================================
 void CHGrunt::Shotgun()
 {
-	if (m_hEnemy == NULL)
+	if (m_hEnemy == 0)
 	{
 		return;
 	}
@@ -837,7 +837,7 @@ void CHGrunt::Shotgun()
 //=========================================================
 void CHGrunt::Sniper()
 {
-	if (m_hEnemy == NULL)
+	if (m_hEnemy == 0)
 	{
 		return;
 	}
@@ -2050,7 +2050,7 @@ Schedule_t* CHGrunt::GetSchedule()
 		CSound* pSound;
 		pSound = PBestSound();
 
-		ASSERT(pSound != NULL);
+		ASSERT(pSound != 0);
 		if (pSound)
 		{
 			if ((pSound->m_iType & bits_SOUND_DANGER) != 0)
@@ -2085,13 +2085,13 @@ Schedule_t* CHGrunt::GetSchedule()
 	{
 		// Similar to the ambush flag in the old Doom games --
 		// it will only attack when he sees you.
-		if (HasConditions(bits_COND_HEAR_SOUND) && (m_hEnemy == NULL)
+		if (HasConditions(bits_COND_HEAR_SOUND) && (m_hEnemy == 0)
 			&& (pev->spawnflags & SF_HUMAN_GRUNT_IS_DEAF) == 0)
 		{
 			CSound* pSound;
 			pSound = PBestSound();
 
-			ASSERT(pSound != NULL);
+			ASSERT(pSound != 0);
 
 			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT) != 0)
 			{
@@ -2132,10 +2132,10 @@ Schedule_t* CHGrunt::GetSchedule()
 					// before he starts pluggin away.
 					if (FOkToSpeak()) // && RANDOM_LONG(0,1))
 					{
-						if ((m_hEnemy != NULL) && m_hEnemy->IsPlayer())
+						if ((m_hEnemy != 0) && m_hEnemy->IsPlayer())
 							// player
 							SENTENCEG_PlayRndSz(ENT(pev), "HG_ALERT", HGRUNT_SENTENCE_VOLUME, HGRUNT_ATTN, 0, m_voicePitch);
-						else if ((m_hEnemy != NULL) &&
+						else if ((m_hEnemy != 0) &&
 							(m_hEnemy->Classify() != CLASS_PLAYER_ALLY) &&
 							(m_hEnemy->Classify() != CLASS_HUMAN_ASSASSIN) &&
 							(m_hEnemy->Classify() != CLASS_HUMAN_PASSIVE) &&
@@ -2174,7 +2174,7 @@ Schedule_t* CHGrunt::GetSchedule()
 			// 10% chance of flinch.
 			int iPercent = RANDOM_LONG(0, 99);
 
-			if (iPercent <= 90 && m_hEnemy != NULL)
+			if (iPercent <= 90 && m_hEnemy != 0)
 			{
 				// only try to take cover if we actually have an enemy!
 
@@ -2408,7 +2408,7 @@ Schedule_t* CHGrunt::GetScheduleOfType(int Type)
 	}
 	case SCHED_FAIL:
 	{
-		if (m_hEnemy != NULL)
+		if (m_hEnemy != 0)
 		{
 			// grunt has an enemy, so pick a different default fail schedule most likely to help recover.
 			return &slGruntCombatFail[0];

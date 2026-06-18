@@ -248,7 +248,7 @@ int CMAssassin::ISoundMask()
 //=========================================================
 void CMAssassin::PrescheduleThink()
 {
-	if (InSquad() && m_hEnemy != NULL)
+	if (InSquad() && m_hEnemy != 0)
 	{
 		if (HasConditions(bits_COND_SEE_ENEMY))
 		{
@@ -298,7 +298,7 @@ BOOL CMAssassin::CheckMeleeAttack1(float flDot, float flDist)
 {
 	CBaseMonster* pEnemy = NULL;
 
-	if (m_hEnemy != NULL)
+	if (m_hEnemy != 0)
 	{
 		pEnemy = m_hEnemy->MyMonsterPointer();
 	}
@@ -619,7 +619,7 @@ Vector CMAssassin::GetGunPosition()
 //=========================================================
 void CMAssassin::Shoot()
 {
-	if (m_hEnemy == NULL)
+	if (m_hEnemy == 0)
 	{
 		return;
 	}
@@ -646,7 +646,7 @@ void CMAssassin::Shoot()
 //=========================================================
 void CMAssassin::Sniper()
 {
-	if (m_hEnemy == NULL)
+	if (m_hEnemy == 0)
 	{
 		return;
 	}
@@ -1745,7 +1745,7 @@ Schedule_t* CMAssassin::GetSchedule()
 		CSound* pSound;
 		pSound = PBestSound();
 
-		ASSERT(pSound != NULL);
+		ASSERT(pSound != 0);
 		if (pSound)
 		{
 			if ((pSound->m_iType & bits_SOUND_DANGER) != 0)
@@ -1774,13 +1774,13 @@ Schedule_t* CMAssassin::GetSchedule()
 	{
 		// Similar to the ambush flag in the old Doom games --
 		// it will only attack when he sees you.
-		if (HasConditions(bits_COND_HEAR_SOUND) && (m_hEnemy == NULL)
+		if (HasConditions(bits_COND_HEAR_SOUND) && (m_hEnemy == 0)
 			&& (pev->spawnflags & SF_MALE_ASSASSIN_IS_DEAF) == 0)
 		{
 			CSound* pSound;
 			pSound = PBestSound();
 
-			ASSERT(pSound != NULL);
+			ASSERT(pSound != 0);
 
 			if (pSound && (pSound->m_iType & bits_SOUND_COMBAT) != 0)
 			{
@@ -1847,7 +1847,7 @@ Schedule_t* CMAssassin::GetSchedule()
 			// 10% chance of flinch.
 			int iPercent = RANDOM_LONG(0, 99);
 
-			if (iPercent <= 90 && m_hEnemy != NULL)
+			if (iPercent <= 90 && m_hEnemy != 0)
 			{
 				// only try to take cover if we actually have an enemy!
 				return GetScheduleOfType(SCHED_TAKE_COVER_FROM_ENEMY);
@@ -2048,7 +2048,7 @@ Schedule_t* CMAssassin::GetScheduleOfType(int Type)
 	}
 	case SCHED_FAIL:
 	{
-		if (m_hEnemy != NULL)
+		if (m_hEnemy != 0)
 		{
 			// grunt has an enemy, so pick a different default fail schedule most likely to help recover.
 			return &slMassnCombatFail[0];

@@ -372,7 +372,7 @@ void CAGruntPremature::HandleAnimEvent( MonsterEvent_t* pEvent )
 //=========================================================
 BOOL CAGruntPremature::CheckMeleeAttack1(float flDot, float flDist)
 {
-	if ( HasConditions( bits_COND_SEE_ENEMY ) && flDist <= AGRUNT_MELEE_DIST && flDot >= 0.6 && m_hEnemy != NULL )
+	if ( HasConditions( bits_COND_SEE_ENEMY ) && flDist <= AGRUNT_MELEE_DIST && flDot >= 0.6 && m_hEnemy != 0 )
 	{
 		return TRUE;
 	}

@@ -82,7 +82,7 @@ int CPenguinGrenade::Classify()
 	if (m_iMyClass != 0)
 		return m_iMyClass; // protect against recursion
 
-	if (m_hEnemy != NULL)
+	if (m_hEnemy != 0)
 	{
 		m_iMyClass = CLASS_INSECT; // no one cares about it
 		switch (m_hEnemy->Classify())
@@ -178,7 +178,7 @@ void CPenguinGrenade::Killed(entvars_t* pevAttacker, int iGib)
 	Detonate();
 
 	// reset owner so death message happens
-	if (m_hOwner != NULL)
+	if (m_hOwner != 0)
 		pev->owner = m_hOwner->edict();
 
 	CBaseMonster::Killed(pevAttacker, GIB_ALWAYS);
@@ -245,7 +245,7 @@ void CPenguinGrenade::HuntThink()
 
 	UTIL_MakeVectors(pev->angles);
 
-	if (m_hEnemy == NULL || !m_hEnemy->IsAlive())
+	if (m_hEnemy == 0 || !m_hEnemy->IsAlive())
 	{
 		// find target, bounce a bit towards it.
 		Look(512);
@@ -264,7 +264,7 @@ void CPenguinGrenade::HuntThink()
 	if (flpitch < 80)
 		flpitch = 80;
 
-	if (m_hEnemy != NULL)
+	if (m_hEnemy != 0)
 	{
 		if (FVisible(m_hEnemy))
 		{
@@ -347,7 +347,7 @@ void CPenguinGrenade::SuperBounceTouch(CBaseEntity* pOther)
 				// ALERT( at_console, "hit enemy\n");
 				ClearMultiDamage();
 				pOther->TraceAttack(pev, gSkillData.snarkDmgBite, gpGlobals->v_forward, &tr, DMG_SLASH);
-				if (m_hOwner != NULL)
+				if (m_hOwner != 0)
 					ApplyMultiDamage(pev, m_hOwner->pev);
 				else
 					ApplyMultiDamage(pev, pev);

@@ -533,7 +533,7 @@ void CControllerExterminator::StartTask(Task_t* pTask)
 	{
 		CBaseEntity* pEnemy = m_hEnemy;
 
-		if (pEnemy == NULL)
+		if (pEnemy == 0)
 		{
 			TaskFail();
 			return;
@@ -649,7 +649,7 @@ void CControllerExterminator::RunTask(Task_t* pTask)
 			Vector vecSrc = vecHand + pev->velocity * (m_flShootTime - gpGlobals->time);
 			Vector vecDir;
 
-			if (m_hEnemy != NULL)
+			if (m_hEnemy != 0)
 			{
 				if (HasConditions(bits_COND_SEE_ENEMY))
 				{
@@ -859,7 +859,7 @@ void CControllerExterminator::RunAI()
 
 	for (int i = 0; i < 2; i++)
 	{
-		if (m_pBall[i] == NULL)
+		if (m_pBall[i] == 0)
 		{
 			m_pBall[i] = CSprite::SpriteCreate("sprites/xspark4.spr", pev->origin, true);
 			m_pBall[i]->SetTransparency(kRenderGlow, 255, 0, 0, 255, kRenderFxNoDissipation);
@@ -1223,7 +1223,7 @@ void CControllerExHeadBall::HuntThink()
 	MESSAGE_END();
 
 	// check world boundaries
-	if (gpGlobals->time - pev->dmgtime > 5 || pev->renderamt < 64 || m_hEnemy == NULL || m_hOwner == NULL || pev->origin.x < -4096 || pev->origin.x > 4096 || pev->origin.y < -4096 || pev->origin.y > 4096 || pev->origin.z < -4096 || pev->origin.z > 4096)
+	if (gpGlobals->time - pev->dmgtime > 5 || pev->renderamt < 64 || m_hEnemy == 0 || m_hOwner == 0 || pev->origin.x < -4096 || pev->origin.x > 4096 || pev->origin.y < -4096 || pev->origin.y > 4096 || pev->origin.z < -4096 || pev->origin.z > 4096)
 	{
 		SetTouch(NULL);
 		UTIL_Remove(this);
@@ -1239,7 +1239,7 @@ void CControllerExHeadBall::HuntThink()
 		UTIL_TraceLine(pev->origin, m_hEnemy->Center(), dont_ignore_monsters, ENT(pev), &tr);
 
 		CBaseEntity* pEntity = CBaseEntity::Instance(tr.pHit);
-		if (pEntity != NULL && 0 != pEntity->pev->takedamage)
+		if (pEntity != 0 && 0 != pEntity->pev->takedamage)
 		{
 			ClearMultiDamage();
 			pEntity->TraceAttack(m_hOwner->pev, gSkillData.controllerExtDmgZap, pev->velocity, &tr, DMG_SHOCK);
@@ -1414,7 +1414,7 @@ void CControllerExZapBall::ExplodeTouch(CBaseEntity* pOther)
 		TraceResult tr = UTIL_GetGlobalTrace();
 
 		entvars_t* pevOwner;
-		if (m_hOwner != NULL)
+		if (m_hOwner != 0)
 		{
 			pevOwner = m_hOwner->pev;
 		}

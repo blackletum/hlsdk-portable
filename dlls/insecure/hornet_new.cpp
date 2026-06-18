@@ -243,13 +243,13 @@ void CHornetPoison::TrackTarget()
 	}
 
 	// UNDONE: The player pointer should come back after returning from another level
-	if (m_hEnemy == NULL)
+	if (m_hEnemy == 0)
 	{ // enemy is dead.
 		Look(512);
 		m_hEnemy = BestVisibleEnemy();
 	}
 
-	if (m_hEnemy != NULL && FVisible(m_hEnemy))
+	if (m_hEnemy != 0 && FVisible(m_hEnemy))
 	{
 		m_vecEnemyLKP = m_hEnemy->BodyTarget(pev->origin);
 	}
@@ -304,7 +304,7 @@ void CHornetPoison::TrackTarget()
 
 	// if hornet is close to the enemy, jet in a straight line for a half second.
 	// (only in the single player game)
-	if (m_hEnemy != NULL && !g_pGameRules->IsMultiplayer())
+	if (m_hEnemy != 0 && !g_pGameRules->IsMultiplayer())
 	{
 		if (flDelta >= 0.4 && (pev->origin - m_vecEnemyLKP).Length() <= 300)
 		{
@@ -390,7 +390,7 @@ void CHornetPoison::DieTouch(CBaseEntity* pOther)
 
 	//Only deal damage if the owner exists in this map.
 	//Hornets that transition without their owner (e.g. Alien Grunt) will otherwise pass a null pointer down to TakeDamage.
-	if (pOther && 0 != pOther->pev->takedamage && NULL != pev->owner)
+	if (pOther && 0 != pOther->pev->takedamage && 0 != pev->owner)
 	{ // do the damage
 		pOther->TakeDamage(pev, VARS(pev->owner), pev->dmg, DMG_POISON);
 	}
