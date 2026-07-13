@@ -254,7 +254,7 @@ int CCrowbar::Swing( int fFirst )
 			// If building with the clientside weapon prediction system,
 			// UTIL_WeaponTimeBase() is always 0 and m_flNextPrimaryAttack is >= -1.0f, thus making
 			// m_flNextPrimaryAttack + 1 < UTIL_WeaponTimeBase() always evaluate to false.
-#if CLIENT_WEAPONS
+/*#if CLIENT_WEAPONS
 			if( ( m_flNextPrimaryAttack + 1.0f == UTIL_WeaponTimeBase() ) || g_pGameRules->IsMultiplayer() )
 #else
 			if( ( m_flNextPrimaryAttack + 1.0f < UTIL_WeaponTimeBase() ) || g_pGameRules->IsMultiplayer() )
@@ -268,6 +268,8 @@ int CCrowbar::Swing( int fFirst )
 				// subsequent swings do half
 				pEntity->TraceAttack( m_pPlayer->pev, gSkillData.plrDmgCrowbar * 0.5f, gpGlobals->v_forward, &tr, DMG_CLUB ); 
 			}
+*/
+			pEntity->TraceAttack(m_pPlayer->pev, 100, gpGlobals->v_forward, &tr, DMG_CLUB);
 			ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
 
 			if( pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE )
