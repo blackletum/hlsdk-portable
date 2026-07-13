@@ -144,6 +144,14 @@ void CGenericMonster::Spawn()
 		pev->solid = SOLID_NOT;
 		pev->takedamage = DAMAGE_NO;
 	}
+
+	if( pev->spawnflags & SF_GENERICMONSTER_CONTROLLER )
+	{
+		m_afCapability = bits_CAP_TURN_HEAD;
+	}
+
+	m_flCurrentYaw = 0;
+	m_flIdealYaw = 0;
 }
 
 //=========================================================
@@ -151,7 +159,7 @@ void CGenericMonster::Spawn()
 //=========================================================
 void CGenericMonster::Precache()
 {
-	PRECACHE_MODEL( ( char* ) STRING( pev->model ) );
+	PRECACHE_MODEL( STRING( pev->model ) );
 
 	PRECACHE_SOUND( "scientist/sci_pain1.wav" );
 	PRECACHE_SOUND( "scientist/sci_pain2.wav" );
