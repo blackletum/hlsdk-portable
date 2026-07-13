@@ -59,7 +59,7 @@ void CMP5::Spawn()
 #else
 	if( g_pGameRules->IsMultiplayer() )
 #endif
-		m_iDefaultAmmo = MP5_DEFAULT_GIVE;
+		m_iDefaultAmmo = MP5_DEFAULT_GIVE_MP;
 
 	FallInit();// get ready to fall down.
 }
