@@ -360,6 +360,7 @@ void CGameRules::RefreshSkillData ( void )
 
 	// MONSTER HORNET
 	gSkillData.monDmgHornet = GetSkillCvar( "sk_hornet_dmg" );
+	gSkillData.monDmgHornetAlt = GetSkillCvar("sk_hornet_alt_dmg");
 
 	// PLAYER HORNET
 	gSkillData.plrDmgHornet = GetSkillCvar( "sk_plr_hornet_dmg" );
