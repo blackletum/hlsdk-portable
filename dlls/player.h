@@ -257,7 +257,7 @@ public:
 	int Classify ( void );
 	void SetAnimation( PLAYER_ANIM playerAnim );
 	void SetWeaponAnimType( const char *szExtention );
-	const char *m_pszAnimExtention;
+	char m_szAnimExtention[32];
 
 	// custom player functions
 	virtual void ImpulseCommands( void );

@@ -128,7 +128,7 @@ BOOL CQuakeGun::Deploy( )
 {
 	m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_crowbar.mdl");
 	m_pPlayer->pev->weaponmodel = MAKE_STRING("models/p_9mmhandgun.mdl");
-	m_pPlayer->m_pszAnimExtention = "onehanded";
+	strcpy( m_pPlayer->m_szAnimExtention, "onehanded" );
 
 #if CLIENT_DLL
 	g_flLightTime = 0.0;

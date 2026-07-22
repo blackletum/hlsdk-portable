@@ -444,7 +444,7 @@ void CBasePlayer::Spawn( void )
 BOOL CQuakeGun::Deploy( )
 {
 	gEngfuncs.CL_LoadModel( "models/v_axe.mdl", &m_pPlayer->pev->viewmodel );
-	m_pPlayer->m_pszAnimExtention = "onehanded";
+	strcpy( m_pPlayer->m_szAnimExtention, "onehanded" );
 	return TRUE;
 }
 

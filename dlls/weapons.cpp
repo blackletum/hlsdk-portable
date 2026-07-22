@@ -939,7 +939,7 @@ BOOL CBasePlayerWeapon::DefaultDeploy( const char *szViewModel, const char *szWe
 
 	m_pPlayer->pev->viewmodel = MAKE_STRING( szViewModel );
 	m_pPlayer->pev->weaponmodel = MAKE_STRING( szWeaponModel );
-	m_pPlayer->m_pszAnimExtention = szAnimExt;
+	strcpy( m_pPlayer->m_szAnimExtention, szAnimExt );
 	SendWeaponAnim( iAnim, skiplocal );
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5f;
